@@ -5,32 +5,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Support IDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Red+Hat+Display:wght@700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Themeable Colors */
-      --bg-nav: #252526;
-      --bg-sidebar: #252526;
-      --bg-content: #1e1e1e;
-      --bg-notes: #1e1e1e;
-      --accent: #E91E63;
-      --url-card-color: #00bcd4;
-      --text-main: #e0e0e0;
+      /* Carino design tokens (branding.carino.systems) */
+      --bg-nav: #0d0d0d;
+      --bg-sidebar: #0b0b0b;
+      --bg-content: #050505;
+      --bg-notes: #0b0b0b;
+      --bg-elev: #0d0d0d;
+      --accent: #eab308;            /* Sharp Gold — the one accent */
+      --accent-faint: rgba(234,179,8,0.06);
+      --accent-glow: rgba(234,179,8,0.15);
+      --url-card-color: #eab308;
+      --text-main: #a3a3a3;
       --text-header: #ffffff;
-      
+      --text-muted: #666666;
+
       /* Static Colors */
-      --border: #3e3e42;
-      --status-ongoing: #007acc;
-      --status-pending: #d19a66;
-      --status-done: #6a9955;
-      --tab-inactive: rgba(0,0,0,0.2);
+      --border: #262626;
+      --status-ongoing: #38bdf8;
+      --status-pending: #eab308;
+      --status-done: #22c55e;
+      --tab-inactive: rgba(255,255,255,0.03);
       --tab-active: var(--bg-content);
+
+      --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      --display: 'Red Hat Display', var(--sans);
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0; padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: var(--sans);
       background: var(--bg-content);
       color: var(--text-main);
       height: 100vh;
@@ -40,11 +50,12 @@
 
     /* --- UI COMPONENTS --- */
     #notification-toast {
-      position: fixed; top: 20px; right: 20px;
-      background: var(--status-done); color: white;
-      padding: 10px 20px; border-radius: 4px;
-      font-weight: 600; font-size: 13px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      position: fixed; top: 76px; right: 20px;
+      background: rgba(34,197,94,0.10); color: #86efac;
+      border: 1px solid rgba(34,197,94,0.5);
+      padding: 10px 16px; border-radius: 8px;
+      font-family: var(--mono); font-weight: 700; font-size: 0.76rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       z-index: 9999; opacity: 0; pointer-events: none;
       transform: translateY(-10px); transition: all 0.2s ease;
     }
@@ -60,8 +71,8 @@
 
     .tab {
       height: 35px; padding: 0 15px; display: flex; align-items: center;
-      gap: 8px; background: var(--tab-inactive); color: #888;
-      font-size: 12px; cursor: pointer; border-right: 1px solid var(--border);
+      gap: 8px; background: var(--tab-inactive); color: var(--text-muted);
+      font-family: var(--mono); font-size: 12px; cursor: pointer; border-right: 1px solid var(--border);
       min-width: 120px; max-width: 200px; position: relative;
     }
     .tab.active {
@@ -78,14 +89,14 @@
     .tab.status-pending .tab-status-dot { background: var(--status-pending); }
     .tab.status-done .tab-status-dot    { background: var(--status-done); }
 
-    .tab-close { margin-left: auto; font-size: 14px; padding: 2px 4px; border-radius: 2px; }
-    .tab-close:hover { background: #444; color: #fff; }
+    .tab-close { margin-left: auto; font-size: 14px; padding: 2px 5px; border-radius: 4px; }
+    .tab-close:hover { background: var(--accent-faint); color: var(--accent); }
 
     #new-tab-btn {
       height: 35px; width: 35px; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: #aaa; font-size: 18px;
+      cursor: pointer; color: var(--text-muted); font-size: 18px; border-radius: 6px;
     }
-    #new-tab-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    #new-tab-btn:hover { color: #050505; background: var(--accent); }
 
     /* Right Controls (Lang + Info) */
     .top-right-controls {
@@ -93,33 +104,36 @@
     }
 
     #lang-select {
-      background: rgba(0,0,0,0.3); border: 1px solid var(--border);
-      color: #ccc; font-size: 11px; border-radius: 4px; padding: 2px 5px;
-      outline: none; cursor: pointer; height: 24px; margin-bottom: 5px;
+      background: var(--bg-elev); border: 1px solid var(--border);
+      color: var(--text-main); font-family: var(--mono); font-size: 11px;
+      border-radius: 6px; padding: 4px 6px;
+      outline: none; cursor: pointer; height: 30px;
     }
-    #lang-select:hover { border-color: var(--accent); color: #fff; }
+    #lang-select:hover, #lang-select:focus { border-color: var(--accent); color: var(--text-header); }
 
-    #info-btn, #dim-btn, #reset-btn {
-      width: 24px; height: 24px;
+    #dim-btn, #reset-btn {
+      width: 30px; height: 30px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: #888; border-radius: 4px;
-      font-size: 14px; margin-bottom: 5px;
+      cursor: pointer; color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px;
+      font-size: 14px; transition: 0.18s;
     }
-    #info-btn:hover, #dim-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    #dim-btn.dim-on { color: var(--accent); }
-    #reset-btn:hover { background: rgba(255,255,255,0.1); color: #e74c3c; }
+    #dim-btn:hover { border-color: var(--accent); background: var(--accent); color: #050505; }
+    #dim-btn.dim-on { color: var(--accent); border-color: var(--accent); }
+    #reset-btn:hover { border-color: var(--err, #ef4444); color: #ef4444; background: rgba(239,68,68,0.08); }
 
     /* Search */
     #command-palette {
-      height: 40px; display: flex; align-items: center; padding: 0 10px;
+      height: 48px; display: flex; align-items: center; padding: 0 14px;
       border-bottom: 1px solid var(--border); background: var(--bg-content);
     }
     #search-box {
-      width: 100%; background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border); color: var(--text-main);
-      padding: 6px 10px; font-size: 13px; border-radius: 2px; outline: none;
+      width: 100%; background: var(--bg-elev);
+      border: 1px solid var(--border); color: var(--text-header);
+      padding: 8px 12px; font-family: var(--mono); font-size: 13px; border-radius: 8px; outline: none;
+      transition: 0.15s;
     }
-    #search-box:focus { border-color: var(--accent); }
+    #search-box::placeholder { color: var(--text-muted); }
+    #search-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-faint); }
 
     /* Layout */
     #workspace { display: flex; flex: 1; overflow: hidden; position: relative; }
@@ -133,15 +147,15 @@
     .sidebar-section { padding: 15px; overflow-y: auto; flex: 1; }
     .control-group { margin-bottom: 12px; }
     .control-group label {
-      display: block; font-size: 11px; text-transform: uppercase;
-      color: var(--text-main); opacity: 0.7; margin-bottom: 4px; font-weight: 600;
+      display: block; font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-muted); opacity: 1; margin-bottom: 5px; font-weight: 500;
     }
     .input-std {
-      width: 100%; background: rgba(0,0,0,0.3);
-      border: 1px solid var(--border); color: var(--text-main);
-      padding: 6px 8px; font-size: 12px; outline: none;
+      width: 100%; background: var(--bg-elev);
+      border: 1px solid var(--border); color: var(--text-header); border-radius: 6px;
+      padding: 8px 10px; font-family: var(--mono); font-size: 0.8rem; outline: none; transition: 0.15s;
     }
-    .input-std:focus { border-color: var(--accent); }
+    .input-std:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-faint); }
 
     .sidebar-footer {
       padding: 10px; background: rgba(0,0,0,0.2);
@@ -151,15 +165,16 @@
     .full-span { grid-column: span 2; }
 
     .btn {
-      background: rgba(255,255,255,0.05);
+      background: transparent;
       border: 1px solid var(--border); color: var(--text-main);
-      padding: 8px 10px; font-size: 11px; cursor: pointer;
-      text-align: center; text-transform: uppercase;
-      font-weight: 600; transition: background 0.1s;
+      padding: 9px 10px; font-family: var(--mono); font-size: 0.66rem; cursor: pointer;
+      text-align: center; text-transform: uppercase; letter-spacing: 0.05em;
+      font-weight: 700; border-radius: 6px; transition: 0.18s;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .btn:hover { background: rgba(255,255,255,0.1); color: var(--text-header); }
-    .btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-faint); }
+    .btn.primary { background: var(--accent); color: #050505; border-color: var(--accent); }
+    .btn.primary:hover { background: #fbbf24; color: #050505; box-shadow: 0 4px 16px var(--accent-glow); }
 
     #content-area {
       flex: 1; padding: 20px; overflow-y: auto;
@@ -167,9 +182,10 @@
     }
 
     .category-header {
-      font-size: 13px; font-weight: bold; color: var(--accent);
-      border-bottom: 1px solid var(--border); padding-bottom: 5px;
-      margin-top: 20px; margin-bottom: 10px; text-transform: uppercase;
+      font-family: var(--mono); font-size: 0.7rem; font-weight: 700; color: var(--accent);
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--border); padding-bottom: 7px;
+      margin-top: 24px; margin-bottom: 12px; text-transform: uppercase;
     }
     .category-header:first-child { margin-top: 0; }
 
@@ -179,19 +195,16 @@
     }
 
     .card {
-      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-      padding: 10px; cursor: pointer;
-      font-family: 'Consolas', monospace; font-size: 12px;
-      color: var(--text-main); transition: all 0.1s;
+      background: var(--bg-card); border: 1px solid var(--border);
+      padding: 12px; cursor: pointer; border-radius: 10px;
+      font-family: var(--mono); font-size: 12px;
+      color: var(--text-main); transition: all 0.2s;
     }
-    .card:hover { background: rgba(255,255,255,0.08); border-color: #666; }
-    .card:active { border-color: var(--accent); transform: translateY(1px); }
-    .card strong { color: var(--accent); display: block; margin-bottom: 5px; opacity: 0.9; }
-    .highlight-var { color: var(--text-header); font-weight: bold; background: rgba(255,255,255,0.1); padding: 0 2px; }
+    .card:hover { background: linear-gradient(145deg,#17120a 0%,#0b0b0b 100%); border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.5), 0 0 18px var(--accent-glow); }
+    .card:active { border-color: var(--accent); transform: translateY(0); }
+    .card strong { color: var(--accent); display: block; margin-bottom: 6px; }
+    .highlight-var { color: var(--text-header); font-weight: bold; background: var(--accent-faint); border: 1px solid var(--accent-glow); border-radius: 3px; padding: 0 3px; }
 
-    .card.url-card { border-color: rgba(0,188,212,0.3); }
-    .card.url-card:hover { border-color: var(--url-card-color); }
-    .card.url-card:active { border-color: var(--url-card-color); }
     .card.url-card strong { color: var(--url-card-color); }
     .card.card-dim { opacity: 0.2; }
     .control-group.field-filter-focus > label {
@@ -201,8 +214,8 @@
       content: " ◉"; font-size: 9px; vertical-align: middle;
     }
     .filter-preview {
-      display: block; font-size: 10px; font-family: 'Consolas', monospace;
-      color: var(--text-main); opacity: 0.5; margin-top: 3px;
+      display: block; font-size: 10px; font-family: var(--mono);
+      color: var(--text-muted); margin-top: 3px;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 
@@ -216,70 +229,46 @@
     #notes-drawer.maximized { height: 90%; border-top: 4px solid var(--accent); }
 
     .drawer-header {
-      height: 30px; background: rgba(0,0,0,0.2); padding: 0 15px;
+      height: 30px; background: var(--bg-card); padding: 0 15px;
       display: flex; align-items: center; justify-content: space-between;
-      font-size: 11px; text-transform: uppercase; color: var(--text-main);
+      font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-muted);
       cursor: row-resize; user-select: none;
     }
-    .drawer-controls span { margin-left: 10px; cursor: pointer; padding: 2px 6px; }
-    .drawer-controls span:hover { color: var(--text-header); background: #444; }
+    .drawer-controls span { margin-left: 10px; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+    .drawer-controls span:hover { color: var(--accent); background: var(--accent-faint); }
 
     #note-input {
       flex: 1; width: 100%; background: transparent; border: none;
-      color: var(--text-main); padding: 15px; resize: none;
-      font-family: 'Consolas', monospace; font-size: 13px; outline: none;
+      color: var(--text-header); padding: 15px; resize: none;
+      font-family: var(--mono); font-size: 13px; outline: none;
     }
-
-    /* Overlay */
-    #about-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
-      z-index: 99999; display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s;
-    }
-    #about-overlay.open { opacity: 1; pointer-events: all; }
-    .about-card {
-      background: var(--bg-sidebar); border: 1px solid var(--border);
-      width: 400px; max-width: 90%; padding: 30px;
-      border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-      text-align: center;
-    }
-    .about-card h2 { margin-top: 0; color: var(--accent); }
-    .about-card p { font-size: 14px; color: var(--text-main); line-height: 1.6; margin-bottom: 25px; }
-    .social-btns { display: flex; gap: 10px; justify-content: center; }
-    .social-btn {
-      text-decoration: none; padding: 10px 20px; border-radius: 4px;
-      font-weight: 600; font-size: 13px; color: white; transition: transform 0.1s;
-    }
-    .social-btn:hover { transform: translateY(-2px); }
-    .btn-gh { background: #333; }
-    .btn-li { background: #0077b5; }
-    .close-overlay { margin-top: 20px; cursor: pointer; color: #888; font-size: 12px; text-decoration: underline; }
+    #note-input::placeholder { color: var(--text-muted); }
 
     #jsonUpload { display: none; }
+    #welcome-msg h3 { font-family: var(--display); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--text-header); }
     ::-webkit-scrollbar { width: 10px; height: 10px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #424242; }
-    ::-webkit-scrollbar-thumb:hover { background: #4f4f4f; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+    /* --- Tab bar merged INTO the Carino navbar (via data-carino-actions) --- */
+    #carinoNav #top-bar { height: auto; background: transparent; border: none; padding: 0; align-items: center; gap: 6px; }
+    #carinoNav #tabs-container { display: flex; gap: 4px; overflow-x: auto; max-width: 46vw; scrollbar-width: thin; }
+    #carinoNav .tab { height: 34px; min-width: auto; max-width: 170px; padding: 0 10px; border: 1px solid #262626; border-right: 1px solid #262626; border-radius: 6px; background: rgba(255,255,255,0.04); }
+    #carinoNav .tab.active { border: 1px solid var(--accent); margin-bottom: 0; background: rgba(234,179,8,0.12); color: #fff; }
+    #carinoNav .tab.status-ongoing.active { border-color: var(--status-ongoing); }
+    #carinoNav .tab.status-pending.active { border-color: var(--status-pending); }
+    #carinoNav .tab.status-done.active    { border-color: var(--status-done); }
+    #carinoNav #new-tab-btn { height: 34px; width: 34px; border-radius: 6px; color: #aaa; }
+    #carinoNav .top-right-controls { height: auto; margin-left: 6px; }
   </style>
 </head>
 <body>
 
   <div id="notification-toast">📋 Copied!</div>
 
-  <div id="about-overlay">
-    <div class="about-card">
-      <h2>Support IDE</h2>
-      <p>A high-efficiency, multi-session customer support console designed to streamline snippet management and workflow tracking.</p>
-      <div class="social-btns">
-        <a href="https://github.com/MiguelCarino/" target="_blank" class="social-btn btn-gh">GitHub</a>
-        <a href="https://www.linkedin.com/in/miguelcarino94/" target="_blank" class="social-btn btn-li">LinkedIn</a>
-      </div>
-      <div class="close-overlay" onclick="toggleAbout()">Close</div>
-    </div>
-  </div>
-
-  <div id="top-bar">
+  <div id="top-bar" data-carino-actions>
     <div id="tabs-container" style="display:flex;"></div>
     <div id="new-tab-btn" title="New Ticket">+</div>
     
@@ -289,7 +278,6 @@
       </select>
       <div id="dim-btn" title="Toggle card dimming">◉</div>
       <div id="reset-btn" title="Reset — delete all stored data and load default template">↺</div>
-      <div id="info-btn" onclick="toggleAbout()">ⓘ</div>
     </div>
   </div>
 
@@ -532,9 +520,6 @@
   }
 
   // --- GENERAL UI ---
-  function toggleAbout() { document.getElementById("about-overlay").classList.toggle("open"); }
-  document.getElementById("about-overlay").addEventListener("click", (e) => { if(e.target.id === "about-overlay") toggleAbout(); });
-
   document.getElementById("reset-btn").addEventListener("click", () => {
     if (!confirm("Reset everything?\n\nThis will delete all stored data and reload the default template.")) return;
     localStorage.removeItem(LS_CONFIG);

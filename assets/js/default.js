@@ -5,12 +5,13 @@ const DEFAULT_CONFIG = {
   },
 
   "theme": {
-    "accent": "#E91E63",
-    "nav": "#1a1a1a",
-    "sidebar": "#202020",
-    "content": "#121212",
-    "notes": "#1a1a1a",
-    "textMain": "#e0e0e0",
+    "accent": "#eab308",
+    "urlCard": "#eab308",
+    "nav": "#0d0d0d",
+    "sidebar": "#0b0b0b",
+    "content": "#050505",
+    "notes": "#0b0b0b",
+    "textMain": "#a3a3a3",
     "textHeader": "#ffffff"
   },
 
