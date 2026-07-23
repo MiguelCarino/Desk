@@ -1,7 +1,11 @@
 const DEFAULT_CONFIG = {
   "config": {
     "defaultLang": "pt",
-    "supportedLangs": ["es", "en", "pt"]
+    "supportedLangs": ["es", "en", "pt"],
+    /* Universal footer line for exported flow PNGs. Per-flow override via
+       flow.footer: a string = custom text, false (or "none") = no footer.
+       Set flowFooter to "" to disable the footer everywhere. */
+    "flowFooter": "support.carino.systems"
   },
 
   "theme": {
@@ -72,6 +76,155 @@ const DEFAULT_CONFIG = {
       "es": "Texto del paso — la primera línea es el encabezado…",
       "en": "Step text — first line is the heading…",
       "pt": "Texto do passo — a primeira linha é o título…" },
+
+    "copyChars": { "es": "caracteres", "en": "chars", "pt": "caracteres" },
+    "copyFailed": {
+      "es": "⚠ No se pudo copiar — portapapeles bloqueado",
+      "en": "⚠ Copy failed — clipboard blocked",
+      "pt": "⚠ Falha ao copiar — área de transferência bloqueada" },
+    "fillTitle": { "es": "Completar campos", "en": "Fill in fields", "pt": "Preencher campos" },
+    "fillCopy": { "es": "📋 Copiar", "en": "📋 Copy", "pt": "📋 Copiar" },
+    "fillOpen": { "es": "↗ Abrir", "en": "↗ Open", "pt": "↗ Abrir" },
+    "fillMissing": { "es": "campos sin completar", "en": "unfilled fields", "pt": "campos não preenchidos" },
+    "closedToast": {
+      "es": "cerrado — Alt+Z lo restaura",
+      "en": "closed — Alt+Z restores",
+      "pt": "fechado — Alt+Z restaura" },
+    "restoredToast": { "es": "restaurado", "en": "restored", "pt": "restaurado" },
+    "trashEmpty": {
+      "es": "No hay tickets cerrados para restaurar",
+      "en": "No closed tickets to restore",
+      "pt": "Não há tickets fechados para restaurar" },
+
+    "kbdBtnTitle": { "es": "Atajos de teclado", "en": "Keyboard shortcuts", "pt": "Atalhos de teclado" },
+    "kbdOverlayTitle": { "es": "Atajos de Teclado", "en": "Keyboard Shortcuts", "pt": "Atalhos de Teclado" },
+    "kbdGroupGlobal": { "es": "Globales", "en": "Global", "pt": "Globais" },
+    "kbdGroupIdle": { "es": "Fuera de campos de texto", "en": "Outside text fields", "pt": "Fora de campos de texto" },
+    "kbdGroupSearch": { "es": "En la búsqueda", "en": "In the search box", "pt": "Na pesquisa" },
+    "searchNoResults": {
+      "es": "Sin resultados para esta búsqueda",
+      "en": "No results match your search",
+      "pt": "Nenhum resultado para esta pesquisa" },
+    "searchClearTitle": { "es": "Borrar búsqueda", "en": "Clear search", "pt": "Limpar pesquisa" },
+    "langSwitched": { "es": "Idioma", "en": "Language", "pt": "Idioma" },
+    "flowDiscardConfirm": {
+      "es": "¿Descartar los cambios sin guardar de este flujo?",
+      "en": "Discard unsaved changes to this flow?",
+      "pt": "Descartar as alterações não salvas deste fluxo?" },
+
+    "kFocusSearch": { "es": "Ir a la búsqueda", "en": "Focus search", "pt": "Ir para a pesquisa" },
+    "kSaveLog": { "es": "Guardar log del caso", "en": "Save case log", "pt": "Salvar log do caso" },
+    "kBackup": { "es": "Descargar respaldo", "en": "Download backup", "pt": "Baixar backup" },
+    "kRestoreClosed": { "es": "Restaurar ticket cerrado", "en": "Restore closed ticket", "pt": "Restaurar ticket fechado" },
+    "kEscStack": {
+      "es": "Cerrar / limpiar (capa por capa)",
+      "en": "Close / clear (layer by layer)",
+      "pt": "Fechar / limpar (camada por camada)" },
+    "kShortcutOverlay": { "es": "Mostrar u ocultar los atajos", "en": "Toggle shortcuts overlay", "pt": "Mostrar ou ocultar os atalhos" },
+    "kCycleLang": { "es": "Cambiar de idioma", "en": "Cycle language", "pt": "Alternar idioma" },
+    "kOpenNotes": { "es": "Abrir las notas", "en": "Open notes", "pt": "Abrir as notas" },
+    "kCycleDrawer": {
+      "es": "Ciclar el tamaño del panel de notas",
+      "en": "Cycle notes drawer size",
+      "pt": "Alternar o tamanho do painel de notas" },
+    "kToggleDim": {
+      "es": "Atenuar tarjetas no relacionadas",
+      "en": "Toggle card dimming",
+      "pt": "Atenuar cartões não relacionados" },
+    "kNavCards": { "es": "Mover la selección de tarjetas", "en": "Move card selection", "pt": "Mover a seleção de cartões" },
+    "kCopySelected": {
+      "es": "Copiar/abrir la selección y limpiar la búsqueda",
+      "en": "Copy/open selection, clear search",
+      "pt": "Copiar/abrir a seleção e limpar a pesquisa" },
+    "kCopyKeepQuery": {
+      "es": "Copiar/abrir manteniendo la búsqueda",
+      "en": "Copy/open keeping the query",
+      "pt": "Copiar/abrir mantendo a pesquisa" },
+
+    "kSwitchTicket": { "es": "Ir al ticket 1–9", "en": "Switch to ticket 1–9", "pt": "Ir para o ticket 1–9" },
+    "kPrevNextTicket": { "es": "Ticket anterior / siguiente", "en": "Previous / next ticket", "pt": "Ticket anterior / seguinte" },
+    "kCycleStatus": { "es": "Cambiar el estado del ticket", "en": "Cycle ticket status", "pt": "Alternar o status do ticket" },
+    "kCloseTicket": { "es": "Cerrar el ticket (recuperable)", "en": "Close ticket (undoable)", "pt": "Fechar o ticket (recuperável)" },
+    "kToggleTimeline": {
+      "es": "Alternar notas / cronología",
+      "en": "Toggle notes / timeline",
+      "pt": "Alternar notas / linha do tempo" },
+    "kDigest": { "es": "Abrir el resumen de tickets", "en": "Open ticket digest", "pt": "Abrir o resumo dos tickets" },
+
+    "tabRenameHint": { "es": "Doble clic para renombrar", "en": "Double-click to rename", "pt": "Clique duplo para renomear" },
+    "lastTabToast": {
+      "es": "No se puede cerrar el último ticket",
+      "en": "Cannot close the last ticket",
+      "pt": "Não é possível fechar o último ticket" },
+
+    "pasteIntakeHeader": { "es": "--- mensaje pegado ---", "en": "--- pasted intake ---", "pt": "--- mensagem colada ---" },
+    "pasteToast": {
+      "es": "📥 Ticket creado con el texto pegado — Alt+Z lo deshace",
+      "en": "📥 Ticket created from paste — Alt+Z undoes",
+      "pt": "📥 Ticket criado com o texto colado — Alt+Z desfaz" },
+
+    "timelineHeader": { "es": "🕒 Cronología", "en": "🕒 Timeline", "pt": "🕒 Linha do tempo" },
+    "timelineToggleTitle": { "es": "Notas / cronología", "en": "Notes / timeline", "pt": "Notas / linha do tempo" },
+    "timelineEmpty": {
+      "es": "Aún no hay eventos en este ticket",
+      "en": "No events yet for this ticket",
+      "pt": "Ainda não há eventos neste ticket" },
+    "evCreated": { "es": "Ticket creado", "en": "Ticket created", "pt": "Ticket criado" },
+    "evClosed": { "es": "Ticket cerrado", "en": "Ticket closed", "pt": "Ticket fechado" },
+    "evRestored": { "es": "Ticket restaurado", "en": "Ticket restored", "pt": "Ticket restaurado" },
+    "evPasted": {
+      "es": "Ticket creado con texto pegado",
+      "en": "Ticket created from pasted text",
+      "pt": "Ticket criado com texto colado" },
+
+    "btnDigest": { "es": "📊 Resumen", "en": "📊 Digest", "pt": "📊 Resumo" },
+    "digestTitle": { "es": "Resumen de Tickets", "en": "Ticket Digest", "pt": "Resumo de Tickets" },
+    "digestTickets": { "es": "tickets", "en": "tickets", "pt": "tickets" },
+    "digestDone": { "es": "finalizados", "en": "done", "pt": "concluídos" },
+    "digestOngoing": { "es": "en curso", "en": "ongoing", "pt": "em andamento" },
+    "digestPending": { "es": "pendientes", "en": "pending", "pt": "pendentes" },
+    "digestRequester": { "es": "Solicitante", "en": "Requester", "pt": "Solicitante" },
+    "digestSummary": { "es": "Resumen", "en": "Summary", "pt": "Resumo" },
+    "downloadTxt": { "es": "⬇ Descargar .txt", "en": "⬇ Download .txt", "pt": "⬇ Baixar .txt" },
+
+    "sheetTitle": { "es": "Hoja de Caso", "en": "Case Sheet", "pt": "Folha do Caso" },
+    "sheetIncludeNotes": { "es": "Incluir notas internas", "en": "Include internal notes", "pt": "Incluir notas internas" },
+    "sheetCopyMd": { "es": "📋 Copiar Markdown", "en": "📋 Copy Markdown", "pt": "📋 Copiar Markdown" },
+    "sheetPrint": { "es": "🖨 Imprimir", "en": "🖨 Print", "pt": "🖨 Imprimir" },
+    "sheetDetails": { "es": "Detalles del caso", "en": "Case details", "pt": "Detalhes do caso" },
+    "sheetNotes": { "es": "Notas internas", "en": "Internal notes", "pt": "Notas internas" },
+    "sheetTimeline": { "es": "Cronología", "en": "Timeline", "pt": "Linha do tempo" },
+    "sheetSignature": { "es": "Atendido por", "en": "Handled by", "pt": "Atendido por" },
+    "sheetField": { "es": "Campo", "en": "Field", "pt": "Campo" },
+    "sheetValue": { "es": "Valor", "en": "Value", "pt": "Valor" },
+    "sheetStatusLabel": { "es": "Estado", "en": "Status", "pt": "Status" },
+    "sheetLogId": { "es": "ID de registro", "en": "Log ID", "pt": "ID do registro" },
+    "sheetDateLabel": { "es": "Fecha", "en": "Date", "pt": "Data" },
+
+    "pinnedSection": { "es": "★ Fijados", "en": "★ Pinned", "pt": "★ Fixados" },
+    "pinTip": { "es": "Fijar / quitar de fijados", "en": "Pin / unpin", "pt": "Fixar / desafixar" },
+    "pinnedToast": { "es": "📌 Fijado en ★", "en": "📌 Pinned to ★", "pt": "📌 Fixado em ★" },
+    "unpinnedToast": { "es": "Quitado de ★", "en": "Unpinned from ★", "pt": "Removido de ★" },
+
+    "quickEditTitle": { "es": "✎ Edición rápida", "en": "✎ Quick Edit", "pt": "✎ Edição rápida" },
+    "quickEditTip": { "es": "Editar antes de copiar", "en": "Edit before copying", "pt": "Editar antes de copiar" },
+    "langChipTip": { "es": "Copiar en este idioma", "en": "Copy in this language", "pt": "Copiar neste idioma" },
+
+    "composerLabel": { "es": "Borrador", "en": "Composer", "pt": "Rascunho" },
+    "composerAdded": { "es": "añadido al borrador", "en": "added to the composer", "pt": "adicionado ao rascunho" },
+    "composerCopyAll": { "es": "📋 Copiar todo", "en": "📋 Copy All", "pt": "📋 Copiar tudo" },
+    "composerClear": { "es": "🧹 Vaciar", "en": "🧹 Clear", "pt": "🧹 Esvaziar" },
+    "composerRemoveTip": { "es": "Clic para quitar", "en": "Click to remove", "pt": "Clique para remover" },
+    "kConfirm": {
+      "es": "Confirmación contextual (modal / borrador)",
+      "en": "Contextual confirm (modal / composer)",
+      "pt": "Confirmação contextual (modal / rascunho)" },
+
+    "flowFieldFooter": { "es": "Pie de página (PNG)", "en": "PNG footer", "pt": "Rodapé (PNG)" },
+    "flowFooterUniversal": { "es": "Universal", "en": "Universal", "pt": "Universal" },
+    "flowFooterCustom": { "es": "Personalizado", "en": "Custom", "pt": "Personalizado" },
+    "flowFooterNone": { "es": "Sin pie", "en": "None", "pt": "Sem rodapé" },
+    "flowFooterTextLabel": { "es": "Texto del pie", "en": "Footer text", "pt": "Texto do rodapé" },
 
     "Consultoría": { "es": "Consultoría", "en": "Consulting", "pt": "Consultoria" },
     "Desarrollo y Entregas": { "es": "Desarrollo y Entregas", "en": "Development & Delivery", "pt": "Desenvolvimento e Entregas" },

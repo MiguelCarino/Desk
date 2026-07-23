@@ -59,6 +59,10 @@
       transform: translateY(-10px); transition: all 0.2s ease;
     }
     #notification-toast.show { opacity: 1; transform: translateY(0); }
+    #notification-toast.toast-error {
+      background: rgba(239,68,68,0.12); color: #fca5a5;
+      border-color: rgba(239,68,68,0.6);
+    }
 
     /* Top Bar */
     #top-bar {
@@ -110,13 +114,13 @@
     }
     #lang-select:hover, #lang-select:focus { border-color: var(--accent); color: var(--text-header); }
 
-    #dim-btn, #reset-btn {
+    #dim-btn, #reset-btn, #kbd-btn {
       width: 30px; height: 30px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px;
       font-size: 14px; transition: 0.18s;
     }
-    #dim-btn:hover { border-color: var(--accent); background: var(--accent); color: #050505; }
+    #dim-btn:hover, #kbd-btn:hover { border-color: var(--accent); background: var(--accent); color: #050505; }
     #dim-btn.dim-on { color: var(--accent); border-color: var(--accent); }
     #reset-btn:hover { border-color: var(--err, #ef4444); color: #ef4444; background: rgba(239,68,68,0.08); }
 
@@ -133,6 +137,40 @@
     }
     #search-box::placeholder { color: var(--text-muted); }
     #search-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-faint); }
+    #search-wrap { position: relative; flex: 1; display: flex; align-items: center; }
+    #search-box { padding-right: 30px; }
+    #search-clear {
+      position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+      cursor: pointer; color: var(--text-muted); font-size: 12px;
+      padding: 2px 5px; border-radius: 4px; user-select: none;
+    }
+    #search-clear:hover { color: var(--accent); background: var(--accent-faint); }
+    #search-count {
+      margin-left: 10px; font-family: var(--mono); font-size: 11px;
+      color: var(--text-muted); white-space: nowrap;
+    }
+    #search-count.single-hit { color: var(--accent); font-weight: 700; }
+    #search-empty {
+      font-family: var(--mono); font-size: 12px; color: var(--text-muted);
+      text-align: center; padding: 40px 0; display: none;
+    }
+    .card.card-selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    /* Keyboard shortcuts overlay */
+    #shortcut-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 700; display: none; overflow-y: auto; }
+    #shortcut-overlay .flow-editor { max-width: 560px; }
+    .kbd-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .kbd-keys { min-width: 170px; display: flex; align-items: center; gap: 3px; flex-shrink: 0; flex-wrap: wrap; }
+    .kbd {
+      font-family: var(--mono); font-size: 11px; color: var(--text-header);
+      background: var(--bg-content); border: 1px solid var(--border);
+      border-bottom-width: 2px; border-radius: 4px; padding: 1px 6px;
+    }
+    .kbd-plus { color: var(--text-muted); font-size: 10px; }
+    .kbd-desc { font-size: 12px; color: var(--text-main); }
 
     /* Layout */
     #workspace { display: flex; flex: 1; overflow: hidden; position: relative; }
@@ -198,11 +236,23 @@
       padding: 12px; cursor: pointer; border-radius: 10px;
       font-family: var(--mono); font-size: 12px;
       color: var(--text-main); transition: all 0.2s;
+      position: relative;
     }
     .card:hover { background: linear-gradient(145deg,#17120a 0%,#0b0b0b 100%); border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.5), 0 0 18px var(--accent-glow); }
     .card:active { border-color: var(--accent); transform: translateY(0); }
     .card strong { color: var(--accent); display: block; margin-bottom: 6px; }
     .highlight-var { color: var(--text-header); font-weight: bold; background: var(--accent-faint); border: 1px solid var(--accent-glow); border-radius: 3px; padding: 0 3px; }
+    .highlight-var.unresolved {
+      color: #fbbf24; background: transparent;
+      border: none; border-bottom: 1px dashed #fbbf24; border-radius: 0;
+    }
+    .unresolved-badge {
+      position: absolute; top: 6px; right: 8px;
+      font-size: 10px; font-family: var(--mono); font-weight: 700;
+      color: #fbbf24; background: rgba(251,191,36,0.08);
+      border: 1px solid rgba(251,191,36,0.4); border-radius: 4px;
+      padding: 0 5px; pointer-events: none;
+    }
 
     .card.url-card strong { color: var(--url-card-color); }
     .card.card-dim { opacity: 0.2; }
@@ -269,6 +319,8 @@
       display: inline-flex; align-items: center; justify-content: center;
     }
     #flow-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 500; display: none; overflow-y: auto; }
+    #fill-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 600; display: none; overflow-y: auto; }
+    #fill-modal .flow-editor { max-width: 420px; }
     .flow-editor {
       max-width: 720px; margin: 50px auto; background: var(--bg-elev);
       border: 1px solid var(--border); border-radius: 10px; padding: 18px;
@@ -298,6 +350,120 @@
     .flow-editor-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
     .flow-hint { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin: 8px 0 0; }
 
+    /* --- T2: named tabs, timeline, digest, case sheet --- */
+    .tab .tab-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tab .tab-num {
+      font-size: 9px; color: var(--text-muted); line-height: 1;
+      margin-left: 2px; align-self: flex-start; padding-top: 6px; pointer-events: none;
+    }
+    .tab.active .tab-num { color: var(--accent); }
+    .tab-rename {
+      width: 96px; background: var(--bg-elev); border: 1px solid var(--accent);
+      color: var(--text-header); font-family: var(--mono); font-size: 11px;
+      border-radius: 4px; padding: 2px 4px; outline: none;
+    }
+
+    #timeline-list {
+      flex: 1; overflow-y: auto; padding: 10px 15px; display: none;
+      font-family: var(--mono); font-size: 12px; color: var(--text-main);
+    }
+    .timeline-row { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.03); white-space: pre-wrap; }
+    .timeline-time { color: var(--accent); margin-right: 8px; }
+    #timeline-toggle.drawer-mode-on { color: var(--accent); }
+
+    #digest-modal, #sheet-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      z-index: 650; display: none; overflow-y: auto;
+    }
+    #digest-text {
+      background: var(--bg-content); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px; font-family: var(--mono); font-size: 12px; color: var(--text-main);
+      white-space: pre-wrap; max-height: 55vh; overflow-y: auto; margin: 0;
+    }
+
+    #sheet-body {
+      background: var(--bg-content); border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px 18px; font-size: 12.5px; max-height: 60vh; overflow-y: auto;
+    }
+    #sheet-body h2 { margin: 2px 0 4px; font-family: var(--display); color: var(--text-header); font-size: 1.1rem; }
+    #sheet-body h4 {
+      margin: 12px 0 6px; font-family: var(--mono); font-size: 10px;
+      text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent);
+    }
+    .sheet-company { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+    .sheet-meta { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+    .sheet-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-family: var(--mono); font-size: 11.5px; }
+    .sheet-table th, .sheet-table td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; }
+    .sheet-table th { color: var(--accent); text-transform: uppercase; font-size: 10px; letter-spacing: 0.08em; }
+    .sheet-notes-text { white-space: pre-wrap; font-family: var(--mono); font-size: 11.5px; margin: 0; }
+    .sheet-timeline-list { list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: 11px; }
+    .sheet-timeline-list li { padding: 2px 0; }
+    .sheet-sign {
+      margin-top: 16px; font-family: var(--mono); font-size: 11px; color: var(--text-main);
+      border-top: 1px dashed var(--border); padding-top: 10px;
+    }
+    #sheet-notes-row {
+      display: flex; align-items: center; gap: 8px; margin-top: 10px;
+      font-family: var(--mono); font-size: 11px; color: var(--text-main); cursor: pointer;
+    }
+    #sheet-notes-row input { accent-color: var(--accent); }
+
+    @media print {
+      body.printing > *:not(#sheet-modal) { display: none !important; }
+      body.printing #sheet-modal { position: static; background: #fff; overflow: visible; }
+      body.printing #sheet-modal .flow-editor { margin: 0; max-width: none; border: none; background: #fff; padding: 0; }
+      body.printing #sheet-modal h3, body.printing #sheet-notes-row,
+      body.printing #sheet-modal .flow-editor-foot { display: none !important; }
+      body.printing #sheet-body { max-height: none; overflow: visible; border: none; background: #fff; }
+      body.printing #sheet-body, body.printing #sheet-body * { color: #000 !important; }
+      body.printing .sheet-table th, body.printing .sheet-table td { border-color: #999; }
+      body.printing .sheet-sign { border-top-color: #999; }
+    }
+
+    /* --- T3: card hover tools, quick-edit modal, composer tray --- */
+    .card-tools {
+      position: absolute; top: 5px; right: 6px; z-index: 2;
+      display: none; gap: 4px; align-items: center;
+    }
+    .card:hover .card-tools, .card:focus-within .card-tools { display: flex; }
+    .card:hover .unresolved-badge { display: none; }
+    .card-tool {
+      font-family: var(--mono); font-size: 11px; line-height: 1;
+      padding: 3px 5px; border-radius: 4px; cursor: pointer; user-select: none;
+      background: var(--bg-elev); border: 1px solid var(--border); color: var(--text-muted);
+      transition: 0.15s;
+    }
+    .card-tool:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-faint); }
+    .card-tool.tool-active { color: var(--accent); border-color: var(--accent); }
+    .card-tool.lang-chip { font-size: 9px; font-weight: 700; letter-spacing: 0.04em; }
+
+    #quick-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 600; display: none; overflow-y: auto; }
+    #quick-modal .flow-editor { max-width: 560px; }
+    #quick-text {
+      width: 100%; min-height: 180px; resize: vertical; background: var(--bg-content);
+      border: 1px solid var(--border); color: var(--text-header); border-radius: 6px;
+      padding: 10px 12px; font-family: var(--mono); font-size: 0.8rem; outline: none; transition: 0.15s;
+    }
+    #quick-text:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-faint); }
+
+    #composer-dock {
+      position: absolute; left: 300px; right: 0; bottom: 150px; z-index: 101;
+      display: flex; align-items: center; gap: 8px; padding: 6px 12px;
+      background: var(--bg-elev); border-top: 1px solid var(--border);
+      font-family: var(--mono); font-size: 11px; color: var(--text-main);
+    }
+    #notes-drawer.minimized ~ #composer-dock { bottom: 30px; }
+    #notes-drawer.maximized ~ #composer-dock { display: none !important; }
+    #composer-dock:focus { outline: none; box-shadow: inset 0 0 0 1px var(--accent); }
+    #composer-count { color: var(--accent); font-weight: 700; white-space: nowrap; }
+    #composer-chips { display: flex; gap: 6px; overflow-x: auto; flex: 1; scrollbar-width: thin; }
+    .composer-chip {
+      border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px;
+      cursor: pointer; white-space: nowrap; background: var(--bg-content);
+    }
+    .composer-chip:hover { border-color: #ef4444; color: #fca5a5; }
+    #composer-dock .btn { padding: 5px 8px; }
+
     /* --- Tab bar merged INTO the Carino navbar (via data-carino-actions) --- */
     #carinoNav #top-bar { height: auto; background: transparent; border: none; padding: 0; align-items: center; gap: 6px; }
     #carinoNav #tabs-container { display: flex; gap: 4px; overflow-x: auto; max-width: 46vw; scrollbar-width: thin; }
@@ -322,13 +488,18 @@
       <select id="lang-select">
         <option value="en">EN</option>
       </select>
+      <div id="kbd-btn" title="Keyboard shortcuts">?</div>
       <div id="dim-btn" title="Toggle card dimming">◉</div>
       <div id="reset-btn" title="Reset — delete all stored data and load default template">↺</div>
     </div>
   </div>
 
   <div id="command-palette">
-    <input type="text" id="search-box" placeholder="Search..." />
+    <div id="search-wrap">
+      <input type="text" id="search-box" placeholder="Search..." />
+      <span id="search-clear" title="Clear search" style="display:none;">✕</span>
+    </div>
+    <span id="search-count" style="display:none;"></span>
   </div>
 
   <div id="workspace">
@@ -348,7 +519,8 @@
         <button class="btn" id="btn-clear">🧹 Clear</button>
         <button class="btn" id="btn-load" onclick="document.getElementById('jsonUpload').click()">📂 Load</button>
         <button class="btn" id="btn-backup">💾 Backup</button>
-        <button class="btn primary" id="btn-save">📄 Save Log</button>
+        <button class="btn" id="btn-digest">📊 Digest</button>
+        <button class="btn primary full-span" id="btn-save">📄 Save Log</button>
       </div>
     </aside>
 
@@ -364,12 +536,21 @@
       <div class="drawer-header" id="drawer-handle">
         <span id="note-header-text">📝 Notes</span>
         <div class="drawer-controls">
+          <span id="timeline-toggle" title="Notes / timeline" onclick="toggleTimeline()">🕒</span>
           <span onclick="resizeDrawer('minimized')">_</span>
           <span onclick="resizeDrawer('normal')">☐</span>
           <span onclick="resizeDrawer('maximized')">🗖</span>
         </div>
       </div>
       <textarea id="note-input" placeholder="..."></textarea>
+      <div id="timeline-list"></div>
+    </div>
+
+    <div id="composer-dock" tabindex="0" style="display:none;">
+      <span id="composer-count">📝 0</span>
+      <div id="composer-chips"></div>
+      <button class="btn" id="composer-copy">📋 Copy All</button>
+      <button class="btn" id="composer-clear">🧹 Clear</button>
     </div>
   </div>
 
@@ -386,6 +567,20 @@
           <input type="text" id="flow-tag-input" class="input-std" placeholder="e.g. End Users">
         </div>
       </div>
+      <div class="flow-editor-row">
+        <div class="control-group">
+          <label>PNG footer</label>
+          <select id="flow-footer-mode" class="input-std">
+            <option value="universal">Universal</option>
+            <option value="custom">Custom</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+        <div class="control-group" id="flow-footer-custom-group" style="display:none;">
+          <label>Footer text</label>
+          <input type="text" id="flow-footer-input" class="input-std" placeholder="support.carino.systems">
+        </div>
+      </div>
       <div id="flow-steps"></div>
       <button class="btn" id="flow-add-step">➕ Add Step</button>
       <p class="flow-hint">Paste a screenshot (Ctrl+V) to attach it to the selected step · first line of a step = heading</p>
@@ -397,6 +592,62 @@
   </div>
   <input type="file" id="flow-img-upload" accept="image/*" style="display:none">
 
+  <div id="fill-modal">
+    <div class="flow-editor">
+      <h3 id="fill-title">Fill in fields</h3>
+      <div id="fill-fields"></div>
+      <div class="flow-editor-foot">
+        <button class="btn" id="fill-cancel">Cancel</button>
+        <button class="btn primary" id="fill-confirm">📋 Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="digest-modal">
+    <div class="flow-editor">
+      <h3 id="digest-title">Ticket Digest</h3>
+      <pre id="digest-text"></pre>
+      <div class="flow-editor-foot">
+        <button class="btn" id="digest-download">⬇ Download .txt</button>
+        <button class="btn primary" id="digest-copy">📋 Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sheet-modal">
+    <div class="flow-editor">
+      <h3 id="sheet-title">Case Sheet</h3>
+      <div id="sheet-body"></div>
+      <label id="sheet-notes-row">
+        <input type="checkbox" id="sheet-include-notes">
+        <span id="sheet-include-label">Include internal notes</span>
+      </label>
+      <div class="flow-editor-foot">
+        <button class="btn" id="sheet-print">🖨 Print</button>
+        <button class="btn" id="sheet-download">⬇ Download .txt</button>
+        <button class="btn primary" id="sheet-copy">📋 Copy Markdown</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="shortcut-overlay">
+    <div class="flow-editor">
+      <h3 id="shortcut-title">Keyboard Shortcuts</h3>
+      <div id="shortcut-list"></div>
+    </div>
+  </div>
+
+  <div id="quick-modal">
+    <div class="flow-editor">
+      <h3 id="quick-title">✎ Quick Edit</h3>
+      <textarea id="quick-text"></textarea>
+      <div class="flow-editor-foot">
+        <button class="btn" id="quick-cancel">Cancel</button>
+        <button class="btn primary" id="quick-copy">📋 Copy</button>
+      </div>
+    </div>
+  </div>
+
   <input type="file" id="jsonUpload" accept=".json" />
   <script src="./assets/js/default.js"></script>
 <script>
@@ -404,8 +655,7 @@
   
 
   // --- STATE ---
-  const hostHash = Math.random().toString(36).substring(2, 8).toUpperCase();
-  let sessions = []; 
+  let sessions = [];
   let activeSessionId = null;
   let snippetConfig = {}; 
   let filters = {};
@@ -414,12 +664,15 @@
   let fieldCards = {};
   let focusedField = null;
   let dimmingEnabled = true;
-  let currentLang = "en"; // Default
+  // Resolved during init: localStorage → config.config.defaultLang → 'en'
+  let currentLang = localStorage.getItem("support_ide_lang") || "";
   let defaultLangFallback = "en";
 
   const LS_CONFIG = "support_ide_config";
   const LS_SESSIONS = "support_ide_sessions";
   const LS_ACTIVE = "support_ide_active";
+  const LS_LANG = "support_ide_lang";
+  const LS_TRASH = "support_ide_trash";
 
   // --- INIT ---
   window.addEventListener('load', () => {
@@ -446,6 +699,7 @@
     // If we have saved sessions AND we loaded a saved config, restore them.
     if(savedConfig && savedSessions && JSON.parse(savedSessions).length > 0) {
       sessions = JSON.parse(savedSessions);
+      sessions.forEach(s => { if(!s.logId) s.logId = newLogId(); if(!Array.isArray(s.events)) s.events = []; }); // backfill legacy sessions
       activeSessionId = savedActive ? parseInt(savedActive) : sessions[0].id;
       if(!sessions.find(s => s.id === activeSessionId)) activeSessionId = sessions[0].id;
       renderTabs();
@@ -460,11 +714,18 @@
     }
   });
 
-  setInterval(() => {
-    if(activeSessionId) saveCurrentStateToMemory(); 
+  let persistSuppressed = false; // set during reset so beforeunload can't resurrect wiped keys
+  function persistNow() {
+    if(persistSuppressed) return;
+    if(activeSessionId) saveCurrentStateToMemory();
     localStorage.setItem(LS_SESSIONS, JSON.stringify(sessions));
     localStorage.setItem(LS_ACTIVE, activeSessionId);
-  }, 2000);
+  }
+  setInterval(persistNow, 2000);
+  window.addEventListener("beforeunload", persistNow);
+  document.addEventListener("visibilitychange", () => {
+    if(document.visibilityState === "hidden") persistNow();
+  });
 
   // --- LANGUAGE ENGINE ---
   function initLanguageSelector(config) {
@@ -492,6 +753,7 @@
     
     select.addEventListener("change", (e) => {
         currentLang = e.target.value;
+        localStorage.setItem(LS_LANG, currentLang);
         refreshUI();
     });
   }
@@ -572,7 +834,8 @@
     if(!dict) return;
     const map = {
         "btn-load": dict.btnLoad, "btn-backup": dict.btnBackup, "btn-save": dict.btnSave, "btn-clear": dict.btnClear,
-        "search-box": dict.searchPlaceholder, "note-input": dict.notesPlaceholder 
+        "btn-digest": dict.btnDigest,
+        "search-box": dict.searchPlaceholder, "note-input": dict.notesPlaceholder
     };
 
     Object.keys(map).forEach(id => {
@@ -587,14 +850,21 @@
     if(dict.statusOngoing) document.querySelector("option[value='ongoing']").innerText = getLocalizedText(dict.statusOngoing);
     if(dict.statusPending) document.querySelector("option[value='pending']").innerText = getLocalizedText(dict.statusPending);
     if(dict.statusDone) document.querySelector("option[value='done']").innerText = getLocalizedText(dict.statusDone);
+
+    document.getElementById("kbd-btn").title = flowT("kbdBtnTitle", "Keyboard shortcuts");
+    document.getElementById("search-clear").title = flowT("searchClearTitle", "Clear search");
+    document.getElementById("timeline-toggle").title = flowT("timelineToggleTitle", "Notes / timeline");
   }
 
   // --- GENERAL UI ---
   document.getElementById("reset-btn").addEventListener("click", () => {
     if (!confirm("Reset everything?\n\nThis will delete all stored data and reload the default template.")) return;
-    localStorage.removeItem(LS_CONFIG);
-    localStorage.removeItem(LS_SESSIONS);
-    localStorage.removeItem(LS_ACTIVE);
+    persistNow();
+    persistSuppressed = true;
+    // Wipe every app key (config, sessions, active, flows, trash, lang, …)
+    Object.keys(localStorage)
+      .filter(k => k.indexOf("support_ide_") === 0)
+      .forEach(k => localStorage.removeItem(k));
     location.reload();
   });
 
@@ -609,16 +879,36 @@
     applyFieldCardFiltering();
   });
 
-  function showToast(msg) {
+  function showToast(msg, isError = false) {
     const el = document.getElementById("notification-toast");
-    el.textContent = msg; el.classList.add("show");
+    el.textContent = msg;
+    el.classList.toggle("toast-error", !!isError);
+    el.classList.add("show");
     setTimeout(() => el.classList.remove("show"), 2000);
   }
 
+  // ONE shared clipboard helper — every writeText call goes through here.
+  // Resolves true on success so callers can record frecency (T3).
+  async function copyToClipboard(text, describe) {
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast(`📋 ${describe} · ${text.length} ${flowT("copyChars", "chars")}`);
+      return true;
+    } catch(e) {
+      showToast(flowT("copyFailed", "⚠ Copy failed — clipboard blocked"), true);
+      return false;
+    }
+  }
+
   // --- TABS ---
+  function newLogId() {
+    return Date.now().toString(36).slice(-5).toUpperCase() +
+           Math.random().toString(36).slice(2, 5).toUpperCase();
+  }
+
   function createNewSession(useDefaults = false) {
     const id = Date.now();
-    const newSession = { id: id, title: `Ticket ${sessions.length + 1}`, status: 'ongoing', data: {}, note: "" };
+    const newSession = { id: id, logId: newLogId(), title: `Ticket ${sessions.length + 1}`, status: 'ongoing', data: {}, note: "", events: [] };
     
     if(snippetConfig.fields) {
       Object.keys(snippetConfig.fields).forEach(k => {
@@ -630,12 +920,16 @@
       });
     }
     sessions.push(newSession);
+    logEvent("create", flowT("evCreated", "Ticket created"), newSession);
     switchTab(id);
     renderTabs();
   }
 
   function switchTab(id) {
     if (activeSessionId) saveCurrentStateToMemory();
+    // Switching away from a paste-created ticket disarms its Alt+Z undo
+    // (Alt+Z reverts to plain restore-from-trash, even if the user comes back).
+    if (pasteUndoId && id !== pasteUndoId) pasteUndoId = null;
     activeSessionId = id;
     const session = sessions.find(s => s.id === id);
     if(!session) return; 
@@ -661,8 +955,10 @@
     document.getElementById("note-input").value = session.note || "";
     document.getElementById("status-select").value = session.status;
     updateNoteHeader(session.title);
+    applyDrawerMode();
     renderTabs();
-    refreshUI(); 
+    refreshUI();
+    renderComposer(); // T3: restore this session's composer tray
   }
 
   function saveCurrentStateToMemory() {
@@ -675,24 +971,112 @@
     session.status = document.getElementById("status-select").value;
   }
 
+  // --- CLOSED-TICKET RING BUFFER (last 5, undoable via Alt+Z) ---
+  let sessionTrash = [];
+  try {
+    const t = JSON.parse(localStorage.getItem(LS_TRASH));
+    if (Array.isArray(t)) sessionTrash = t;
+  } catch(e) {}
+
+  function saveTrash() {
+    try { localStorage.setItem(LS_TRASH, JSON.stringify(sessionTrash)); } catch(e) {}
+  }
+
   function closeTab(e, id) {
     e.stopPropagation();
     if (sessions.length === 1) return alert("Cannot close last tab");
+    persistNow();
     const index = sessions.findIndex(s => s.id === id);
-    sessions.splice(index, 1);
+    const closed = sessions.splice(index, 1)[0];
+    logEvent("close", flowT("evClosed", "Ticket closed"), closed);
+    closed.closedAt = Date.now();
+    sessionTrash.push(closed);
+    while (sessionTrash.length > 5) sessionTrash.shift();
+    saveTrash();
+    showToast(`🗑 ${closed.title} ${flowT("closedToast", "closed — Alt+Z restores")}`);
     if (id === activeSessionId) switchTab(sessions[Math.max(0, index - 1)].id);
     else renderTabs();
+  }
+
+  function restoreLastClosed() {
+    // T2 paste-intake undo: while the pasted ticket is still active, Alt+Z
+    // closes it back through the normal trash path (so it stays recoverable).
+    if (pasteUndoId && pasteUndoId === activeSessionId && sessions.length > 1) {
+      const undoId = pasteUndoId;
+      pasteUndoId = null;
+      closeTab({ stopPropagation() {} }, undoId);
+      return;
+    }
+    const s = sessionTrash.pop();
+    if (!s) return showToast(flowT("trashEmpty", "No closed tickets to restore"));
+    saveTrash();
+    delete s.closedAt;
+    if (!s.logId) s.logId = newLogId();
+    sessions.push(s);
+    logEvent("restore", flowT("evRestored", "Ticket restored"), s);
+    renderTabs();
+    switchTab(s.id);
+    persistNow();
+    showToast(`↩ ${s.title} ${flowT("restoredToast", "restored")}`);
+  }
+  window.restoreLastClosed = restoreLastClosed;
+
+  // T2 — derived tab names: customTitle → requesterName → filtered ticketID → Ticket N
+  function deriveTabTitle(s, index) {
+    const d = s.data || {};
+    const raw = s.customTitle
+      || d.requesterName
+      || (d.ticketID ? applyFilter("ticketID", d.ticketID) : "")
+      || `Ticket ${index + 1}`;
+    const t = String(raw).trim() || `Ticket ${index + 1}`;
+    return t.length > 14 ? t.slice(0, 13) + "…" : t;
+  }
+
+  function startTabRename(tabEl, s) {
+    const span = tabEl.querySelector(".tab-label");
+    if (!span || tabEl.querySelector(".tab-rename")) return;
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.className = "tab-rename";
+    inp.value = s.customTitle || s.title || "";
+    span.replaceWith(inp);
+    let done = false;
+    const finish = (commit) => {
+      if (done) return;
+      done = true;
+      if (commit) {
+        const v = inp.value.trim();
+        if (v) s.customTitle = v; else delete s.customTitle;
+        persistNow();
+      }
+      renderTabs();
+    };
+    // Enter commits, Esc cancels (the router's Esc blurs the input → cancel).
+    inp.addEventListener("keydown", (e) => {
+      e.stopPropagation();
+      if (e.key === "Enter") { e.preventDefault(); finish(true); }
+      else if (e.key === "Escape") { e.preventDefault(); finish(false); }
+    });
+    inp.addEventListener("blur", () => finish(false));
+    inp.addEventListener("click", (e) => e.stopPropagation());
+    inp.addEventListener("dblclick", (e) => e.stopPropagation());
+    inp.focus(); inp.select();
   }
 
   function renderTabs() {
     const container = document.getElementById("tabs-container");
     container.innerHTML = "";
     sessions.forEach((s, index) => {
-      s.title = `Ticket ${index + 1}`; 
+      s.title = deriveTabTitle(s, index);
       const el = document.createElement("div");
       el.className = `tab status-${s.status} ${s.id === activeSessionId ? 'active' : ''}`;
-      el.onclick = () => switchTab(s.id);
-      el.innerHTML = `<div class="tab-status-dot"></div><span>${s.title}</span><span class="tab-close" onclick="closeTab(event, ${s.id})">×</span>`;
+      el.onclick = () => { if (s.id !== activeSessionId) switchTab(s.id); };
+      const d = s.data || {};
+      el.title = [d.requesterName, d.ticketID, d.priority, currentLang.toUpperCase()].filter(Boolean).join(" · ")
+        + `\n${flowT("tabRenameHint", "Double-click to rename")}`;
+      const hint = index < 9 ? `<sup class="tab-num">${index + 1}</sup>` : "";
+      el.innerHTML = `<div class="tab-status-dot"></div><span class="tab-label">${escapeFlowHtml(s.title)}</span>${hint}<span class="tab-close" onclick="closeTab(event, ${s.id})">×</span>`;
+      el.addEventListener("dblclick", () => startTabRename(el, s));
       container.appendChild(el);
     });
   }
@@ -711,7 +1095,7 @@
 
   document.getElementById("status-select").addEventListener("change", (e) => {
     const session = sessions.find(s => s.id === activeSessionId);
-    if(session) { session.status = e.target.value; renderTabs(); }
+    if(session) { session.status = e.target.value; logEvent("status", statusLabel(session.status)); renderTabs(); }
   });
   document.getElementById("note-input").addEventListener("input", (e) => {
     const session = sessions.find(s => s.id === activeSessionId);
@@ -723,14 +1107,16 @@
     if(snippetConfig.dictionary && snippetConfig.dictionary.notesHeader) {
         headerText = getLocalizedText(snippetConfig.dictionary.notesHeader);
     }
+    if(drawerModes[activeSessionId] === "timeline") headerText = flowT("timelineHeader", "🕒 Timeline");
     document.getElementById("note-header-text").innerText = `${headerText} - ${title}`;
   }
 
-  document.getElementById("search-box").addEventListener("input", (e) => {
-    const term = e.target.value.toLowerCase();
-    document.querySelectorAll(".card").forEach(card => {
-      card.style.display = card.textContent.toLowerCase().includes(term) ? "block" : "none";
-    });
+  document.getElementById("search-box").addEventListener("input", applySearchFilter);
+  document.getElementById("search-clear").addEventListener("click", () => {
+    const sb = document.getElementById("search-box");
+    sb.value = "";
+    applySearchFilter();
+    sb.focus();
   });
 
   // --- FILE HANDLING ---
@@ -767,15 +1153,18 @@
         const json = JSON.parse(e.target.result);
         if(json.appType === "workspace_backup") {
           if(confirm("Restore Backup?")) {
-             activeSessionId = null; 
-             loadConfigInternal(json.config, false); 
+             persistNow();
+             activeSessionId = null;
+             loadConfigInternal(json.config, false);
              sessions = json.sessions;
+             sessions.forEach(s => { if(!s.logId) s.logId = newLogId(); if(!Array.isArray(s.events)) s.events = []; });
              switchTab(json.activeId);
              showToast("Backup Restored");
           }
         } else {
            if(confirm("Load Config? (Clears Tickets)")) {
-             loadConfigInternal(json, true); 
+             persistNow();
+             loadConfigInternal(json, true);
              showToast("Config Loaded");
            }
         }
@@ -842,6 +1231,8 @@
         if(currentSess) currentSess.data[key] = e.target.value;
         updatePreview(e.target.value);
         renderSnippets();
+        // T2: keep derived tab names / tooltips live
+        if(["requesterName", "ticketID", "priority"].includes(key)) renderTabs();
       };
 
       control.addEventListener(hasOptions ? "change" : "input", onChange);
@@ -856,16 +1247,12 @@
           applyFieldCardFiltering();
         };
         control.addEventListener(hasOptions ? 'click' : 'focus', activateDim);
-      } else {
-        const clearDim = () => {
-          if (!dimmingEnabled) return;
-          focusedField = null;
-          document.querySelectorAll("#dynamic-inputs .control-group.field-filter-focus")
-            .forEach(g => g.classList.remove("field-filter-focus"));
-          applyFieldCardFiltering();
-        };
-        control.addEventListener(hasOptions ? 'click' : 'focus', clearDim);
+        // T3 focus-mode stage 1: keyboard dropdown selection (change event)
+        // highlights related cards too, not just mouse clicks.
+        if (hasOptions) control.addEventListener('change', activateDim);
       }
+      // T3: focusing an UNMAPPED field no longer clears the dim state —
+      // Esc / the dim button remain the ways to clear the highlight.
 
       group.appendChild(label);
       group.appendChild(control);
@@ -881,25 +1268,178 @@
     });
   }
 
+  // --- PLACEHOLDER RESOLUTION (shared with the fill-popover) ---
+  // Returns the resolved value for [key], or null when the field is empty.
+  function resolveFieldValue(k) {
+    const session = sessions.find(s => s.id === activeSessionId);
+    const data = session ? session.data : {};
+    const raw = data[k] || (hiddenFields && hiddenFields[k]) || "";
+    return raw ? applyFilter(k, raw) : null;
+  }
+  function resolveTemplate(text) {
+    return String(text).replace(/\[([^\]]+)\]/g, (_, k) => {
+      const v = resolveFieldValue(k);
+      return v === null ? `[${k}]` : v;
+    });
+  }
+  function findUnresolved(text) {
+    const out = [];
+    String(text).replace(/\[([^\]]+)\]/g, (m, k) => {
+      if (k.charAt(0) === ">") return m; // T3: unresolvable chain token, not a field
+      if (resolveFieldValue(k) === null && !out.includes(k)) out.push(k);
+      return m;
+    });
+    return out;
+  }
+
+  // Keys that are app machinery, never content categories.
+  const IGNORE_KEYS = ["fields", "logo", "note", "hidden", "filters", "fieldOptions", "fieldCards", "googleSheetFields", "theme", "ui", "dictionary", "config", "flows"];
+
+  // --- T3 SNIPPET CHAINING: [>labelKey] pre-pass ---
+  // Runs BEFORE the field-placeholder regex (which would otherwise eat
+  // [>x] as a field named ">x"). Depth cap 3 + seen-set against cycles;
+  // unresolvable tokens stay literal and render flagged .unresolved.
+  function findSnippetValueByLabel(labelKey) {
+    if (!snippetConfig || ["tags", "shortcuts", "flows"].includes(labelKey)) return undefined;
+    for (const [catKey, content] of Object.entries(snippetConfig)) {
+      if (IGNORE_KEYS.includes(catKey) || !content || typeof content !== "object") continue;
+      if (Object.prototype.hasOwnProperty.call(content, labelKey)) return content[labelKey];
+    }
+    return undefined;
+  }
+  function resolveChains(text, lang, depth, seen) {
+    depth = depth || 0; seen = seen || [];
+    return String(text).replace(/\[>([^\]]+)\]/g, (m, k) => {
+      if (depth >= 3 || seen.includes(k)) return m;
+      const v = findSnippetValueByLabel(k);
+      if (v === undefined) return m;
+      const raw = (lang && v && typeof v === "object" && v[lang] !== undefined) ? v[lang] : getLocalizedText(v);
+      return resolveChains(raw, lang, depth + 1, seen.concat(k));
+    });
+  }
+  // Full resolution: chains first, then field placeholders.
+  function resolveSnippetText(text, lang) {
+    return resolveTemplate(resolveChains(text, lang));
+  }
+
+  function snippetToDisplay(text) {
+    return String(text).replace(/\[([^\]]+)\]/g, (_, k) => {
+      const v = resolveFieldValue(k);
+      return v === null
+        ? `<span class="highlight-var unresolved">[${k}]</span>`
+        : `<span class="highlight-var">${v}</span>`;
+    });
+  }
+  function snippetBadge(missing) {
+    return missing.length
+      ? `<span class="unresolved-badge" title="${flowT("fillMissing", "unfilled fields")}">⚠ ${missing.length}</span>`
+      : "";
+  }
+
+  function supportedLangs() {
+    return (snippetConfig.config && Array.isArray(snippetConfig.config.supportedLangs) &&
+            snippetConfig.config.supportedLangs.length)
+      ? snippetConfig.config.supportedLangs : ["en"];
+  }
+
+  // Small hover-tool button for snippet cards (✎ / 📌 / language chips).
+  function cardTool(label, title, fn) {
+    const b = document.createElement("span");
+    b.className = "card-tool";
+    b.textContent = label;
+    b.title = title;
+    b.setAttribute("aria-label", title);
+    b.addEventListener("click", (e) => { e.stopPropagation(); fn(); });
+    return b;
+  }
+
+  // --- T3: ONE builder for snippet/url cards (category grids AND ★ strip) ---
+  function buildSnippetCard(catKey, labelKey, value) {
+    const labelText = translateKey(labelKey);
+    const rawText = getLocalizedText(value);
+    const chained = resolveChains(rawText);
+    const isUrl = /^https?:\/\//.test(chained.trim());
+    const missing = findUnresolved(chained);
+    const usageKey = `${catKey}.${labelKey}`;
+    const card = document.createElement("div");
+    card.className = isUrl ? "card url-card" : "card";
+    card.setAttribute("data-card-label", labelKey);
+    card.setAttribute("data-usage-key", usageKey);
+    card.innerHTML = `<strong>${labelText}${isUrl ? " ↗" : ""}</strong>${snippetToDisplay(chained)}${snippetBadge(missing)}`;
+    if (isUrl) {
+      card.onclick = () => {
+        if (missing.length) return openFillPopover(missing, chained, labelText, true, usageKey);
+        logEvent("open", labelText);
+        window.open(resolveTemplate(chained), "_blank", "noopener");
+      };
+    } else {
+      card.onclick = (e) => {
+        if (e && e.shiftKey) return addToComposer(labelText, chained); // T3 composer tray
+        if (missing.length) return openFillPopover(missing, chained, labelText, false, usageKey);
+        logEvent("copy", `${labelText} → ${currentLang.toUpperCase()}`);
+        copyToClipboard(resolveTemplate(chained), `${labelText} → ${currentLang.toUpperCase()}`)
+          .then(ok => { if (ok) recordUsage(usageKey); });
+      };
+    }
+    // Hover tool row: language chips + ✎ quick-edit (text cards), 📌 pin (all).
+    const tools = document.createElement("div");
+    tools.className = "card-tools";
+    if (!isUrl && value && typeof value === "object") {
+      supportedLangs().forEach(lang => {
+        const chip = cardTool(lang.toUpperCase(), flowT("langChipTip", "Copy in this language"),
+          () => copyCardInLang(labelText, value, lang, usageKey));
+        chip.classList.add("lang-chip");
+        tools.appendChild(chip);
+      });
+    }
+    if (!isUrl) {
+      tools.appendChild(cardTool("✎", flowT("quickEditTip", "Edit before copying"),
+        () => openQuickEdit(labelText, resolveSnippetText(rawText), usageKey)));
+    }
+    const pin = cardTool("📌", flowT("pinTip", "Pin / unpin"), () => togglePin(usageKey));
+    if (isPinned(usageKey)) pin.classList.add("tool-active");
+    tools.appendChild(pin);
+    card.appendChild(tools);
+    makeCardAccessible(card);
+    stampSearchIndex(card, [labelKey, ...dictTranslations(labelKey), ...allLangValues(value),
+                            catKey, ...dictTranslations(catKey), ...placeholderValues(allLangValues(value))]);
+    // Label-only index for the frecency-aware "top match" ranking.
+    card.setAttribute("data-label-search", foldSearch([labelKey, ...dictTranslations(labelKey)].filter(Boolean).join(" ")));
+    return card;
+  }
+
   function renderSnippets() {
     const container = document.getElementById("snippets-grid");
     container.innerHTML = "";
     if(!snippetConfig || !snippetConfig.fields) return;
 
-    const session = sessions.find(s => s.id === activeSessionId);
-    const safeData = session ? session.data : {};
-
-    const resolve = (k) => {
-      const raw = safeData[k] || (hiddenFields && hiddenFields[k]) || "";
-      return raw ? applyFilter(k, raw) : `[${k}]`;
-    };
-    const toDisplay = (text) => text.replace(/\[([^\]]+)\]/g, (_, k) => `<span class="highlight-var">${resolve(k)}</span>`);
-    const toRaw    = (text) => text.replace(/\[([^\]]+)\]/g, (_, k) => resolve(k));
-
-    const ignore = ["fields", "logo", "note", "hidden", "filters", "fieldOptions", "fieldCards", "googleSheetFields", "theme", "ui", "dictionary", "config", "flows"];
+    // T3 — ★ pinned strip: rendered FIRST, pin order = pin sequence,
+    // hidden when empty. Cards come from the same builder → same search
+    // index, dimming and click behavior as their category originals.
+    const pinnedCards = [];
+    getPins().forEach(pk => {
+      const dot = pk.indexOf(".");
+      if (dot === -1) return;
+      const catKey = pk.slice(0, dot), labelKey = pk.slice(dot + 1);
+      const content = snippetConfig[catKey];
+      if (IGNORE_KEYS.includes(catKey) || !content || typeof content !== "object") return;
+      if (["tags", "shortcuts", "flows"].includes(labelKey)) return;
+      if (!Object.prototype.hasOwnProperty.call(content, labelKey)) return;
+      pinnedCards.push(buildSnippetCard(catKey, labelKey, content[labelKey]));
+    });
+    if (pinnedCards.length) {
+      const header = document.createElement("div");
+      header.className = "category-header";
+      header.textContent = flowT("pinnedSection", "★ Pinned");
+      container.appendChild(header);
+      const pinGrid = document.createElement("div");
+      pinGrid.className = "grid";
+      pinnedCards.forEach(c => pinGrid.appendChild(c));
+      container.appendChild(pinGrid);
+    }
 
     Object.entries(snippetConfig).forEach(([catKey, content]) => {
-      if(ignore.includes(catKey)) return;
+      if(IGNORE_KEYS.includes(catKey)) return;
 
       const header = document.createElement("div");
       header.className = "category-header"; header.textContent = translateKey(catKey);
@@ -908,12 +1448,19 @@
 
       if(Array.isArray(content.shortcuts)) {
         content.shortcuts.forEach(sc => {
-          const resolvedUrl = toRaw(sc.url);
+          const missing = findUnresolved(sc.url);
           const card = document.createElement("div");
           card.className = "card url-card";
           card.setAttribute("data-card-label", sc.label);
-          card.innerHTML = `<strong>${sc.label} ↗</strong>${toDisplay(sc.url)}`;
-          card.onclick = () => window.open(resolvedUrl, "_blank", "noopener");
+          card.innerHTML = `<strong>${sc.label} ↗</strong>${snippetToDisplay(sc.url)}${snippetBadge(missing)}`;
+          card.onclick = () => {
+            if (missing.length) return openFillPopover(missing, sc.url, sc.label, true);
+            logEvent("open", sc.label);
+            window.open(resolveTemplate(sc.url), "_blank", "noopener");
+          };
+          makeCardAccessible(card);
+          stampSearchIndex(card, [sc.label, sc.url, catKey, ...dictTranslations(catKey), ...placeholderValues([sc.url])]);
+          card.setAttribute("data-label-search", foldSearch(sc.label));
           grid.appendChild(card);
         });
       }
@@ -925,19 +1472,7 @@
 
       Object.entries(content).forEach(([labelKey, value]) => {
         if(["tags", "shortcuts", "flows"].includes(labelKey)) return;
-        const labelText = translateKey(labelKey);
-        const text = getLocalizedText(value);
-        const isUrl = /^https?:\/\//.test(text.trim());
-        const card = document.createElement("div");
-        card.className = isUrl ? "card url-card" : "card";
-        card.setAttribute("data-card-label", labelKey);
-        card.innerHTML = `<strong>${labelText}${isUrl ? " ↗" : ""}</strong>${toDisplay(text)}`;
-        if(isUrl) {
-          card.onclick = () => window.open(toRaw(text), "_blank", "noopener");
-        } else {
-          card.onclick = () => { navigator.clipboard.writeText(toRaw(text)); showToast("📋 Copied!"); };
-        }
-        grid.appendChild(card);
+        grid.appendChild(buildSnippetCard(catKey, labelKey, value));
       });
       container.appendChild(grid);
     });
@@ -948,6 +1483,79 @@
     const searchVal = document.getElementById("search-box").value;
     if(searchVal) document.getElementById("search-box").dispatchEvent(new Event('input'));
   }
+
+  // --- FILL-POPOVER (unresolved placeholders) ---
+  // fillState = { keys, template, label, isUrl, usageKey } while open.
+  let fillState = null;
+
+  function openFillPopover(keys, template, label, isUrl, usageKey) {
+    fillState = { keys, template, label, isUrl, usageKey };
+    document.getElementById("fill-title").textContent = `${flowT("fillTitle", "Fill in fields")} — ${label}`;
+    document.getElementById("fill-cancel").textContent = flowT("flowCancel", "Cancel");
+    document.getElementById("fill-confirm").textContent = isUrl
+      ? flowT("fillOpen", "↗ Open")
+      : flowT("fillCopy", "📋 Copy");
+    const wrap = document.getElementById("fill-fields");
+    wrap.innerHTML = "";
+    keys.forEach((k, i) => {
+      const group = document.createElement("div");
+      group.className = "control-group";
+      const lb = document.createElement("label");
+      lb.textContent = k;
+      const inp = document.createElement("input");
+      inp.type = "text"; inp.className = "input-std";
+      inp.setAttribute("data-fill-key", k);
+      inp.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        const inputs = wrap.querySelectorAll("input[data-fill-key]");
+        if (i < inputs.length - 1) inputs[i + 1].focus(); // Enter advances
+        else commitFillPopover();                          // final Enter commits
+      });
+      group.appendChild(lb); group.appendChild(inp);
+      wrap.appendChild(group);
+    });
+    document.getElementById("fill-modal").style.display = "block";
+    const first = wrap.querySelector("input");
+    if (first) first.focus();
+  }
+
+  function closeFillPopover() {
+    fillState = null;
+    document.getElementById("fill-modal").style.display = "none";
+  }
+
+  function commitFillPopover() {
+    if (!fillState) return;
+    const { template, label, isUrl, usageKey } = fillState;
+    const session = sessions.find(s => s.id === activeSessionId);
+    document.querySelectorAll("#fill-fields input[data-fill-key]").forEach(inp => {
+      const k = inp.getAttribute("data-fill-key");
+      const v = inp.value.trim();
+      if (!v || !session) return;
+      session.data[k] = v; // write into the ACTIVE session → sidebar updates too
+      const ctrl = document.querySelector(`#dynamic-inputs [data-key="${k}"]`);
+      if (ctrl) ctrl.value = v;
+    });
+    closeFillPopover();
+    renderSnippets(); // re-resolve every card against the new values
+    const resolved = resolveTemplate(template);
+    if (isUrl) { logEvent("open", label); window.open(resolved, "_blank", "noopener"); }
+    else {
+      logEvent("copy", `${label} → ${currentLang.toUpperCase()}`);
+      copyToClipboard(resolved, `${label} → ${currentLang.toUpperCase()}`)
+        .then(ok => { if (ok && usageKey) recordUsage(usageKey); });
+    }
+  }
+
+  document.getElementById("fill-confirm").addEventListener("click", commitFillPopover);
+  document.getElementById("fill-cancel").addEventListener("click", closeFillPopover);
+  document.getElementById("fill-modal").addEventListener("click", (e) => {
+    if (e.target.id === "fill-modal") closeFillPopover();
+  });
+  document.getElementById("fill-modal").addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { e.stopPropagation(); closeFillPopover(); } // cancels without copying
+  });
 
   // --- ACTIONS ---
   document.getElementById("btn-backup").addEventListener("click", () => {
@@ -976,16 +1584,8 @@
     downloadFile(`backup-${new Date().toISOString().slice(0,10)}.json`, prettyJSON);
   });
 
-  document.getElementById("btn-save").addEventListener("click", () => {
-    const session = sessions.find(s => s.id === activeSessionId);
-    if(!session) return;
-    const now = new Date();
-    const filename = `${now.toISOString().split('T')[0]}-${hostHash}.txt`;
-    let content = `LOG ID: ${hostHash}\nDATE: ${now.toLocaleString()}\nSTATUS: ${session.status.toUpperCase()}\n----------------\n`;
-    Object.entries(session.data).forEach(([k, v]) => { if(v) content += `${k}: ${v}\n`; });
-    content += `----------------\nNOTES:\n${session.note}\n`;
-    downloadFile(filename, content); showToast("Log Saved");
-  });
+  // T2 — Save Log opens the case-sheet preview overlay (legacy .txt lives inside it).
+  document.getElementById("btn-save").addEventListener("click", () => openCaseSheet());
 
   function downloadFile(name, content) {
     const blob = new Blob([content], {type: "text/plain"});
@@ -1121,6 +1721,9 @@
     if (!builtin) actions.appendChild(flowBtn("🗑", () => deleteFlow(flow.id), flowT("flowDelete", "Delete")));
     else if (edited) actions.appendChild(flowBtn("↺", () => revertFlow(flow.id), flowT("flowRevert", "Revert")));
     card.appendChild(actions);
+    // Index title + tag in all languages — NOT action labels/meta.
+    makeCardAccessible(card);
+    stampSearchIndex(card, [...allLangValues(flow.title), ...allLangValues(flow.tag)]);
     return card;
   }
 
@@ -1147,9 +1750,8 @@
     return lines.join("\n");
   }
   function copyFlowText(flow) {
-    navigator.clipboard.writeText(flowToText(flow))
-      .then(() => showToast("📋 " + flowText(flow.title)))
-      .catch(() => showToast("⚠️ Copy failed"));
+    logEvent("flow", `${flowText(flow.title)} → ${currentLang.toUpperCase()}`);
+    copyToClipboard(flowToText(flow), `${flowText(flow.title)} → ${currentLang.toUpperCase()}`);
   }
 
   function deleteFlow(id) {
@@ -1170,6 +1772,12 @@
     const labels = m.querySelectorAll(".control-group label");
     if (labels[0]) labels[0].textContent = flowT("flowFieldTitle", "Title");
     if (labels[1]) labels[1].textContent = flowT("flowFieldTag", "Audience / Tag (optional)");
+    if (labels[2]) labels[2].textContent = flowT("flowFieldFooter", "PNG footer");
+    if (labels[3]) labels[3].textContent = flowT("flowFooterTextLabel", "Footer text");
+    const fm = document.getElementById("flow-footer-mode");
+    fm.options[0].textContent = flowT("flowFooterUniversal", "Universal");
+    fm.options[1].textContent = flowT("flowFooterCustom", "Custom");
+    fm.options[2].textContent = flowT("flowFooterNone", "None");
     m.querySelector(".flow-hint").textContent = flowT("flowHint", "Paste a screenshot (Ctrl+V) to attach it to the selected step · first line of a step = heading");
     document.getElementById("flow-add-step").textContent = flowT("flowAddStep", "➕ Add Step");
     document.getElementById("flow-cancel").textContent = flowT("flowCancel", "Cancel");
@@ -1183,15 +1791,43 @@
       ? { id: src.id, title: flowText(src.title), tag: flowText(src.tag) || "",
           steps: src.steps.map(st => { const c = { text: flowText(st.text) || "" }; if (st.img) c.img = st.img; return c; }) }
       : { id: null, title: "", tag: "", steps: [{ text: "" }] };
+    if (src && src.footer !== undefined) flowDraft.footer = src.footer;
     flowActiveStep = 0;
     document.getElementById("flow-title-input").value = flowDraft.title;
     document.getElementById("flow-tag-input").value = flowDraft.tag || "";
+    // T3 footer control: undefined → universal, string → custom, false/'none' → none.
+    const fMode = (flowDraft.footer === false || flowDraft.footer === "none") ? "none"
+                : (typeof flowDraft.footer === "string" && flowDraft.footer) ? "custom" : "universal";
+    document.getElementById("flow-footer-mode").value = fMode;
+    document.getElementById("flow-footer-input").value = fMode === "custom" ? flowDraft.footer : "";
+    syncFlowFooterControls();
     renderFlowSteps();
+    flowEditorSnapshot = flowDraftState(); // dirty-check baseline for close paths
     document.getElementById("flow-modal").style.display = "block";
   }
   function closeFlowEditor() {
     flowDraft = null;
     document.getElementById("flow-modal").style.display = "none";
+  }
+
+  // Close via Esc / backdrop / Cancel confirms ONLY when the draft changed
+  // since openFlowEditor (JSON snapshot comparison).
+  let flowEditorSnapshot = null;
+  function flowDraftState() {
+    if (!flowDraft) return null;
+    return JSON.stringify({
+      title: document.getElementById("flow-title-input").value.trim(),
+      tag: document.getElementById("flow-tag-input").value.trim(),
+      steps: flowDraft.steps,
+      footer: document.getElementById("flow-footer-mode").value === "custom"
+        ? document.getElementById("flow-footer-input").value.trim()
+        : document.getElementById("flow-footer-mode").value
+    });
+  }
+  function requestCloseFlowEditor() {
+    if (flowDraft && flowDraftState() !== flowEditorSnapshot &&
+        !confirm(flowT("flowDiscardConfirm", "Discard unsaved changes to this flow?"))) return;
+    closeFlowEditor();
   }
 
   function renderFlowSteps() {
@@ -1248,6 +1884,13 @@
     if (!flowDraft.title) return showToast("⚠️ Title required");
     flowDraft.steps = flowDraft.steps.filter(st => (st.text && st.text.trim()) || st.img);
     if (!flowDraft.steps.length) return showToast("⚠️ At least one step required");
+    // T3 footer: Universal stores nothing (deletes the key), Custom stores
+    // the text, None stores false.
+    const fMode = document.getElementById("flow-footer-mode").value;
+    const fText = document.getElementById("flow-footer-input").value.trim();
+    if (fMode === "none") flowDraft.footer = false;
+    else if (fMode === "custom" && fText) flowDraft.footer = fText;
+    else delete flowDraft.footer;
     if (flowDraft.id && isBuiltinFlow(flowDraft.id)) {
       flowStore.overrides[flowDraft.id] = flowDraft; // copy-on-write, builtin stays intact
     } else if (flowDraft.id) {
@@ -1259,8 +1902,14 @@
     saveFlowStore(); closeFlowEditor(); renderSnippets(); showToast("💾 Flow saved");
   }
 
+  function syncFlowFooterControls() {
+    const custom = document.getElementById("flow-footer-mode").value === "custom";
+    document.getElementById("flow-footer-custom-group").style.display = custom ? "" : "none";
+  }
+  document.getElementById("flow-footer-mode").addEventListener("change", syncFlowFooterControls);
+
   document.getElementById("flow-save").addEventListener("click", saveFlowDraft);
-  document.getElementById("flow-cancel").addEventListener("click", closeFlowEditor);
+  document.getElementById("flow-cancel").addEventListener("click", requestCloseFlowEditor);
   document.getElementById("flow-add-step").addEventListener("click", () => {
     if (!flowDraft) return;
     flowDraft.steps.push({ text: "" });
@@ -1268,7 +1917,7 @@
     renderFlowSteps();
   });
   document.getElementById("flow-modal").addEventListener("click", (e) => {
-    if (e.target.id === "flow-modal") closeFlowEditor();
+    if (e.target.id === "flow-modal") requestCloseFlowEditor();
   });
 
   // --- Step images: paste from clipboard or pick a file, downscaled to ≤900px ---
@@ -1351,8 +2000,20 @@
     else go();
   }
 
+  // T3 — PNG footer line: per-flow override → universal config → default.
+  // flow.footer: undefined → universal, string → that text, false/'none' → none.
+  // Universal "none" = config.flowFooter set to "".
+  function flowFooterText(flow) {
+    if (flow && (flow.footer === false || flow.footer === "none")) return "";
+    if (flow && typeof flow.footer === "string" && flow.footer) return flow.footer;
+    const cfg = flowConfig();
+    const univ = cfg && cfg.config ? cfg.config.flowFooter : undefined;
+    return univ === undefined ? "support.carino.systems" : String(univ || "");
+  }
+
   function drawFlowCanvas(flow, imgs) {
     const title = flowText(flow.title), tag = flowText(flow.tag);
+    const footerText = flowFooterText(flow);
     const S = 2, W = 760, pad = 28, numW = 44;
     const textX = pad + numW, textW = W - textX - pad, lineH = 20;
     const headFont = '700 15px "IBM Plex Sans", sans-serif';
@@ -1377,7 +2038,7 @@
     });
 
     const headerH = tag ? 92 : 76;
-    const stepGap = 20, footerH = 40;
+    const stepGap = 20, footerH = footerText ? 40 : 14;
     const H = headerH + blocks.reduce((a, b) => a + b.h + stepGap, 0) + footerH;
 
     const canvas = document.createElement("canvas");
@@ -1424,9 +2085,11 @@
       y += b.h + stepGap;
     });
 
-    ctx.font = '400 10px "IBM Plex Mono", monospace';
-    ctx.fillStyle = "#666666";
-    ctx.fillText("support.carino.systems", pad, H - 16);
+    if (footerText) {
+      ctx.font = '400 10px "IBM Plex Mono", monospace';
+      ctx.fillStyle = "#666666";
+      ctx.fillText(footerText, pad, H - 16);
+    }
     return canvas;
   }
 
@@ -1447,10 +2110,12 @@
   }
 
   function downloadFlowImage(flow) {
+    logEvent("flow", `${flowText(flow.title)} → PNG`);
     renderFlowCanvas(flow, (canvas) => downloadFlowCanvas(canvas, flow, "⬇ PNG downloaded"));
   }
 
   function copyFlowImage(flow) {
+    logEvent("flow", `${flowText(flow.title)} → PNG`);
     renderFlowCanvas(flow, (canvas) => {
       if (!navigator.clipboard || !window.ClipboardItem) {
         return downloadFlowCanvas(canvas, flow, "Clipboard unavailable — PNG downloaded");
@@ -1463,6 +2128,837 @@
       }, "image/png");
     });
   }
+
+  // =====================================================================
+  // T1 — KEYBOARD CORE
+  // One shared capture-phase router driven by the declarative KEYMAP
+  // registry. Later stages APPEND entries via KEYMAP.push(...).
+  // Entry shape: { key (string|array), ctrl, alt, shift,
+  //                when: 'global'|'idle'|'search', group? (overlay section),
+  //                desc: dictionary key, fb: English fallback, run(e) }
+  // run() returning false = "not handled here", the router keeps looking.
+  // =====================================================================
+  var KEYMAP = [];
+
+  function isTyping() {
+    const el = document.activeElement;
+    return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" ||
+                    el.tagName === "SELECT" || el.isContentEditable);
+  }
+  function isLayerOpen(id) {
+    const el = document.getElementById(id);
+    return !!el && el.style.display === "block";
+  }
+  function anyModalOpen() {
+    return isLayerOpen("flow-modal") || isLayerOpen("fill-modal") || isLayerOpen("shortcut-overlay") ||
+           isLayerOpen("digest-modal") || isLayerOpen("sheet-modal") || isLayerOpen("quick-modal");
+  }
+
+  function keymapMatches(e, m) {
+    const keys = Array.isArray(m.key) ? m.key : [m.key];
+    if (!keys.some(k => k.length === 1 ? k.toLowerCase() === e.key.toLowerCase() : k === e.key)) return false;
+    if (!!m.ctrl !== e.ctrlKey) return false;
+    if (!!m.alt !== e.altKey) return false;
+    // Shift is only significant for letter keys — '?' '/' etc. need Shift on
+    // some layouts, so punctuation entries ignore the modifier.
+    if (keys.every(k => /^[a-z]$/i.test(k)) && !!m.shift !== e.shiftKey) return false;
+    return true;
+  }
+
+  // The router NEVER redirects bare printable keys into the search box.
+  window.addEventListener("keydown", (e) => {
+    for (const m of KEYMAP) {
+      if (!keymapMatches(e, m)) continue;
+      if (m.when === "idle" && (isTyping() || anyModalOpen())) continue;
+      if (m.when === "search" && document.activeElement !== document.getElementById("search-box")) continue;
+      if (m.run(e) === false) continue;
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+  }, true);
+
+  // --- Esc stack: exactly ONE action per press, top layer first ---
+  function escStackAction() {
+    if (isLayerOpen("shortcut-overlay")) { toggleShortcutOverlay(false); return true; }
+    if (isLayerOpen("flow-modal")) { requestCloseFlowEditor(); return true; }
+    if (isLayerOpen("fill-modal")) { closeFillPopover(); return true; }
+    if (isLayerOpen("quick-modal")) { closeQuickEdit(); return true; }
+    if (isLayerOpen("digest-modal")) { closeDigest(); return true; }
+    if (isLayerOpen("sheet-modal")) { closeCaseSheet(); return true; }
+    // (T3: @ dropdown layer joins here)
+    const sb = document.getElementById("search-box");
+    if (sb.value) { sb.value = ""; applySearchFilter(); return true; }
+    const el = document.activeElement;
+    if (el && el !== document.body &&
+        (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT")) {
+      el.blur(); return true;
+    }
+    if (focusedField) {
+      focusedField = null;
+      document.querySelectorAll("#dynamic-inputs .control-group.field-filter-focus")
+        .forEach(g => g.classList.remove("field-filter-focus"));
+      applyFieldCardFiltering();
+      return true;
+    }
+    if (document.getElementById("notes-drawer").classList.contains("maximized")) {
+      resizeDrawer("normal"); return true;
+    }
+    return false;
+  }
+
+  // --- Shared key actions ---
+  function focusSearch() {
+    const sb = document.getElementById("search-box");
+    sb.focus(); sb.select();
+  }
+  function cycleLanguage() {
+    const langs = (snippetConfig.config && Array.isArray(snippetConfig.config.supportedLangs) &&
+                   snippetConfig.config.supportedLangs.length)
+      ? snippetConfig.config.supportedLangs : ["en"];
+    currentLang = langs[(langs.indexOf(currentLang) + 1) % langs.length];
+    localStorage.setItem(LS_LANG, currentLang);
+    document.getElementById("lang-select").value = currentLang;
+    refreshUI();
+    showToast(`🌐 ${flowT("langSwitched", "Language")}: ${currentLang.toUpperCase()}`);
+  }
+  function cycleDrawerState() {
+    const d = document.getElementById("notes-drawer");
+    resizeDrawer(d.classList.contains("minimized") ? "normal"
+               : d.classList.contains("maximized") ? "minimized" : "maximized");
+  }
+
+  // --- TRILINGUAL ACCENT-FOLDED SEARCH INDEX ---
+  function foldSearch(s) {
+    return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+  function allLangValues(v) {
+    if (v && typeof v === "object") return Object.values(v).map(String); // loop {es,en,pt} directly
+    return (v === undefined || v === null) ? [] : [String(v)];
+  }
+  function dictTranslations(key) {
+    const d = snippetConfig.dictionary;
+    return (d && d[key]) ? allLangValues(d[key]) : [];
+  }
+  function placeholderValues(texts) {
+    const out = [];
+    texts.forEach(t => String(t).replace(/\[([^\]]+)\]/g, (m, k) => {
+      const v = resolveFieldValue(k);
+      if (v !== null && !out.includes(v)) out.push(v);
+      return m;
+    }));
+    return out;
+  }
+  function stampSearchIndex(card, parts) {
+    card.setAttribute("data-search", foldSearch(parts.filter(Boolean).join(" ")));
+  }
+  function makeCardAccessible(card) {
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.addEventListener("keydown", (e) => {
+      if (e.target !== card || (e.key !== "Enter" && e.key !== " ")) return;
+      e.preventDefault();
+      activateCard(card);
+    });
+  }
+
+  // --- SEARCH STRIP: filter + live count + empty sections + empty state ---
+  function applySearchFilter() {
+    const sb = document.getElementById("search-box");
+    const container = document.getElementById("snippets-grid");
+    const term = foldSearch(sb.value.trim());
+    clearCardSelection();
+
+    let total = 0, shown = 0;
+    container.querySelectorAll(".card").forEach(card => {
+      total++;
+      const hay = card.getAttribute("data-search") || foldSearch(card.textContent);
+      const visible = !term || hay.indexOf(term) !== -1;
+      card.style.display = visible ? "block" : "none";
+      if (visible) shown++;
+    });
+
+    // Hide category headers (and the flow toolbar) whose section is empty.
+    container.querySelectorAll(".category-header").forEach(header => {
+      let el = header.nextElementSibling, any = false;
+      while (el && !el.classList.contains("category-header")) {
+        if (el.classList.contains("grid")) {
+          any = any || Array.from(el.querySelectorAll(".card")).some(c => c.style.display !== "none");
+        }
+        el = el.nextElementSibling;
+      }
+      header.style.display = any ? "" : "none";
+      const next = header.nextElementSibling;
+      if (next && next.classList.contains("flow-toolbar")) next.style.display = any ? "" : "none";
+    });
+
+    // Live result count — gold when exactly one match.
+    const count = document.getElementById("search-count");
+    if (sb.value.trim()) {
+      count.style.display = "";
+      count.textContent = `${shown} / ${total}`;
+      count.classList.toggle("single-hit", shown === 1);
+    } else {
+      count.style.display = "none";
+    }
+    document.getElementById("search-clear").style.display = sb.value ? "" : "none";
+
+    // Localized empty state.
+    let empty = document.getElementById("search-empty");
+    if (!empty) {
+      empty = document.createElement("div");
+      empty.id = "search-empty";
+      container.appendChild(empty);
+    }
+    empty.textContent = flowT("searchNoResults", "No results match your search");
+    empty.style.display = (sb.value.trim() && shown === 0) ? "block" : "none";
+  }
+
+  // --- ARROW + ENTER NAV across visible cards ---
+  let selectedCard = null;
+  function visibleCards() {
+    return Array.from(document.querySelectorAll("#snippets-grid .card"))
+      .filter(c => c.style.display !== "none");
+  }
+  function clearCardSelection() {
+    if (selectedCard) selectedCard.classList.remove("card-selected");
+    selectedCard = null;
+  }
+  function moveCardSelection(dir) {
+    const cards = rankedVisibleCards(); // T3: frecency-aware order while searching
+    if (!cards.length) return;
+    let idx = selectedCard ? cards.indexOf(selectedCard) : -1;
+    idx = idx === -1
+      ? (dir > 0 ? 0 : cards.length - 1)
+      : Math.min(cards.length - 1, Math.max(0, idx + dir));
+    if (selectedCard) selectedCard.classList.remove("card-selected");
+    selectedCard = cards[idx];
+    selectedCard.classList.add("card-selected");
+    selectedCard.scrollIntoView({ block: "nearest" });
+  }
+  function activateCard(card) {
+    if (card.classList.contains("flow-card")) {
+      const btn = card.querySelector(".flow-actions .btn");
+      if (btn) btn.focus();
+      return;
+    }
+    card.click(); // snippet copy (through the fill-popover guard) or URL open
+  }
+  function activateCardSelection(clearAfter) {
+    const sb = document.getElementById("search-box");
+    const cards = rankedVisibleCards(); // T3: "top match" = best-ranked card
+    const target = (selectedCard && cards.includes(selectedCard))
+      ? selectedCard
+      : (sb.value.trim() ? cards[0] : null);
+    if (!target) return false;
+    activateCard(target);
+    if (clearAfter) { sb.value = ""; applySearchFilter(); }
+    return true;
+  }
+
+  // --- ? SHORTCUTS OVERLAY — generated at open time from KEYMAP ---
+  function keyChipLabel(k) {
+    const names = { "ArrowDown": "↓", "ArrowUp": "↑", "Escape": "Esc", " ": "Space" };
+    if (names[k]) return names[k];
+    return k.length === 1 ? k.toUpperCase() : k;
+  }
+  function buildShortcutOverlay() {
+    document.getElementById("shortcut-title").textContent = flowT("kbdOverlayTitle", "Keyboard Shortcuts");
+    const list = document.getElementById("shortcut-list");
+    list.innerHTML = "";
+    [["global", flowT("kbdGroupGlobal", "Global")],
+     ["idle", flowT("kbdGroupIdle", "Outside text fields")],
+     ["search", flowT("kbdGroupSearch", "In the search box")]].forEach(([scope, title]) => {
+      const entries = KEYMAP.filter(m => (m.group || m.when) === scope && m.desc);
+      if (!entries.length) return;
+      const h = document.createElement("div");
+      h.className = "category-header";
+      h.textContent = title;
+      list.appendChild(h);
+      entries.forEach(m => {
+        const row = document.createElement("div");
+        row.className = "kbd-row";
+        const keys = document.createElement("div");
+        keys.className = "kbd-keys";
+        const chips = [];
+        if (m.ctrl) chips.push("Ctrl");
+        if (m.alt) chips.push("Alt");
+        if (m.shift) chips.push("Shift");
+        chips.push((Array.isArray(m.key) ? m.key : [m.key]).map(keyChipLabel).join(" / "));
+        keys.innerHTML = chips.map(c => `<kbd class="kbd">${escapeFlowHtml(c)}</kbd>`)
+                              .join(`<span class="kbd-plus">+</span>`);
+        const desc = document.createElement("div");
+        desc.className = "kbd-desc";
+        desc.textContent = typeof m.desc === "string" ? flowT(m.desc, m.fb || m.desc) : getLocalizedText(m.desc);
+        row.appendChild(keys); row.appendChild(desc);
+        list.appendChild(row);
+      });
+    });
+  }
+  function toggleShortcutOverlay(force) {
+    const ov = document.getElementById("shortcut-overlay");
+    const open = force !== undefined ? force : ov.style.display !== "block";
+    if (!open) { ov.style.display = "none"; return; }
+    buildShortcutOverlay();
+    ov.style.display = "block";
+  }
+  document.getElementById("kbd-btn").addEventListener("click", () => toggleShortcutOverlay());
+  document.getElementById("shortcut-overlay").addEventListener("click", (e) => {
+    if (e.target.id === "shortcut-overlay") toggleShortcutOverlay(false);
+  });
+
+  // --- T1 KEYMAP entries ---
+  KEYMAP.push(
+    // Global chords (fire even while typing)
+    { key: "k", ctrl: true, when: "global", desc: "kFocusSearch", fb: "Focus search",
+      run: focusSearch },
+    { key: "s", ctrl: true, when: "global", desc: "kSaveLog", fb: "Save case log",
+      run: () => document.getElementById("btn-save").click() },
+    { key: "b", alt: true, when: "global", desc: "kBackup", fb: "Download backup",
+      run: () => document.getElementById("btn-backup").click() },
+    { key: "z", alt: true, when: "global", desc: "kRestoreClosed", fb: "Restore closed ticket",
+      run: () => restoreLastClosed() },
+    { key: "Escape", when: "global", desc: "kEscStack", fb: "Close / clear (layer by layer)",
+      run: () => escStackAction() },
+    // Idle-only (not typing, no modal open)
+    { key: "/", when: "idle", desc: "kFocusSearch", fb: "Focus search",
+      run: focusSearch },
+    { key: "?", when: "global", group: "idle", desc: "kShortcutOverlay", fb: "Toggle shortcuts overlay",
+      run: () => {
+        if (isLayerOpen("shortcut-overlay")) return toggleShortcutOverlay(false);
+        if (isTyping() || anyModalOpen()) return false;
+        toggleShortcutOverlay(true);
+      } },
+    { key: "l", when: "idle", desc: "kCycleLang", fb: "Cycle language",
+      run: cycleLanguage },
+    { key: "n", when: "idle", desc: "kOpenNotes", fb: "Open notes",
+      run: () => { resizeDrawer("normal"); document.getElementById("note-input").focus(); } },
+    { key: "n", shift: true, when: "idle", desc: "kCycleDrawer", fb: "Cycle notes drawer size",
+      run: cycleDrawerState },
+    { key: "d", when: "idle", desc: "kToggleDim", fb: "Toggle card dimming",
+      run: () => document.getElementById("dim-btn").click() },
+    // Search-box focused
+    { key: ["ArrowDown", "ArrowUp"], when: "search", desc: "kNavCards", fb: "Move card selection",
+      run: (e) => moveCardSelection(e.key === "ArrowDown" ? 1 : -1) },
+    { key: "Enter", when: "search", desc: "kCopySelected", fb: "Copy/open selection, clear search",
+      run: () => activateCardSelection(true) },
+    { key: "Enter", ctrl: true, when: "search", desc: "kCopyKeepQuery", fb: "Copy/open keeping the query",
+      run: () => activateCardSelection(false) }
+  );
+
+  // =====================================================================
+  // T2 — REGISTER & LIFECYCLE
+  // Named tabs (see renderTabs above), ticket keys, paste-to-ticket intake,
+  // per-session timeline, digest popover and the case-sheet overlay.
+  // =====================================================================
+
+  // --- Session timeline core ---
+  var drawerModes = {}; // sessionId → "notes" | "timeline" (in-memory only)
+  var pasteUndoId = null;
+  const EVENT_ICONS = { copy: "📋", open: "↗", status: "🔁", flow: "🧭", create: "➕", close: "🗑", restore: "↩", paste: "📥" };
+
+  function fmtTime(t) {
+    const d = new Date(t);
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+  function fmtEventLine(ev) {
+    return `${fmtTime(ev.t)} · ${EVENT_ICONS[ev.type] || "•"} ${ev.detail || ""}`;
+  }
+  function statusLabel(status) {
+    return flowT("status" + status.charAt(0).toUpperCase() + status.slice(1), status);
+  }
+
+  function logEvent(type, detail, session) {
+    const s = session || sessions.find(x => x.id === activeSessionId);
+    if (!s) return;
+    if (!Array.isArray(s.events)) s.events = [];
+    s.events.push({ t: Date.now(), type, detail });
+    if (s.events.length > 200) s.events.splice(0, s.events.length - 200);
+    if (s.id === activeSessionId && drawerModes[activeSessionId] === "timeline") renderTimeline();
+  }
+
+  function renderTimeline() {
+    const list = document.getElementById("timeline-list");
+    const s = sessions.find(x => x.id === activeSessionId);
+    list.innerHTML = "";
+    const events = (s && Array.isArray(s.events)) ? s.events : [];
+    if (!events.length) {
+      const d = document.createElement("div");
+      d.className = "timeline-row";
+      d.style.color = "var(--text-muted)";
+      d.textContent = flowT("timelineEmpty", "No events yet for this ticket");
+      list.appendChild(d);
+      return;
+    }
+    events.forEach(ev => {
+      const row = document.createElement("div");
+      row.className = "timeline-row";
+      const t = document.createElement("span");
+      t.className = "timeline-time";
+      t.textContent = fmtTime(ev.t);
+      row.appendChild(t);
+      row.appendChild(document.createTextNode(`${EVENT_ICONS[ev.type] || "•"} ${ev.detail || ""}`));
+      list.appendChild(row);
+    });
+    list.scrollTop = list.scrollHeight;
+  }
+
+  function applyDrawerMode() {
+    const timeline = drawerModes[activeSessionId] === "timeline";
+    document.getElementById("note-input").style.display = timeline ? "none" : "";
+    document.getElementById("timeline-list").style.display = timeline ? "block" : "none";
+    document.getElementById("timeline-toggle").classList.toggle("drawer-mode-on", timeline);
+    if (timeline) renderTimeline();
+  }
+
+  function toggleTimeline() {
+    if (!activeSessionId) return;
+    drawerModes[activeSessionId] = drawerModes[activeSessionId] === "timeline" ? "notes" : "timeline";
+    if (drawerModes[activeSessionId] === "timeline" &&
+        document.getElementById("notes-drawer").classList.contains("minimized")) resizeDrawer("normal");
+    applyDrawerMode();
+    const s = sessions.find(x => x.id === activeSessionId);
+    if (s) updateNoteHeader(s.title);
+  }
+  window.toggleTimeline = toggleTimeline;
+
+  // --- Ticket keys ---
+  function stepTicket(dir) {
+    const idx = sessions.findIndex(s => s.id === activeSessionId);
+    if (idx === -1 || sessions.length < 2) return;
+    switchTab(sessions[(idx + dir + sessions.length) % sessions.length].id);
+  }
+
+  function cycleTicketStatus() {
+    const s = sessions.find(x => x.id === activeSessionId);
+    if (!s) return;
+    const order = ["ongoing", "pending", "done"];
+    s.status = order[(order.indexOf(s.status) + 1) % order.length];
+    document.getElementById("status-select").value = s.status;
+    logEvent("status", statusLabel(s.status));
+    renderTabs();
+    showToast(statusLabel(s.status));
+  }
+
+  function closeActiveTicket() {
+    if (sessions.length === 1) return showToast(flowT("lastTabToast", "Cannot close the last ticket"));
+    closeTab({ stopPropagation() {} }, activeSessionId);
+  }
+
+  // --- Paste-to-ticket intake ---
+  function extractFilterValue(key, text) {
+    if (!filters[key] || !filters[key].regex) return null;
+    try {
+      const m = text.match(new RegExp(filters[key].regex));
+      if (!m) return null;
+      if (filters[key].group !== undefined) return m[filters[key].group] ?? null;
+      if (m.groups && Object.keys(m.groups).length > 0) return Object.values(m.groups)[0] ?? null;
+      return m[0];
+    } catch(e) { return null; }
+  }
+
+  function createTicketFromPaste(text) {
+    const id = Date.now();
+    const s = { id: id, logId: newLogId(), title: `Ticket ${sessions.length + 1}`, status: "ongoing", data: {}, note: "", events: [] };
+    if (snippetConfig.fields) {
+      Object.keys(snippetConfig.fields).forEach(k => {
+        s.data[k] = (hiddenFields && hiddenFields[k]) ? snippetConfig.fields[k] : "";
+      });
+    }
+    // Config filter regexes (ticketID etc.) run against the raw paste.
+    Object.keys(filters || {}).forEach(k => {
+      if (s.data[k] === undefined) return; // only fields the sidebar knows
+      const v = extractFilterValue(k, text);
+      if (v) s.data[k] = v;
+    });
+    const email = text.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
+    if (email && s.data.requesterEmail !== undefined) s.data.requesterEmail = email[0];
+    // Name only when trivially safe: an explicit "Name:" label, or a short
+    // letters-only first line that looks like "First Last".
+    let name = "";
+    const labeled = text.match(/^\s*(?:name|nombre|nome)\s*[:\-]\s*(.{2,60})\s*$/im);
+    if (labeled) name = labeled[1].trim();
+    else {
+      const first = (text.split("\n")[0] || "").trim();
+      if (first.length <= 40 && /^[A-Za-zÀ-ÖØ-öø-ÿ]+(?: [A-Za-zÀ-ÖØ-öø-ÿ.]+){1,3}$/.test(first)) name = first;
+    }
+    if (name && s.data.requesterName !== undefined) s.data.requesterName = name;
+    s.note = flowT("pasteIntakeHeader", "--- pasted intake ---") + "\n" + text;
+    s.events.push({ t: Date.now(), type: "paste", detail: flowT("evPasted", "Ticket created from pasted text") });
+    sessions.push(s);
+    pasteUndoId = id;
+    renderTabs();
+    switchTab(id);
+    persistNow();
+    showToast(flowT("pasteToast", "📥 Ticket created from paste — Alt+Z undoes"));
+  }
+
+  document.addEventListener("paste", (e) => {
+    if (isTyping() || anyModalOpen()) return;
+    const text = e.clipboardData ? (e.clipboardData.getData("text") || "") : "";
+    if (!text.trim()) return;
+    e.preventDefault();
+    createTicketFromPaste(text);
+  });
+
+  // --- Digest popover (all open tickets) ---
+  function buildDigestText() {
+    saveCurrentStateToMemory();
+    const date = new Date().toISOString().slice(0, 10);
+    const counts = { done: 0, ongoing: 0, pending: 0 };
+    sessions.forEach(s => { counts[s.status] = (counts[s.status] || 0) + 1; });
+    const lines = [];
+    lines.push(`DIGEST ${date} — ${sessions.length} ${flowT("digestTickets", "tickets")} ` +
+      `(${counts.done} ${flowT("digestDone", "done")}, ${counts.ongoing} ${flowT("digestOngoing", "ongoing")}, ` +
+      `${counts.pending} ${flowT("digestPending", "pending")})`);
+    lines.push("");
+    sessions.forEach((s, i) => {
+      const d = s.data || {};
+      lines.push(`${i + 1}. ${deriveTabTitle(s, i)} · ${s.logId} · ${statusLabel(s.status)}`);
+      const req = [d.requesterName, d.requesterEmail].filter(Boolean).join(" · ");
+      if (req) lines.push(`   ${flowT("digestRequester", "Requester")}: ${req}`);
+      if (d.summary) lines.push(`   ${flowT("digestSummary", "Summary")}: ${d.summary}`);
+      (Array.isArray(s.events) ? s.events : []).slice(-3).forEach(ev => lines.push(`   ${fmtEventLine(ev)}`));
+      lines.push("");
+    });
+    return lines.join("\n").trim() + "\n";
+  }
+
+  function openDigest() {
+    // A modal owns the keyboard: drop focus from the search box (or any
+    // input) so search-scoped Ctrl+Enter/Enter can't fire underneath.
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    document.getElementById("digest-title").textContent = flowT("digestTitle", "Ticket Digest");
+    document.getElementById("digest-copy").textContent = flowT("fillCopy", "📋 Copy");
+    document.getElementById("digest-download").textContent = flowT("downloadTxt", "⬇ Download .txt");
+    document.getElementById("digest-text").textContent = buildDigestText();
+    document.getElementById("digest-modal").style.display = "block";
+  }
+  function closeDigest() { document.getElementById("digest-modal").style.display = "none"; }
+  function toggleDigest() { isLayerOpen("digest-modal") ? closeDigest() : openDigest(); }
+
+  document.getElementById("btn-digest").addEventListener("click", openDigest);
+  document.getElementById("digest-copy").addEventListener("click", () => {
+    copyToClipboard(document.getElementById("digest-text").textContent, flowT("digestTitle", "Ticket Digest"));
+  });
+  document.getElementById("digest-download").addEventListener("click", () => {
+    downloadFile(`digest-${new Date().toISOString().slice(0, 10)}.txt`,
+                 document.getElementById("digest-text").textContent);
+  });
+  document.getElementById("digest-modal").addEventListener("click", (e) => {
+    if (e.target.id === "digest-modal") closeDigest();
+  });
+
+  // --- Case sheet overlay (Ctrl+S / #btn-save) ---
+  function caseSheetParts(s) {
+    const d = s.data || {};
+    const rows = [];
+    if (snippetConfig.fields) {
+      Object.keys(snippetConfig.fields).forEach(k => {   // sidebar order
+        if (hiddenFields && hiddenFields[k]) return;
+        if (d[k]) rows.push([k, d[k]]);
+      });
+    }
+    return {
+      d, rows,
+      company: (hiddenFields && hiddenFields.company) || "",
+      myName: (hiddenFields && hiddenFields.myName) || "",
+      req: [d.requesterName, d.requesterEmail, d.requesterUser].filter(Boolean).join(" · "),
+      title: deriveTabTitle(s, Math.max(0, sessions.indexOf(s))),
+      date: new Date().toISOString().slice(0, 10),
+      status: statusLabel(s.status)
+    };
+  }
+
+  function renderCaseSheet() {
+    const s = sessions.find(x => x.id === activeSessionId);
+    if (!s) return;
+    const include = document.getElementById("sheet-include-notes").checked;
+    const p = caseSheetParts(s);
+    const esc = escapeFlowHtml;
+    let html = `<div class="sheet-company">${esc(p.company)}</div>`;
+    html += `<h2>${esc(p.title)}</h2>`;
+    html += `<div class="sheet-meta">${esc(flowT("sheetLogId", "Log ID"))}: ${esc(s.logId)} · ${esc(flowT("sheetStatusLabel", "Status"))}: ${esc(p.status)} · ${esc(flowT("sheetDateLabel", "Date"))}: ${p.date}</div>`;
+    if (p.req) html += `<h4>${esc(flowT("digestRequester", "Requester"))}</h4><div class="sheet-req">${esc(p.req)}</div>`;
+    if (p.rows.length) {
+      html += `<h4>${esc(flowT("sheetDetails", "Case details"))}</h4>`;
+      html += `<table class="sheet-table"><tr><th>${esc(flowT("sheetField", "Field"))}</th><th>${esc(flowT("sheetValue", "Value"))}</th></tr>`;
+      p.rows.forEach(([k, v]) => { html += `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`; });
+      html += `</table>`;
+    }
+    if (include && s.note) html += `<h4>${esc(flowT("sheetNotes", "Internal notes"))}</h4><p class="sheet-notes-text">${esc(s.note)}</p>`;
+    const evs = Array.isArray(s.events) ? s.events : [];
+    if (evs.length) {
+      html += `<h4>${esc(flowT("sheetTimeline", "Timeline"))}</h4><ul class="sheet-timeline-list">`;
+      evs.forEach(ev => { html += `<li>${esc(fmtEventLine(ev))}</li>`; });
+      html += `</ul>`;
+    }
+    html += `<div class="sheet-sign">${esc(flowT("sheetSignature", "Handled by"))}: ${esc(p.myName)} · ______________________</div>`;
+    document.getElementById("sheet-body").innerHTML = html;
+  }
+
+  function buildCaseSheetMarkdown() {
+    const s = sessions.find(x => x.id === activeSessionId);
+    if (!s) return "";
+    const include = document.getElementById("sheet-include-notes").checked;
+    const p = caseSheetParts(s);
+    const L = [];
+    L.push(`# ${p.company ? p.company + " — " : ""}${p.title}`);
+    L.push("");
+    L.push(`**${flowT("sheetLogId", "Log ID")}:** ${s.logId} · **${flowT("sheetStatusLabel", "Status")}:** ${p.status} · **${flowT("sheetDateLabel", "Date")}:** ${p.date}`);
+    if (p.req) { L.push(""); L.push(`## ${flowT("digestRequester", "Requester")}`); L.push(p.req); }
+    if (p.rows.length) {
+      L.push(""); L.push(`## ${flowT("sheetDetails", "Case details")}`);
+      L.push(`| ${flowT("sheetField", "Field")} | ${flowT("sheetValue", "Value")} |`);
+      L.push(`| --- | --- |`);
+      p.rows.forEach(([k, v]) => L.push(`| ${k} | ${String(v).replace(/\|/g, "\\|")} |`));
+    }
+    if (include && s.note) { L.push(""); L.push(`## ${flowT("sheetNotes", "Internal notes")}`); L.push(s.note); }
+    const evs = Array.isArray(s.events) ? s.events : [];
+    if (evs.length) { L.push(""); L.push(`## ${flowT("sheetTimeline", "Timeline")}`); evs.forEach(ev => L.push(`- ${fmtEventLine(ev)}`)); }
+    L.push(""); L.push("—"); L.push(`${flowT("sheetSignature", "Handled by")}: ${p.myName}`);
+    return L.join("\n") + "\n";
+  }
+
+  function buildLegacyLogText(session) {
+    const now = new Date();
+    let content = `LOG ID: ${session.logId}\nDATE: ${now.toLocaleString()}\nSTATUS: ${session.status.toUpperCase()}\n----------------\n`;
+    Object.entries(session.data).forEach(([k, v]) => { if (v) content += `${k}: ${v}\n`; });
+    content += `----------------\nNOTES:\n${session.note}\n`;
+    return content;
+  }
+
+  function openCaseSheet() {
+    const s = sessions.find(x => x.id === activeSessionId);
+    if (!s) return;
+    if (!s.logId) s.logId = newLogId();
+    saveCurrentStateToMemory();
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    document.getElementById("sheet-title").textContent = flowT("sheetTitle", "Case Sheet");
+    document.getElementById("sheet-include-label").textContent = flowT("sheetIncludeNotes", "Include internal notes");
+    document.getElementById("sheet-copy").textContent = flowT("sheetCopyMd", "📋 Copy Markdown");
+    document.getElementById("sheet-print").textContent = flowT("sheetPrint", "🖨 Print");
+    document.getElementById("sheet-download").textContent = flowT("downloadTxt", "⬇ Download .txt");
+    document.getElementById("sheet-include-notes").checked = false; // default OFF
+    renderCaseSheet();
+    document.getElementById("sheet-modal").style.display = "block";
+  }
+  function closeCaseSheet() { document.getElementById("sheet-modal").style.display = "none"; }
+
+  document.getElementById("sheet-include-notes").addEventListener("change", renderCaseSheet);
+  document.getElementById("sheet-copy").addEventListener("click", () => {
+    copyToClipboard(buildCaseSheetMarkdown(), flowT("sheetTitle", "Case Sheet"));
+  });
+  document.getElementById("sheet-download").addEventListener("click", () => {
+    const s = sessions.find(x => x.id === activeSessionId);
+    if (!s) return;
+    downloadFile(`${new Date().toISOString().slice(0, 10)}-${s.logId}.txt`, buildLegacyLogText(s));
+    showToast("Log Saved");
+  });
+  document.getElementById("sheet-print").addEventListener("click", () => {
+    document.body.classList.add("printing");
+    const done = () => document.body.classList.remove("printing");
+    window.addEventListener("afterprint", done, { once: true });
+    window.print();
+    setTimeout(done, 1000); // safety net if afterprint never fires
+  });
+  document.getElementById("sheet-modal").addEventListener("click", (e) => {
+    if (e.target.id === "sheet-modal") closeCaseSheet();
+  });
+
+  // --- T2 KEYMAP entries ---
+  KEYMAP.push(
+    { key: ["1", "2", "3", "4", "5", "6", "7", "8", "9"], alt: true, when: "global",
+      desc: "kSwitchTicket", fb: "Switch to ticket 1-9",
+      run: (e) => {
+        const s = sessions[parseInt(e.key, 10) - 1];
+        if (!s) return false;
+        if (s.id !== activeSessionId) switchTab(s.id);
+      } },
+    { key: "s", alt: true, when: "global", desc: "kCycleStatus", fb: "Cycle ticket status",
+      run: cycleTicketStatus },
+    { key: "w", alt: true, when: "global", desc: "kCloseTicket", fb: "Close ticket (undoable)",
+      run: closeActiveTicket },
+    { key: "g", alt: true, when: "global", desc: "kDigest", fb: "Open ticket digest",
+      run: () => toggleDigest() },
+    { key: "l", alt: true, when: "global", desc: "kToggleTimeline", fb: "Toggle notes / timeline",
+      run: () => toggleTimeline() },
+    { key: ["[", "]"], when: "idle", desc: "kPrevNextTicket", fb: "Previous / next ticket",
+      run: (e) => stepTicket(e.key === "]" ? 1 : -1) },
+    // Ctrl+Enter contextual confirm — T2 layers only; falls through (return
+    // false) so later stages (composer etc.) can claim it.
+    { key: "Enter", ctrl: true, when: "global",
+      run: () => {
+        if (isLayerOpen("sheet-modal")) return void document.getElementById("sheet-copy").click();
+        if (isLayerOpen("digest-modal")) return void document.getElementById("digest-copy").click();
+        return false;
+      } }
+  );
+
+  // =====================================================================
+  // T3 — QUICK-EDIT, PINNED STRIP, FRECENCY, COMPOSER TRAY, LANG CHIPS
+  // =====================================================================
+  const LS_PINS = "support_ide_pins";
+  const LS_USAGE = "support_ide_usage";
+
+  // --- Pins (★ strip) — array of "catKey.labelKey", order = pin sequence ---
+  function getPins() {
+    try {
+      const p = JSON.parse(localStorage.getItem(LS_PINS));
+      return Array.isArray(p) ? p : [];
+    } catch(e) { return []; }
+  }
+  function isPinned(key) { return getPins().indexOf(key) !== -1; }
+  function togglePin(key) {
+    const pins = getPins();
+    const i = pins.indexOf(key);
+    if (i === -1) { pins.push(key); showToast(flowT("pinnedToast", "📌 Pinned to ★")); }
+    else { pins.splice(i, 1); showToast(flowT("unpinnedToast", "Unpinned from ★")); }
+    try { localStorage.setItem(LS_PINS, JSON.stringify(pins)); } catch(e) {}
+    renderSnippets();
+  }
+
+  // --- Frecency: {key: {count, last}} recorded on every successful copy.
+  // Used ONLY as a tiebreaker for arrow-nav / top-match ordering — the
+  // browse grid itself never reorders. ---
+  function loadUsage() {
+    try {
+      const u = JSON.parse(localStorage.getItem(LS_USAGE));
+      return (u && typeof u === "object") ? u : {};
+    } catch(e) { return {}; }
+  }
+  function recordUsage(key) {
+    if (!key) return;
+    try {
+      const usage = loadUsage();
+      const e = usage[key] || { count: 0, last: 0 };
+      e.count++; e.last = Date.now();
+      usage[key] = e;
+      localStorage.setItem(LS_USAGE, JSON.stringify(usage));
+    } catch(e) {}
+  }
+  // Match-quality first (label-hit beats body-hit), then frecency
+  // (count, then recency), then DOM order. No term → plain DOM order.
+  function rankedVisibleCards() {
+    const cards = visibleCards();
+    const term = foldSearch(document.getElementById("search-box").value.trim());
+    if (!term) return cards;
+    const usage = loadUsage();
+    return cards
+      .map((c, i) => {
+        const labelHit = (c.getAttribute("data-label-search") || "").indexOf(term) !== -1 ? 1 : 0;
+        const u = usage[c.getAttribute("data-usage-key")];
+        return { c, i, labelHit, count: u ? u.count || 0 : 0, last: u ? u.last || 0 : 0 };
+      })
+      .sort((a, b) => (b.labelHit - a.labelHit) || (b.count - a.count) || (b.last - a.last) || (a.i - b.i))
+      .map(x => x.c);
+  }
+
+  // --- Quick edit: ephemeral scratch copy of a card (never written back) ---
+  let quickState = null; // { label, usageKey } while the modal is open
+  function openQuickEdit(label, resolvedText, usageKey) {
+    quickState = { label, usageKey };
+    document.getElementById("quick-title").textContent = `${flowT("quickEditTitle", "✎ Quick Edit")} — ${label}`;
+    document.getElementById("quick-cancel").textContent = flowT("flowCancel", "Cancel");
+    document.getElementById("quick-copy").textContent = flowT("fillCopy", "📋 Copy");
+    const ta = document.getElementById("quick-text");
+    ta.value = resolvedText;
+    document.getElementById("quick-modal").style.display = "block";
+    ta.focus();
+  }
+  function closeQuickEdit() {
+    quickState = null;
+    document.getElementById("quick-modal").style.display = "none";
+  }
+  function commitQuickEdit() {
+    if (!quickState) return;
+    const { label, usageKey } = quickState;
+    const text = document.getElementById("quick-text").value;
+    logEvent("copy", `✎ ${label} → ${currentLang.toUpperCase()}`);
+    copyToClipboard(text, `✎ ${label}`).then(ok => { if (ok) recordUsage(usageKey); });
+    closeQuickEdit();
+  }
+  document.getElementById("quick-copy").addEventListener("click", commitQuickEdit);
+  document.getElementById("quick-cancel").addEventListener("click", closeQuickEdit);
+  document.getElementById("quick-modal").addEventListener("click", (e) => {
+    if (e.target.id === "quick-modal") closeQuickEdit();
+  });
+
+  // --- Per-card language chips: copy THAT language (through the
+  // unresolved guard) without switching the UI language ---
+  function copyCardInLang(labelText, value, lang, usageKey) {
+    const raw = (value && typeof value === "object" && value[lang] !== undefined)
+      ? value[lang] : getLocalizedText(value);
+    const chained = resolveChains(raw, lang);
+    const missing = findUnresolved(chained);
+    const describe = `${labelText} → ${lang.toUpperCase()}`;
+    if (missing.length) return openFillPopover(missing, chained, describe, false, usageKey);
+    logEvent("copy", describe);
+    copyToClipboard(resolveTemplate(chained), describe)
+      .then(ok => { if (ok) recordUsage(usageKey); });
+  }
+
+  // --- Composer tray: per-session {label, text, lang} blocks, persisted
+  // through the existing sessions autosave, restored on switchTab ---
+  function getComposer() {
+    const s = sessions.find(x => x.id === activeSessionId);
+    if (!s) return [];
+    if (!Array.isArray(s.composer)) s.composer = [];
+    return s.composer;
+  }
+  function addToComposer(label, chainedText) {
+    const s = sessions.find(x => x.id === activeSessionId);
+    if (!s) return;
+    if (!Array.isArray(s.composer)) s.composer = [];
+    s.composer.push({ label, text: resolveTemplate(chainedText), lang: currentLang });
+    renderComposer();
+    showToast(`➕ ${label} — ${flowT("composerAdded", "added to the composer")}`);
+  }
+  function renderComposer() {
+    const dock = document.getElementById("composer-dock");
+    const blocks = getComposer();
+    if (!blocks.length) { dock.style.display = "none"; return; }
+    dock.style.display = "flex";
+    document.getElementById("composer-count").textContent = `📝 ${blocks.length}`;
+    document.getElementById("composer-copy").textContent = flowT("composerCopyAll", "📋 Copy All");
+    document.getElementById("composer-clear").textContent = flowT("composerClear", "🧹 Clear");
+    const chips = document.getElementById("composer-chips");
+    chips.innerHTML = "";
+    blocks.forEach((b, i) => {
+      const chip = document.createElement("span");
+      chip.className = "composer-chip";
+      chip.textContent = `${b.label} · ${(b.lang || "").toUpperCase()}`;
+      chip.title = flowT("composerRemoveTip", "Click to remove");
+      chip.addEventListener("click", () => { blocks.splice(i, 1); renderComposer(); });
+      chips.appendChild(chip);
+    });
+  }
+  function copyComposerAll() {
+    const blocks = getComposer();
+    if (!blocks.length) return;
+    const describe = `${flowT("composerLabel", "Composer")} ×${blocks.length}`;
+    logEvent("copy", describe);
+    copyToClipboard(blocks.map(b => b.text).join("\n\n"), describe);
+  }
+  document.getElementById("composer-copy").addEventListener("click", copyComposerAll);
+  document.getElementById("composer-clear").addEventListener("click", () => {
+    getComposer().length = 0;
+    renderComposer();
+  });
+
+  // --- T3 KEYMAP entries ---
+  KEYMAP.push(
+    // Ctrl+Enter contextual confirm — quick-edit modal, then composer tray.
+    { key: "Enter", ctrl: true, when: "global", desc: "kConfirm", fb: "Contextual confirm (modal / composer)",
+      run: () => {
+        if (isLayerOpen("quick-modal")) return void commitQuickEdit();
+        if (isLayerOpen("flow-modal")) return void saveFlowDraft();
+        if (isLayerOpen("fill-modal")) return void commitFillPopover();
+        const dock = document.getElementById("composer-dock");
+        if (dock.style.display !== "none" && dock.contains(document.activeElement)) return void copyComposerAll();
+        return false;
+      } }
+  );
 </script>
   <script src="carino-navbar.js" data-app="Support" defer></script>
 </body>
