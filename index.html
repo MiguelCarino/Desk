@@ -264,7 +264,10 @@
     .flow-thumbs { display: flex; gap: 6px; margin-bottom: 8px; }
     .flow-thumbs img { height: 44px; max-width: 90px; object-fit: cover; border: 1px solid var(--border); border-radius: 4px; }
     .flow-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-    .flow-actions .btn { padding: 6px 8px; font-size: 0.6rem; }
+    .flow-actions .btn {
+      width: 28px; height: 28px; padding: 0; font-size: 0.8rem;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
     #flow-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 500; display: none; overflow-y: auto; }
     .flow-editor {
       max-width: 720px; margin: 50px auto; background: var(--bg-elev);
@@ -915,8 +918,13 @@
         });
       }
 
+      // Flow cards declared inside this category render inline in its grid.
+      if(Array.isArray(content.flows)) {
+        content.flows.forEach(f => grid.appendChild(buildFlowCard(flowStore.overrides[f.id] || f)));
+      }
+
       Object.entries(content).forEach(([labelKey, value]) => {
-        if(["tags", "shortcuts"].includes(labelKey)) return;
+        if(["tags", "shortcuts", "flows"].includes(labelKey)) return;
         const labelText = translateKey(labelKey);
         const text = getLocalizedText(value);
         const isUrl = /^https?:\/\//.test(text.trim());
@@ -1012,10 +1020,26 @@
   // =====================================================================
   const LS_FLOWS = "support_ide_flows";
 
+  // Flows may be declared at the top level ("flows" key → the Flow Cards
+  // section) or inside any category object ("flows" array → rendered inline
+  // within that category's grid). Both count as builtins for overrides.
+  function flowConfig() {
+    if (snippetConfig && snippetConfig.fields) return snippetConfig;
+    if (typeof DEFAULT_CONFIG !== "undefined") return DEFAULT_CONFIG;
+    return null;
+  }
+  function topLevelFlows() {
+    const cfg = flowConfig();
+    return (cfg && Array.isArray(cfg.flows)) ? cfg.flows : [];
+  }
   function flowBuiltins() {
-    if (snippetConfig && Array.isArray(snippetConfig.flows)) return snippetConfig.flows;
-    if (typeof DEFAULT_CONFIG !== "undefined" && Array.isArray(DEFAULT_CONFIG.flows)) return DEFAULT_CONFIG.flows;
-    return [];
+    const cfg = flowConfig();
+    if (!cfg) return [];
+    const out = topLevelFlows().slice();
+    Object.entries(cfg).forEach(([k, v]) => {
+      if (k !== "flows" && v && typeof v === "object" && Array.isArray(v.flows)) out.push(...v.flows);
+    });
+    return out;
   }
   const flowText = (v) => getLocalizedText(v);
   function flowT(key, fb) {
@@ -1045,9 +1069,10 @@
   function escapeFlowHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
-  function flowBtn(label, fn) {
+  function flowBtn(label, fn, title) {
     const b = document.createElement("button");
     b.className = "btn"; b.textContent = label;
+    if (title) { b.title = title; b.setAttribute("aria-label", title); }
     b.addEventListener("click", (e) => { e.stopPropagation(); fn(); });
     return b;
   }
@@ -1072,35 +1097,40 @@
     renderFlows();
   }
 
-  // --- Cards grid ---
+  // --- Flow card builder (used by the Flow Cards section AND category grids).
+  // Action buttons are icon-only; the localized label rides in the tooltip. ---
+  function buildFlowCard(flow) {
+    const builtin = isBuiltinFlow(flow.id);
+    const edited = builtin && !!flowStore.overrides[flow.id];
+    const title = flowText(flow.title), tag = flowText(flow.tag);
+    const card = document.createElement("div");
+    card.className = "card flow-card";
+    card.setAttribute("data-card-label", title);
+    let html = `<strong>${escapeFlowHtml(title)}</strong>`;
+    if (tag) html += `<span class="flow-tag">${escapeFlowHtml(tag)}</span>`;
+    html += `<div class="flow-meta">${flow.steps.length} ${flowT("flowSteps", "steps")} · ${builtin ? (edited ? flowT("flowEdited", "builtin (edited)") : flowT("flowBuiltin", "builtin")) : flowT("flowCustom", "custom")}</div>`;
+    const thumbs = flow.steps.filter(st => st.img).slice(0, 3);
+    if (thumbs.length) html += `<div class="flow-thumbs">${thumbs.map(st => `<img src="${escapeFlowHtml(st.img)}">`).join("")}</div>`;
+    card.innerHTML = html;
+    const actions = document.createElement("div");
+    actions.className = "flow-actions";
+    actions.appendChild(flowBtn("✏️", () => openFlowEditor(flow.id), flowT("flowEdit", "Edit")));
+    actions.appendChild(flowBtn("📋", () => copyFlowText(flow), flowT("flowCopyText", "Copy Text")));
+    actions.appendChild(flowBtn("🖼️", () => copyFlowImage(flow), flowT("flowCopyImage", "Copy as image")));
+    actions.appendChild(flowBtn("⬇", () => downloadFlowImage(flow), flowT("flowPng", "Download PNG")));
+    if (!builtin) actions.appendChild(flowBtn("🗑", () => deleteFlow(flow.id), flowT("flowDelete", "Delete")));
+    else if (edited) actions.appendChild(flowBtn("↺", () => revertFlow(flow.id), flowT("flowRevert", "Revert")));
+    card.appendChild(actions);
+    return card;
+  }
+
+  // --- Flow Cards section grid: top-level flows + user flows ---
   function renderFlows() {
     const grid = document.getElementById("flows-grid");
     if (!grid) return;
     grid.innerHTML = "";
-    getFlows().forEach(flow => {
-      const builtin = isBuiltinFlow(flow.id);
-      const edited = builtin && !!flowStore.overrides[flow.id];
-      const title = flowText(flow.title), tag = flowText(flow.tag);
-      const card = document.createElement("div");
-      card.className = "card flow-card";
-      card.setAttribute("data-card-label", title);
-      let html = `<strong>${escapeFlowHtml(title)}</strong>`;
-      if (tag) html += `<span class="flow-tag">${escapeFlowHtml(tag)}</span>`;
-      html += `<div class="flow-meta">${flow.steps.length} ${flowT("flowSteps", "steps")} · ${builtin ? (edited ? flowT("flowEdited", "builtin (edited)") : flowT("flowBuiltin", "builtin")) : flowT("flowCustom", "custom")}</div>`;
-      const thumbs = flow.steps.filter(st => st.img).slice(0, 3);
-      if (thumbs.length) html += `<div class="flow-thumbs">${thumbs.map(st => `<img src="${escapeFlowHtml(st.img)}">`).join("")}</div>`;
-      card.innerHTML = html;
-      const actions = document.createElement("div");
-      actions.className = "flow-actions";
-      actions.appendChild(flowBtn(flowT("flowEdit", "✏️ Edit"), () => openFlowEditor(flow.id)));
-      actions.appendChild(flowBtn(flowT("flowCopyText", "📋 Copy Text"), () => copyFlowText(flow)));
-      actions.appendChild(flowBtn(flowT("flowCopyImage", "🖼️ Copy as image"), () => copyFlowImage(flow)));
-      actions.appendChild(flowBtn(flowT("flowPng", "⬇ PNG"), () => downloadFlowImage(flow)));
-      if (!builtin) actions.appendChild(flowBtn(flowT("flowDelete", "🗑 Delete"), () => deleteFlow(flow.id)));
-      else if (edited) actions.appendChild(flowBtn(flowT("flowRevert", "↺ Revert"), () => revertFlow(flow.id)));
-      card.appendChild(actions);
-      grid.appendChild(card);
-    });
+    topLevelFlows().map(f => flowStore.overrides[f.id] || f).concat(flowStore.user)
+      .forEach(flow => grid.appendChild(buildFlowCard(flow)));
   }
 
   // --- Copy as plain text (resolved in the current language) ---
@@ -1125,16 +1155,28 @@
   function deleteFlow(id) {
     if (!confirm("Delete this flow?")) return;
     flowStore.user = flowStore.user.filter(f => f.id !== id);
-    saveFlowStore(); renderFlows(); showToast("🗑 Flow deleted");
+    saveFlowStore(); renderSnippets(); showToast("🗑 Flow deleted");
   }
   function revertFlow(id) {
     if (!confirm("Revert this builtin flow to its original version?")) return;
     delete flowStore.overrides[id];
-    saveFlowStore(); renderFlows(); showToast("↺ Flow reverted");
+    saveFlowStore(); renderSnippets(); showToast("↺ Flow reverted");
   }
 
   // --- Editor ---
+  function applyFlowEditorLabels() {
+    const m = document.getElementById("flow-modal");
+    m.querySelector("h3").textContent = flowT("flowEditorTitle", "Flow Editor");
+    const labels = m.querySelectorAll(".control-group label");
+    if (labels[0]) labels[0].textContent = flowT("flowFieldTitle", "Title");
+    if (labels[1]) labels[1].textContent = flowT("flowFieldTag", "Audience / Tag (optional)");
+    m.querySelector(".flow-hint").textContent = flowT("flowHint", "Paste a screenshot (Ctrl+V) to attach it to the selected step · first line of a step = heading");
+    document.getElementById("flow-add-step").textContent = flowT("flowAddStep", "➕ Add Step");
+    document.getElementById("flow-cancel").textContent = flowT("flowCancel", "Cancel");
+    document.getElementById("flow-save").textContent = flowT("flowSave", "💾 Save Flow");
+  }
   function openFlowEditor(id) {
+    applyFlowEditorLabels();
     const src = id ? getFlows().find(f => f.id === id) : null;
     // Localized builtin fields flatten to plain strings in the current language.
     flowDraft = src
@@ -1164,7 +1206,7 @@
       main.className = "flow-step-main";
       const ta = document.createElement("textarea");
       ta.value = step.text || "";
-      ta.placeholder = "Step text — first line is the heading…";
+      ta.placeholder = flowT("flowStepPh", "Step text — first line is the heading…");
       ta.addEventListener("input", (e) => { step.text = e.target.value; });
       ta.addEventListener("focus", () => { flowActiveStep = idx; });
       main.appendChild(ta);
@@ -1214,7 +1256,7 @@
       flowDraft.id = "u" + Date.now();
       flowStore.user.push(flowDraft);
     }
-    saveFlowStore(); closeFlowEditor(); renderFlows(); showToast("💾 Flow saved");
+    saveFlowStore(); closeFlowEditor(); renderSnippets(); showToast("💾 Flow saved");
   }
 
   document.getElementById("flow-save").addEventListener("click", saveFlowDraft);

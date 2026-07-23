@@ -57,7 +57,39 @@ const DEFAULT_CONFIG = {
     "flowSteps": { "es": "pasos", "en": "steps", "pt": "passos" },
     "flowBuiltin": { "es": "predefinido", "en": "builtin", "pt": "padrão" },
     "flowCustom": { "es": "personalizado", "en": "custom", "pt": "personalizado" },
-    "flowEdited": { "es": "predefinido (editado)", "en": "builtin (edited)", "pt": "padrão (editado)" }
+    "flowEdited": { "es": "predefinido (editado)", "en": "builtin (edited)", "pt": "padrão (editado)" },
+    "flowEditorTitle": { "es": "Editor de Flujo", "en": "Flow Editor", "pt": "Editor de Fluxo" },
+    "flowFieldTitle": { "es": "Título", "en": "Title", "pt": "Título" },
+    "flowFieldTag": { "es": "Audiencia / Etiqueta (opcional)", "en": "Audience / Tag (optional)", "pt": "Público / Etiqueta (opcional)" },
+    "flowAddStep": { "es": "➕ Agregar Paso", "en": "➕ Add Step", "pt": "➕ Adicionar Passo" },
+    "flowCancel": { "es": "Cancelar", "en": "Cancel", "pt": "Cancelar" },
+    "flowSave": { "es": "💾 Guardar Flujo", "en": "💾 Save Flow", "pt": "💾 Salvar Fluxo" },
+    "flowHint": {
+      "es": "Pega una captura (Ctrl+V) para adjuntarla al paso seleccionado · la primera línea del paso es el encabezado",
+      "en": "Paste a screenshot (Ctrl+V) to attach it to the selected step · first line of a step = heading",
+      "pt": "Cole uma captura (Ctrl+V) para anexá-la ao passo selecionado · a primeira linha do passo é o título" },
+    "flowStepPh": {
+      "es": "Texto del paso — la primera línea es el encabezado…",
+      "en": "Step text — first line is the heading…",
+      "pt": "Texto do passo — a primeira linha é o título…" },
+
+    "Consultoría": { "es": "Consultoría", "en": "Consulting", "pt": "Consultoria" },
+    "Desarrollo y Entregas": { "es": "Desarrollo y Entregas", "en": "Development & Delivery", "pt": "Desenvolvimento e Entregas" },
+    "Imagenología y PACS": { "es": "Imagenología y PACS", "en": "Medical Imaging & PACS", "pt": "Imagem Médica e PACS" },
+    "Herramientas Carino": { "es": "Herramientas Carino", "en": "Carino Tools", "pt": "Ferramentas Carino" },
+    "Presentación": { "es": "Presentación", "en": "Introduction", "pt": "Apresentação" },
+    "Cotización": { "es": "Cotización", "en": "Quote", "pt": "Orçamento" },
+    "Agendar Llamada": { "es": "Agendar Llamada", "en": "Schedule Call", "pt": "Agendar Chamada" },
+    "Avance de Proyecto": { "es": "Avance de Proyecto", "en": "Project Update", "pt": "Andamento do Projeto" },
+    "Recordatorio de Pago": { "es": "Recordatorio de Pago", "en": "Payment Reminder", "pt": "Lembrete de Pagamento" },
+    "Cierre de Proyecto": { "es": "Cierre de Proyecto", "en": "Project Wrap-up", "pt": "Encerramento do Projeto" },
+    "Sitio Publicado": { "es": "Sitio Publicado", "en": "Site Published", "pt": "Site Publicado" },
+    "Solicitar Contenido": { "es": "Solicitar Contenido", "en": "Request Content", "pt": "Solicitar Conteúdo" },
+    "Entrega de Accesos": { "es": "Entrega de Accesos", "en": "Credentials Handoff", "pt": "Entrega de Acessos" },
+    "Mantenimiento": { "es": "Mantenimiento", "en": "Maintenance", "pt": "Manutenção" },
+    "Datos DICOM": { "es": "Datos DICOM", "en": "DICOM Details", "pt": "Dados DICOM" },
+    "Prueba de Envío": { "es": "Prueba de Envío", "en": "Send Test", "pt": "Teste de Envio" },
+    "Nota de Anonimización": { "es": "Nota de Anonimización", "en": "Anonymization Note", "pt": "Nota de Anonimização" }
   },
 
   "hidden": {
@@ -135,6 +167,10 @@ const DEFAULT_CONFIG = {
     "lastKnownWorking": "2026-01-05",
     "workaround": "Using webmail temporarily",
 
+    /* Consulting */
+    "projectName": "Website project",
+    "dueDate": "2026-08-15",
+
     /* Diagnostics */
     "logs": "Paste logs here",
     "screenshots": "Attached",
@@ -192,6 +228,7 @@ const DEFAULT_CONFIG = {
     "serialNumber":  { "hardware": ["Warranty Lookup", "Asset Inventory", "Pedir Detalles"] },
     "appName":       { "software": ["En Progreso", "Software Catalog", "Status Page", "Solicitar Repro", "Pedir Info Basica"] },
     "errorMessage":  { "issue":    ["Solicitar Logs", "En Progreso", "Solicitar Repro", "Diagnostico", "Fallido"] },
+    "projectName":   { "consulting": ["Cotización", "Avance de Proyecto", "Recordatorio de Pago", "Cierre de Proyecto", "Solicitar Contenido"] },
     "url":           { "network":  ["Pedir Datos", "Pruebas Basicas", "VPN Portal", "Network Status"] }
   },
 
@@ -334,6 +371,210 @@ const DEFAULT_CONFIG = {
       "en": "I’m starting containment. Confirm if there’s unauthorized access, data loss, or unusual behavior on [hostname].",
       "pt": "Estou iniciando a contenção. Confirme: acesso não autorizado, perda de dados ou comportamento incomum no [hostname]."
     }
+  },
+
+  "Consultoría": {
+    "tags": ["Consulting"],
+    "shortcuts": [
+      { "label": "Quote Tool", "url": "https://quote.carino.systems" },
+      { "label": "Kanban", "url": "https://tasks.carino.systems" },
+      { "label": "Time Zones", "url": "https://time.carino.systems" },
+      { "label": "Resume", "url": "https://resume.carino.systems" }
+    ],
+    "flows": [
+      { "id": "f_onboarding",
+        "title": { "es": "Alta de Cliente", "en": "Client Onboarding", "pt": "Cadastro de Cliente" },
+        "tag": { "es": "Consultoría", "en": "Consulting", "pt": "Consultoria" },
+        "steps": [
+          { "text": {
+            "es": "Primer contacto\n• Agenda una llamada breve\n• Identifica necesidad, urgencia y presupuesto\n• Registra los datos del cliente",
+            "en": "First contact\n• Schedule a short call\n• Identify need, urgency and budget\n• Record the client's details",
+            "pt": "Primeiro contato\n• Agende uma chamada breve\n• Identifique necessidade, urgência e orçamento\n• Registre os dados do cliente" } },
+          { "text": {
+            "es": "Alcance y cotización\n• Define entregables y tiempos\n• Genera la cotización en https://quote.carino.systems\n• Envíala y resuelve dudas",
+            "en": "Scope & quote\n• Define deliverables and timeline\n• Build the quote at https://quote.carino.systems\n• Send it and answer questions",
+            "pt": "Escopo e orçamento\n• Defina entregáveis e prazos\n• Gere o orçamento em https://quote.carino.systems\n• Envie e esclareça dúvidas" } },
+          { "text": {
+            "es": "Acuerdo\n• Confirma el alcance por escrito\n• Acuerda forma de pago y anticipo\n• Fija la fecha de inicio",
+            "en": "Agreement\n• Confirm scope in writing\n• Agree on payment terms and deposit\n• Set the start date",
+            "pt": "Acordo\n• Confirme o escopo por escrito\n• Combine forma de pagamento e sinal\n• Defina a data de início" } },
+          { "text": {
+            "es": "Arranque\n• Solicita accesos y materiales\n• Crea repositorio y tablero de tareas\n• Define el canal de comunicación",
+            "en": "Kickoff\n• Request access and materials\n• Create the repo and task board\n• Agree on a communication channel",
+            "pt": "Início\n• Solicite acessos e materiais\n• Crie o repositório e o quadro de tarefas\n• Defina o canal de comunicação" } },
+          { "text": {
+            "es": "Entrega y cierre\n• Presenta el resultado\n• Entrega accesos y documentación\n• Acuerda el soporte posterior",
+            "en": "Delivery & close\n• Present the result\n• Hand off access and documentation\n• Agree on post-delivery support",
+            "pt": "Entrega e encerramento\n• Apresente o resultado\n• Entregue acessos e documentação\n• Combine o suporte posterior" } }
+        ] }
+    ],
+
+    "Presentación": {
+      "es": "Hola [requesterName], soy [myName], consultor independiente de TI y desarrollo. Gracias por contactarme — cuéntame brevemente qué necesitas y te propongo alcance, tiempos y costo.",
+      "en": "Hi [requesterName], I'm [myName], an independent IT & software consultant. Thanks for reaching out — tell me briefly what you need and I'll propose scope, timeline and cost.",
+      "pt": "Olá [requesterName], sou [myName], consultor independente de TI e desenvolvimento. Obrigado pelo contato — descreva brevemente o que precisa e eu proponho escopo, prazos e custo."
+    },
+    "Cotización": {
+      "es": "Te comparto la cotización de [projectName]: [url]. Incluye alcance, entregables y condiciones. Cualquier ajuste lo revisamos sin compromiso.",
+      "en": "Here is the quote for [projectName]: [url]. It covers scope, deliverables and terms. Happy to adjust anything.",
+      "pt": "Segue o orçamento de [projectName]: [url]. Inclui escopo, entregáveis e condições. Qualquer ajuste, é só avisar."
+    },
+    "Agendar Llamada": {
+      "es": "¿Te funciona una llamada de 30 minutos? Propón dos o tres horarios y confirmo el que mejor quede ([location]).",
+      "en": "Would a 30-minute call work? Suggest two or three time slots and I'll confirm the best one ([location]).",
+      "pt": "Uma chamada de 30 minutos funciona para você? Sugira dois ou três horários e eu confirmo o melhor ([location])."
+    },
+    "Avance de Proyecto": {
+      "es": "Avance de [projectName]: [summary]. Próximo hito: [dueDate]. Cualquier comentario es bienvenido.",
+      "en": "Update on [projectName]: [summary]. Next milestone: [dueDate]. Feedback welcome.",
+      "pt": "Andamento de [projectName]: [summary]. Próximo marco: [dueDate]. Comentários são bem-vindos."
+    },
+    "Recordatorio de Pago": {
+      "es": "Recordatorio amistoso: la factura de [projectName] sigue pendiente. ¿Me confirmas la fecha estimada de pago? Gracias.",
+      "en": "Friendly reminder: the invoice for [projectName] is still pending. Could you confirm the expected payment date? Thanks.",
+      "pt": "Lembrete amigável: a fatura de [projectName] segue pendente. Pode confirmar a data prevista de pagamento? Obrigado."
+    },
+    "Cierre de Proyecto": {
+      "es": "[projectName] queda entregado. Incluye [summary]. Tienes 30 días de soporte para ajustes menores; después con gusto cotizo mejoras.",
+      "en": "[projectName] is delivered. It includes [summary]. You have 30 days of support for minor fixes; after that I'm happy to quote improvements.",
+      "pt": "[projectName] está entregue. Inclui [summary]. Você tem 30 dias de suporte para ajustes menores; depois disso, orço melhorias com prazer."
+    }
+  },
+
+  "Desarrollo y Entregas": {
+    "tags": ["Development"],
+    "shortcuts": [
+      { "label": "GitHub", "url": "https://github.com/MiguelCarino" },
+      { "label": "Branding", "url": "https://branding.carino.systems" },
+      { "label": "Hash Check", "url": "https://hash.carino.systems" },
+      { "label": "Metadata", "url": "https://metadata.carino.systems" }
+    ],
+    "flows": [
+      { "id": "f_deploy_pages",
+        "title": { "es": "Publicar Sitio Estático", "en": "Publish Static Site", "pt": "Publicar Site Estático" },
+        "tag": { "es": "Desarrollo", "en": "Development", "pt": "Desenvolvimento" },
+        "steps": [
+          { "text": {
+            "es": "Preparar el repositorio\n• Sube el sitio estático a GitHub\n• index.html en la raíz\n• Verifica rutas relativas",
+            "en": "Prepare the repository\n• Push the static site to GitHub\n• index.html at the root\n• Check relative paths",
+            "pt": "Preparar o repositório\n• Envie o site estático ao GitHub\n• index.html na raiz\n• Verifique caminhos relativos" } },
+          { "text": {
+            "es": "Activar GitHub Pages\n• Settings → Pages\n• Fuente: rama main\n• Espera el primer despliegue",
+            "en": "Enable GitHub Pages\n• Settings → Pages\n• Source: main branch\n• Wait for the first deploy",
+            "pt": "Ativar o GitHub Pages\n• Settings → Pages\n• Origem: branch main\n• Aguarde o primeiro deploy" } },
+          { "text": {
+            "es": "Dominio\n• Agrega el archivo CNAME\n• Apunta el DNS (CNAME a usuario.github.io)\n• Activa 'Enforce HTTPS'",
+            "en": "Domain\n• Add the CNAME file\n• Point DNS (CNAME to user.github.io)\n• Enable 'Enforce HTTPS'",
+            "pt": "Domínio\n• Adicione o arquivo CNAME\n• Aponte o DNS (CNAME para usuario.github.io)\n• Ative 'Enforce HTTPS'" } },
+          { "text": {
+            "es": "Verificar y entregar\n• Prueba el sitio en móvil y escritorio\n• Comparte la URL con el cliente\n• Documenta cómo actualizarlo",
+            "en": "Verify & hand off\n• Test on mobile and desktop\n• Share the URL with the client\n• Document how to update it",
+            "pt": "Verificar e entregar\n• Teste no celular e no desktop\n• Compartilhe a URL com o cliente\n• Documente como atualizar" } }
+        ] }
+    ],
+
+    "Sitio Publicado": {
+      "es": "Tu sitio ya está publicado en [url]. Revísalo y mándame tus comentarios. El DNS puede tardar hasta 24 h en propagarse por completo.",
+      "en": "Your site is live at [url]. Take a look and send me your feedback. DNS can take up to 24 h to fully propagate.",
+      "pt": "Seu site já está no ar em [url]. Dê uma olhada e me envie seus comentários. O DNS pode levar até 24 h para propagar totalmente."
+    },
+    "Solicitar Contenido": {
+      "es": "Para avanzar con [projectName] necesito: logotipo en buena resolución, textos por sección y fotos que quieras usar. Con eso armo la primera versión.",
+      "en": "To move forward with [projectName] I need: a high-resolution logo, the text for each section, and any photos you want to use. With that I'll build the first version.",
+      "pt": "Para avançar com [projectName] preciso de: logotipo em boa resolução, textos por seção e fotos que queira usar. Com isso monto a primeira versão."
+    },
+    "Entrega de Accesos": {
+      "es": "Te entrego los accesos de [projectName] por un canal seguro (nunca por chat). Te recomiendo guardarlos en un gestor de contraseñas y cambiarlos tras la entrega.",
+      "en": "I'll hand over the credentials for [projectName] through a secure channel (never chat). I recommend storing them in a password manager and rotating them after handoff.",
+      "pt": "Entrego os acessos de [projectName] por um canal seguro (nunca por chat). Recomendo guardá-los em um gerenciador de senhas e trocá-los após a entrega."
+    },
+    "Mantenimiento": {
+      "es": "Si quieres, puedo encargarme del mantenimiento de [projectName]: actualizaciones, respaldos y pequeños cambios. Te paso una propuesta mensual.",
+      "en": "If you'd like, I can handle maintenance for [projectName]: updates, backups and small changes. I'll send a monthly proposal.",
+      "pt": "Se quiser, posso cuidar da manutenção de [projectName]: atualizações, backups e pequenas mudanças. Envio uma proposta mensal."
+    }
+  },
+
+  "Imagenología y PACS": {
+    "tags": ["Medical", "IT"],
+    "shortcuts": [
+      { "label": "Carino PACS", "url": "https://pacs.carino.systems" },
+      { "label": "DICOM Editor", "url": "https://dicom.carino.systems" },
+      { "label": "Retina Suite", "url": "https://retina.carino.systems" }
+    ],
+    "flows": [
+      { "id": "f_pacs_setup",
+        "title": { "es": "Instalar Carino PACS", "en": "Install Carino PACS", "pt": "Instalar o Carino PACS" },
+        "tag": { "es": "PACS", "en": "PACS", "pt": "PACS" },
+        "steps": [
+          { "text": {
+            "es": "Descargar Carino PACS\n• Entra a https://pacs.carino.systems\n• Descarga la versión para tu sistema\n• Instala o descomprime",
+            "en": "Download Carino PACS\n• Go to https://pacs.carino.systems\n• Download the build for your OS\n• Install or unzip",
+            "pt": "Baixar o Carino PACS\n• Acesse https://pacs.carino.systems\n• Baixe a versão para seu sistema\n• Instale ou descompacte" } },
+          { "text": {
+            "es": "Configurar el nodo\n• Edita config.json\n• Define AE Title, puerto (104/11112) y carpeta de almacenamiento\n• Inicia el servicio",
+            "en": "Configure the node\n• Edit config.json\n• Set AE Title, port (104/11112) and storage folder\n• Start the service",
+            "pt": "Configurar o nó\n• Edite o config.json\n• Defina AE Title, porta (104/11112) e pasta de armazenamento\n• Inicie o serviço" } },
+          { "text": {
+            "es": "Registrar la modalidad\n• Solicita AE Title, IP y puerto del equipo\n• Dalo de alta como origen/destino\n• Abre el puerto en el firewall",
+            "en": "Register the modality\n• Ask for the device's AE Title, IP and port\n• Add it as a source/destination\n• Open the firewall port",
+            "pt": "Registrar a modalidade\n• Solicite AE Title, IP e porta do equipamento\n• Cadastre como origem/destino\n• Libere a porta no firewall" } },
+          { "text": {
+            "es": "Probar el envío\n• Envía un estudio de prueba (C-STORE)\n• Confirma la recepción en el panel\n• Verifica el reenvío si aplica",
+            "en": "Test the transfer\n• Send a test study (C-STORE)\n• Confirm reception in the dashboard\n• Verify forwarding if configured",
+            "pt": "Testar o envio\n• Envie um estudo de teste (C-STORE)\n• Confirme a recepção no painel\n• Verifique o encaminhamento, se houver" } }
+        ] },
+      { "id": "f_dicom_anon",
+        "title": { "es": "Anonimizar Estudio DICOM", "en": "Anonymize DICOM Study", "pt": "Anonimizar Estudo DICOM" },
+        "tag": { "es": "DICOM", "en": "DICOM", "pt": "DICOM" },
+        "steps": [
+          { "text": {
+            "es": "Abrir el editor\n• Entra a https://dicom.carino.systems\n• Todo se procesa en tu navegador\n• Carga el archivo DICOM",
+            "en": "Open the editor\n• Go to https://dicom.carino.systems\n• Everything runs in your browser\n• Load the DICOM file",
+            "pt": "Abrir o editor\n• Acesse https://dicom.carino.systems\n• Tudo é processado no navegador\n• Carregue o arquivo DICOM" } },
+          { "text": {
+            "es": "Anonimizar\n• Usa la función 'Anonymize'\n• Revisa nombre, ID y fechas del paciente\n• Ajusta etiquetas manualmente si hace falta",
+            "en": "Anonymize\n• Use the 'Anonymize' function\n• Review patient name, ID and dates\n• Adjust tags manually if needed",
+            "pt": "Anonimizar\n• Use a função 'Anonymize'\n• Revise nome, ID e datas do paciente\n• Ajuste as tags manualmente se necessário" } },
+          { "text": {
+            "es": "Verificar\n• Confirma que no queden datos personales\n• Revisa etiquetas privadas del fabricante",
+            "en": "Verify\n• Confirm no personal data remains\n• Check vendor private tags",
+            "pt": "Verificar\n• Confirme que não restam dados pessoais\n• Revise tags privadas do fabricante" } },
+          { "text": {
+            "es": "Exportar y compartir\n• Descarga el archivo anonimizado\n• Compártelo por un canal seguro",
+            "en": "Export & share\n• Download the anonymized file\n• Share it over a secure channel",
+            "pt": "Exportar e compartilhar\n• Baixe o arquivo anonimizado\n• Compartilhe por um canal seguro" } }
+        ] }
+    ],
+
+    "Datos DICOM": {
+      "es": "Para conectar tu equipo al PACS necesito: AE Title, dirección IP, puerto (104 u 11112) y si el equipo envía, consulta o imprime (C-STORE / C-FIND / print). ¿Me los compartes?",
+      "en": "To connect your device to the PACS I need: AE Title, IP address, port (104 or 11112), and whether it sends, queries or prints (C-STORE / C-FIND / print). Could you share those?",
+      "pt": "Para conectar seu equipamento ao PACS preciso de: AE Title, endereço IP, porta (104 ou 11112) e se o equipamento envia, consulta ou imprime (C-STORE / C-FIND / print). Pode me passar?"
+    },
+    "Prueba de Envío": {
+      "es": "Ya quedó configurado el nodo [hostname]. ¿Puedes enviar un estudio de prueba? Te confirmo en cuanto lo reciba el PACS.",
+      "en": "The node [hostname] is configured. Can you send a test study? I'll confirm as soon as it lands in the PACS.",
+      "pt": "O nó [hostname] está configurado. Pode enviar um estudo de teste? Confirmo assim que chegar ao PACS."
+    },
+    "Nota de Anonimización": {
+      "es": "Antes de compartir estudios fuera de la clínica hay que anonimizarlos (nombre, ID y fechas del paciente). Puedo hacerlo con una herramienta local que no sube nada a internet.",
+      "en": "Before sharing studies outside the clinic they must be anonymized (patient name, ID and dates). I can do it with a local tool that never uploads anything.",
+      "pt": "Antes de compartilhar estudos fora da clínica é preciso anonimizá-los (nome, ID e datas do paciente). Posso fazer isso com uma ferramenta local que não envia nada à internet."
+    }
+  },
+
+  "Herramientas Carino": {
+    "tags": ["IT", "Admin"],
+    "shortcuts": [
+      { "label": "Netplan Config", "url": "https://netplan.carino.systems" },
+      { "label": "Net Topology", "url": "https://network.carino.systems" },
+      { "label": "Hardware Ref", "url": "https://hardware.carino.systems" },
+      { "label": "SimpleSetup", "url": "https://setup.carino.systems" },
+      { "label": "CVE Radar", "url": "https://cve.carino.systems" },
+      { "label": "Software Catalog", "url": "https://software.carino.systems" },
+      { "label": "Password Gen", "url": "https://password.carino.systems" }
+    ]
   },
 
   "Admin Links": {
