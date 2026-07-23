@@ -44,7 +44,20 @@ const DEFAULT_CONFIG = {
     "Fallido": { "es": "Fallido", "en": "Failed", "pt": "Falhou" },
     "En Progreso": { "es": "En Progreso", "en": "In Progress", "pt": "Em Progresso" },
 
-    "Saludos": { "es": "Saludos", "en": "Greetings", "pt": "Saudações" }
+    "Saludos": { "es": "Saludos", "en": "Greetings", "pt": "Saudações" },
+
+    "Flow Cards": { "es": "Tarjetas de Flujo", "en": "Flow Cards", "pt": "Cartões de Fluxo" },
+    "flowNew": { "es": "➕ Nuevo Flujo", "en": "➕ New Flow", "pt": "➕ Novo Fluxo" },
+    "flowEdit": { "es": "✏️ Editar", "en": "✏️ Edit", "pt": "✏️ Editar" },
+    "flowCopyText": { "es": "📋 Copiar Texto", "en": "📋 Copy Text", "pt": "📋 Copiar Texto" },
+    "flowCopyImage": { "es": "🖼️ Copiar como imagen", "en": "🖼️ Copy as image", "pt": "🖼️ Copiar como imagem" },
+    "flowPng": { "es": "⬇ PNG", "en": "⬇ PNG", "pt": "⬇ PNG" },
+    "flowDelete": { "es": "🗑 Eliminar", "en": "🗑 Delete", "pt": "🗑 Excluir" },
+    "flowRevert": { "es": "↺ Revertir", "en": "↺ Revert", "pt": "↺ Reverter" },
+    "flowSteps": { "es": "pasos", "en": "steps", "pt": "passos" },
+    "flowBuiltin": { "es": "predefinido", "en": "builtin", "pt": "padrão" },
+    "flowCustom": { "es": "personalizado", "en": "custom", "pt": "personalizado" },
+    "flowEdited": { "es": "predefinido (editado)", "en": "builtin (edited)", "pt": "padrão (editado)" }
   },
 
   "hidden": {
@@ -333,5 +346,202 @@ const DEFAULT_CONFIG = {
     "SSO Logs": "https://sso.example.com/admin/audit?q=[requesterUser]",
     "Device Mgmt": "https://mdm.example.com/devices/[assetTag]",
     "Status Page": "https://status.example.com"
-  }
+  },
+
+  /* Flow cards — step-by-step end-user guides shown as the last content
+     section. title/tag/step text are localized objects; steps use plain
+     text where the first line is the heading and '• ' lines are substeps. */
+  "flows": [
+    { "id": "b_rustdesk",
+      "title": { "es": "Sesión Remota con RustDesk", "en": "RustDesk Remote Session", "pt": "Sessão Remota com RustDesk" },
+      "tag": { "es": "Soporte Remoto", "en": "Remote Support", "pt": "Suporte Remoto" },
+      "steps": [
+        { "text": {
+          "es": "Descargar RustDesk\n• Entra a https://rustdesk.com\n• Haz clic en 'Download'\n• Elige tu sistema operativo",
+          "en": "Download RustDesk\n• Go to https://rustdesk.com\n• Click 'Download'\n• Choose your operating system",
+          "pt": "Baixar o RustDesk\n• Acesse https://rustdesk.com\n• Clique em 'Download'\n• Escolha seu sistema operacional" } },
+        { "text": {
+          "es": "Instalar RustDesk\n• Abre el archivo descargado\n• Acepta el acuerdo de licencia\n• Completa la instalación",
+          "en": "Install RustDesk\n• Open the downloaded file\n• Accept the license agreement\n• Complete the installation",
+          "pt": "Instalar o RustDesk\n• Abra o arquivo baixado\n• Aceite o contrato de licença\n• Conclua a instalação" } },
+        { "text": {
+          "es": "Compartir el ID de conexión\n• Abre RustDesk\n• Copia el ID que aparece a la izquierda\n• Envía el ID a tu técnico",
+          "en": "Share Connection ID\n• Open RustDesk\n• Copy the ID shown on the left\n• Send the ID to your technician",
+          "pt": "Compartilhar o ID de conexão\n• Abra o RustDesk\n• Copie o ID exibido à esquerda\n• Envie o ID ao seu técnico" } },
+        { "text": {
+          "es": "Aprobar la conexión\n• Espera la solicitud de conexión\n• Haz clic en 'Aceptar'\n• No cierres RustDesk durante la sesión",
+          "en": "Approve Connection\n• Wait for the connection request\n• Click 'Accept'\n• Do not close RustDesk during the session",
+          "pt": "Aprovar a conexão\n• Aguarde a solicitação de conexão\n• Clique em 'Aceitar'\n• Não feche o RustDesk durante a sessão" } }
+      ] },
+    { "id": "b_anydesk",
+      "title": { "es": "Sesión Remota con AnyDesk", "en": "AnyDesk Remote Session", "pt": "Sessão Remota com AnyDesk" },
+      "tag": { "es": "Soporte Remoto", "en": "Remote Support", "pt": "Suporte Remoto" },
+      "steps": [
+        { "text": {
+          "es": "Descargar AnyDesk\n• Entra a https://anydesk.com\n• Haz clic en 'Download Now'",
+          "en": "Download AnyDesk\n• Go to https://anydesk.com\n• Click 'Download Now'",
+          "pt": "Baixar o AnyDesk\n• Acesse https://anydesk.com\n• Clique em 'Download Now'" } },
+        { "text": {
+          "es": "Ejecutar AnyDesk\n• Abre el archivo descargado\n• No requiere instalación (opcional)",
+          "en": "Run AnyDesk\n• Open the downloaded file\n• No installation required (optional)",
+          "pt": "Executar o AnyDesk\n• Abra o arquivo baixado\n• Não requer instalação (opcional)" } },
+        { "text": {
+          "es": "Compartir la dirección\n• Copia la dirección de 'Este puesto'\n• Envíala a soporte de TI",
+          "en": "Share Address\n• Copy 'This Desk' address\n• Send it to IT support",
+          "pt": "Compartilhar o endereço\n• Copie o endereço de 'Esta mesa'\n• Envie ao suporte de TI" } }
+      ] },
+    { "id": "b_chrome_cache",
+      "title": { "es": "Borrar Caché de Chrome", "en": "Clear Chrome Cache", "pt": "Limpar Cache do Chrome" },
+      "tag": { "es": "Navegador", "en": "Browser", "pt": "Navegador" },
+      "steps": [
+        { "text": {
+          "es": "Abrir la configuración de Chrome\n• Haz clic en los 3 puntos (arriba a la derecha)\n• Selecciona 'Configuración'",
+          "en": "Open Chrome Settings\n• Click the 3 dots (top right)\n• Select 'Settings'",
+          "pt": "Abrir as configurações do Chrome\n• Clique nos 3 pontos (canto superior direito)\n• Selecione 'Configurações'" } },
+        { "text": {
+          "es": "Abrir borrar datos de navegación\n• Ve a 'Privacidad y seguridad'\n• Haz clic en 'Eliminar datos de navegación'",
+          "en": "Open Clear Browsing Data\n• Go to 'Privacy and security'\n• Click 'Delete browsing data'",
+          "pt": "Abrir limpar dados de navegação\n• Vá em 'Privacidade e segurança'\n• Clique em 'Excluir dados de navegação'" } },
+        { "text": {
+          "es": "Borrar caché\n• Intervalo de tiempo: Todos los períodos\n• Marca 'Imágenes y archivos almacenados en caché'\n• Haz clic en 'Eliminar datos'",
+          "en": "Clear Cache\n• Time range: All time\n• Check 'Cached images and files'\n• Click 'Delete data'",
+          "pt": "Limpar cache\n• Período: Todo o período\n• Marque 'Imagens e arquivos armazenados em cache'\n• Clique em 'Excluir dados'" } }
+      ] },
+    { "id": "b_firefox_cache",
+      "title": { "es": "Borrar Caché de Firefox", "en": "Clear Firefox Cache", "pt": "Limpar Cache do Firefox" },
+      "tag": { "es": "Navegador", "en": "Browser", "pt": "Navegador" },
+      "steps": [
+        { "text": {
+          "es": "Abrir la configuración de Firefox\n• Haz clic en las 3 líneas (arriba a la derecha)\n• Selecciona 'Ajustes'",
+          "en": "Open Firefox Settings\n• Click the 3 lines (top right)\n• Select 'Settings'",
+          "pt": "Abrir as configurações do Firefox\n• Clique nas 3 linhas (canto superior direito)\n• Selecione 'Configurações'" } },
+        { "text": {
+          "es": "Limpiar datos\n• Ve a 'Privacidad y seguridad'\n• Haz clic en 'Limpiar datos'",
+          "en": "Clear Data\n• Go to 'Privacy & Security'\n• Click 'Clear Data'",
+          "pt": "Limpar dados\n• Vá em 'Privacidade e Segurança'\n• Clique em 'Limpar dados'" } },
+        { "text": {
+          "es": "Confirmar\n• Marca 'Contenido web en caché'\n• Haz clic en 'Limpiar'",
+          "en": "Confirm\n• Check 'Cached Web Content'\n• Click 'Clear'",
+          "pt": "Confirmar\n• Marque 'Conteúdo web em cache'\n• Clique em 'Limpar'" } }
+      ] },
+    { "id": "b_restart_router",
+      "title": { "es": "Reiniciar el Router", "en": "Restart Router", "pt": "Reiniciar o Roteador" },
+      "tag": { "es": "Red", "en": "Network", "pt": "Rede" },
+      "steps": [
+        { "text": {
+          "es": "Localizar el router\n• Encuentra el módem/router\n• Verifica que esté encendido",
+          "en": "Locate Router\n• Find the modem/router device\n• Ensure it is powered on",
+          "pt": "Localizar o roteador\n• Encontre o modem/roteador\n• Verifique se está ligado" } },
+        { "text": {
+          "es": "Apagar y encender\n• Desconecta el cable de corriente\n• Espera 30 segundos\n• Vuelve a conectarlo",
+          "en": "Power Cycle\n• Unplug the power cable\n• Wait 30 seconds\n• Plug the power back in",
+          "pt": "Desligar e ligar\n• Desconecte o cabo de energia\n• Aguarde 30 segundos\n• Conecte novamente" } },
+        { "text": {
+          "es": "Esperar la conexión\n• Espera 2–3 minutos\n• Vuelve a comprobar la conexión a internet",
+          "en": "Wait for Connection\n• Wait 2–3 minutes\n• Check internet connection again",
+          "pt": "Aguardar a conexão\n• Aguarde 2–3 minutos\n• Verifique a conexão com a internet novamente" } }
+      ] },
+    { "id": "b_flush_dns_windows",
+      "title": { "es": "Vaciar DNS (Windows)", "en": "Flush DNS (Windows)", "pt": "Limpar DNS (Windows)" },
+      "tag": { "es": "Red", "en": "Network", "pt": "Rede" },
+      "steps": [
+        { "text": {
+          "es": "Abrir el símbolo del sistema\n• Presiona Windows + R\n• Escribe cmd\n• Presiona Enter",
+          "en": "Open Command Prompt\n• Press Windows + R\n• Type cmd\n• Press Enter",
+          "pt": "Abrir o prompt de comando\n• Pressione Windows + R\n• Digite cmd\n• Pressione Enter" } },
+        { "text": {
+          "es": "Vaciar la caché DNS\n• Escribe: ipconfig /flushdns\n• Presiona Enter\n• Espera el mensaje de confirmación",
+          "en": "Flush DNS Cache\n• Type: ipconfig /flushdns\n• Press Enter\n• Wait for confirmation message",
+          "pt": "Limpar o cache DNS\n• Digite: ipconfig /flushdns\n• Pressione Enter\n• Aguarde a mensagem de confirmação" } }
+      ] },
+    { "id": "b_windows_update",
+      "title": { "es": "Actualizar Windows", "en": "Windows Update", "pt": "Atualizar o Windows" },
+      "tag": { "es": "Sistema Operativo", "en": "OS", "pt": "Sistema Operacional" },
+      "steps": [
+        { "text": {
+          "es": "Abrir Windows Update\n• Haz clic en Inicio\n• Ve a Configuración → Windows Update",
+          "en": "Open Windows Update\n• Click Start\n• Go to Settings → Windows Update",
+          "pt": "Abrir o Windows Update\n• Clique em Iniciar\n• Vá em Configurações → Windows Update" } },
+        { "text": {
+          "es": "Buscar actualizaciones\n• Haz clic en 'Buscar actualizaciones'\n• Espera a que termine la búsqueda",
+          "en": "Check for Updates\n• Click 'Check for updates'\n• Wait for scan to complete",
+          "pt": "Verificar atualizações\n• Clique em 'Verificar se há atualizações'\n• Aguarde a verificação terminar" } },
+        { "text": {
+          "es": "Instalar y reiniciar\n• Instala las actualizaciones disponibles\n• Reinicia si se solicita",
+          "en": "Install & Restart\n• Install available updates\n• Restart if prompted",
+          "pt": "Instalar e reiniciar\n• Instale as atualizações disponíveis\n• Reinicie se solicitado" } }
+      ] },
+    { "id": "b_macos_update",
+      "title": { "es": "Actualizar macOS", "en": "macOS Update", "pt": "Atualizar o macOS" },
+      "tag": { "es": "Sistema Operativo", "en": "OS", "pt": "Sistema Operacional" },
+      "steps": [
+        { "text": {
+          "es": "Abrir ajustes del sistema\n• Haz clic en el menú Apple\n• Abre 'Ajustes del Sistema'",
+          "en": "Open System Settings\n• Click Apple menu\n• Open 'System Settings'",
+          "pt": "Abrir os ajustes do sistema\n• Clique no menu Apple\n• Abra 'Ajustes do Sistema'" } },
+        { "text": {
+          "es": "Actualización de software\n• Ve a 'General'\n• Haz clic en 'Actualización de software'",
+          "en": "Software Update\n• Go to 'General'\n• Click 'Software Update'",
+          "pt": "Atualização de software\n• Vá em 'Geral'\n• Clique em 'Atualização de Software'" } },
+        { "text": {
+          "es": "Instalar actualizaciones\n• Haz clic en 'Actualizar ahora'\n• Reinicia si es necesario",
+          "en": "Install Updates\n• Click 'Update Now'\n• Restart if required",
+          "pt": "Instalar atualizações\n• Clique em 'Atualizar Agora'\n• Reinicie se necessário" } }
+      ] },
+    { "id": "b_password_reset",
+      "title": { "es": "Restablecer Contraseña", "en": "Password Reset", "pt": "Redefinir Senha" },
+      "tag": { "es": "Seguridad", "en": "Security", "pt": "Segurança" },
+      "steps": [
+        { "text": {
+          "es": "Abrir la página de restablecimiento\n• Entra al portal de contraseñas de la empresa\n• Haz clic en 'Olvidé mi contraseña'",
+          "en": "Open Password Reset Page\n• Go to the company password portal\n• Click 'Forgot password'",
+          "pt": "Abrir a página de redefinição\n• Acesse o portal de senhas da empresa\n• Clique em 'Esqueci minha senha'" } },
+        { "text": {
+          "es": "Verificar identidad\n• Ingresa tu correo o usuario\n• Completa los pasos de verificación",
+          "en": "Verify Identity\n• Enter your email or username\n• Complete verification steps",
+          "pt": "Verificar identidade\n• Informe seu e-mail ou usuário\n• Conclua as etapas de verificação" } },
+        { "text": {
+          "es": "Crear nueva contraseña\n• Elige una contraseña segura\n• Confirma la nueva contraseña\n• Guarda los cambios",
+          "en": "Create New Password\n• Choose a strong password\n• Confirm the new password\n• Save changes",
+          "pt": "Criar nova senha\n• Escolha uma senha forte\n• Confirme a nova senha\n• Salve as alterações" } }
+      ] },
+    { "id": "b_mfa_setup",
+      "title": { "es": "Configurar MFA", "en": "MFA Setup", "pt": "Configurar MFA" },
+      "tag": { "es": "Seguridad", "en": "Security", "pt": "Segurança" },
+      "steps": [
+        { "text": {
+          "es": "Instalar la app de autenticación\n• Abre App Store o Play Store\n• Instala Microsoft Authenticator o Google Authenticator",
+          "en": "Install Authenticator App\n• Open App Store or Play Store\n• Install Microsoft Authenticator or Google Authenticator",
+          "pt": "Instalar o app autenticador\n• Abra a App Store ou Play Store\n• Instale o Microsoft Authenticator ou Google Authenticator" } },
+        { "text": {
+          "es": "Escanear el código QR\n• Abre la app de autenticación\n• Escanea el código QR proporcionado por TI",
+          "en": "Scan QR Code\n• Open the authenticator app\n• Scan the QR code provided by IT",
+          "pt": "Escanear o código QR\n• Abra o app autenticador\n• Escaneie o código QR fornecido pela TI" } },
+        { "text": {
+          "es": "Verificar MFA\n• Ingresa el código de 6 dígitos\n• Confirma la configuración",
+          "en": "Verify MFA\n• Enter the 6-digit code\n• Confirm setup",
+          "pt": "Verificar o MFA\n• Digite o código de 6 dígitos\n• Confirme a configuração" } }
+      ] },
+    { "id": "b_basic_it_review",
+      "title": { "es": "Revisión Básica de TI", "en": "Basic IT Review", "pt": "Revisão Básica de TI" },
+      "tag": { "es": "Diagnóstico", "en": "Diagnostics", "pt": "Diagnóstico" },
+      "steps": [
+        { "text": {
+          "es": "Revisar el estado del equipo\n• Confirma que el equipo enciende\n• Busca mensajes de error",
+          "en": "Check System Status\n• Confirm device powers on\n• Check for error messages",
+          "pt": "Verificar o estado do equipamento\n• Confirme que o dispositivo liga\n• Verifique mensagens de erro" } },
+        { "text": {
+          "es": "Revisar la conectividad\n• Verifica la conexión Wi-Fi o Ethernet\n• Prueba el acceso a sistemas internos",
+          "en": "Check Connectivity\n• Verify Wi-Fi or Ethernet connection\n• Test access to internal systems",
+          "pt": "Verificar a conectividade\n• Verifique a conexão Wi-Fi ou Ethernet\n• Teste o acesso aos sistemas internos" } },
+        { "text": {
+          "es": "Revisar actualizaciones\n• Verifica que el SO esté actualizado\n• Revisa las versiones de las aplicaciones",
+          "en": "Check Updates\n• Verify OS is up to date\n• Check application versions",
+          "pt": "Verificar atualizações\n• Verifique se o SO está atualizado\n• Verifique as versões dos aplicativos" } },
+        { "text": {
+          "es": "Recopilar información\n• Anota los mensajes de error\n• Toma capturas de pantalla si es posible\n• Envía los detalles a TI",
+          "en": "Collect Information\n• Note error messages\n• Take screenshots if possible\n• Provide details to IT",
+          "pt": "Coletar informações\n• Anote as mensagens de erro\n• Tire capturas de tela se possível\n• Envie os detalhes à TI" } }
+      ] }
+  ]
 };

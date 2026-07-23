@@ -110,14 +110,14 @@
     }
     #lang-select:hover, #lang-select:focus { border-color: var(--accent); color: var(--text-header); }
 
-    #dim-btn, #reset-btn, #flows-btn {
+    #dim-btn, #reset-btn {
       width: 30px; height: 30px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px;
       font-size: 14px; transition: 0.18s;
     }
-    #dim-btn:hover, #flows-btn:hover { border-color: var(--accent); background: var(--accent); color: #050505; }
-    #dim-btn.dim-on, #flows-btn.dim-on { color: var(--accent); border-color: var(--accent); }
+    #dim-btn:hover { border-color: var(--accent); background: var(--accent); color: #050505; }
+    #dim-btn.dim-on { color: var(--accent); border-color: var(--accent); }
     #reset-btn:hover { border-color: var(--err, #ef4444); color: #ef4444; background: rgba(239,68,68,0.08); }
 
     /* Search */
@@ -251,9 +251,8 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
     ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
 
-    /* --- Flow cards --- */
-    #flows-area { flex: 1; padding: 20px; overflow-y: auto; background: var(--bg-content); display: none; }
-    .flow-toolbar { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+    /* --- Flow cards (rendered inline as the last content category) --- */
+    .flow-toolbar { display: flex; justify-content: flex-end; margin: 4px 0; }
     .flow-card { cursor: default; }
     .flow-tag {
       display: inline-block; font-size: 10px; color: var(--accent);
@@ -320,7 +319,6 @@
       <select id="lang-select">
         <option value="en">EN</option>
       </select>
-      <div id="flows-btn" title="Flow cards — step-by-step guides">⧉</div>
       <div id="dim-btn" title="Toggle card dimming">◉</div>
       <div id="reset-btn" title="Reset — delete all stored data and load default template">↺</div>
     </div>
@@ -357,14 +355,6 @@
         <p>Drag & Drop a JSON file here.</p>
       </div>
       <div id="snippets-grid"></div>
-    </main>
-
-    <main id="flows-area">
-      <div class="flow-toolbar">
-        <button class="btn primary" id="flow-new">➕ New Flow</button>
-      </div>
-      <div class="category-header">Flow Cards</div>
-      <div id="flows-grid" class="grid"></div>
     </main>
 
     <div id="notes-drawer">
@@ -903,7 +893,7 @@
     const toDisplay = (text) => text.replace(/\[([^\]]+)\]/g, (_, k) => `<span class="highlight-var">${resolve(k)}</span>`);
     const toRaw    = (text) => text.replace(/\[([^\]]+)\]/g, (_, k) => resolve(k));
 
-    const ignore = ["fields", "logo", "note", "hidden", "filters", "fieldOptions", "fieldCards", "googleSheetFields", "theme", "ui", "dictionary", "config"];
+    const ignore = ["fields", "logo", "note", "hidden", "filters", "fieldOptions", "fieldCards", "googleSheetFields", "theme", "ui", "dictionary", "config", "flows"];
 
     Object.entries(snippetConfig).forEach(([catKey, content]) => {
       if(ignore.includes(catKey)) return;
@@ -943,6 +933,8 @@
       });
       container.appendChild(grid);
     });
+
+    renderFlowsSection(container);
 
     applyFieldCardFiltering();
     const searchVal = document.getElementById("search-box").value;
@@ -1013,67 +1005,24 @@
   // =====================================================================
   // FLOW CARDS — step-by-step end-user guides (ported from ProcessFlow)
   // flow = { id, title, tag?, steps: [ { text, img? (dataURL) } ] }
+  // Builtins live in the JSON template ("flows" key in DEFAULT_CONFIG or a
+  // loaded config); title/tag/step text may be localized {es,en,pt} objects
+  // resolved through getLocalizedText at render time. Edited and user flows
+  // store plain strings in whatever language they were written.
   // =====================================================================
   const LS_FLOWS = "support_ide_flows";
 
-  const FLOW_BUILTINS = [
-    { id: "b_rustdesk", title: "RustDesk Remote Session", tag: "Remote Support", steps: [
-      { text: "Download RustDesk\n• Go to https://rustdesk.com\n• Click 'Download'\n• Choose your operating system" },
-      { text: "Install RustDesk\n• Open the downloaded file\n• Accept the license agreement\n• Complete the installation" },
-      { text: "Share Connection ID\n• Open RustDesk\n• Copy the ID shown on the left\n• Send the ID to your technician" },
-      { text: "Approve Connection\n• Wait for the connection request\n• Click 'Accept'\n• Do not close RustDesk during the session" }
-    ]},
-    { id: "b_anydesk", title: "AnyDesk Remote Session", tag: "Remote Support", steps: [
-      { text: "Download AnyDesk\n• Go to https://anydesk.com\n• Click 'Download Now'" },
-      { text: "Run AnyDesk\n• Open the downloaded file\n• No installation required (optional)" },
-      { text: "Share Address\n• Copy 'This Desk' address\n• Send it to IT support" }
-    ]},
-    { id: "b_chrome_cache", title: "Clear Chrome Cache", tag: "Browser", steps: [
-      { text: "Open Chrome Settings\n• Click the 3 dots (top right)\n• Select 'Settings'" },
-      { text: "Open Clear Browsing Data\n• Go to 'Privacy and security'\n• Click 'Delete browsing data'" },
-      { text: "Clear Cache\n• Time range: All time\n• Check 'Cached images and files'\n• Click 'Delete data'" }
-    ]},
-    { id: "b_firefox_cache", title: "Clear Firefox Cache", tag: "Browser", steps: [
-      { text: "Open Firefox Settings\n• Click the 3 lines (top right)\n• Select 'Settings'" },
-      { text: "Clear Data\n• Go to 'Privacy & Security'\n• Click 'Clear Data'" },
-      { text: "Confirm\n• Check 'Cached Web Content'\n• Click 'Clear'" }
-    ]},
-    { id: "b_restart_router", title: "Restart Router", tag: "Network", steps: [
-      { text: "Locate Router\n• Find the modem/router device\n• Ensure it is powered on" },
-      { text: "Power Cycle\n• Unplug the power cable\n• Wait 30 seconds\n• Plug the power back in" },
-      { text: "Wait for Connection\n• Wait 2–3 minutes\n• Check internet connection again" }
-    ]},
-    { id: "b_flush_dns_windows", title: "Flush DNS (Windows)", tag: "Network", steps: [
-      { text: "Open Command Prompt\n• Press Windows + R\n• Type cmd\n• Press Enter" },
-      { text: "Flush DNS Cache\n• Type: ipconfig /flushdns\n• Press Enter\n• Wait for confirmation message" }
-    ]},
-    { id: "b_windows_update", title: "Windows Update", tag: "OS", steps: [
-      { text: "Open Windows Update\n• Click Start\n• Go to Settings → Windows Update" },
-      { text: "Check for Updates\n• Click 'Check for updates'\n• Wait for scan to complete" },
-      { text: "Install & Restart\n• Install available updates\n• Restart if prompted" }
-    ]},
-    { id: "b_macos_update", title: "macOS Update", tag: "OS", steps: [
-      { text: "Open System Settings\n• Click Apple menu\n• Open 'System Settings'" },
-      { text: "Software Update\n• Go to 'General'\n• Click 'Software Update'" },
-      { text: "Install Updates\n• Click 'Update Now'\n• Restart if required" }
-    ]},
-    { id: "b_password_reset", title: "Password Reset", tag: "Security", steps: [
-      { text: "Open Password Reset Page\n• Go to the company password portal\n• Click 'Forgot password'" },
-      { text: "Verify Identity\n• Enter your email or username\n• Complete verification steps" },
-      { text: "Create New Password\n• Choose a strong password\n• Confirm the new password\n• Save changes" }
-    ]},
-    { id: "b_mfa_setup", title: "MFA Setup", tag: "Security", steps: [
-      { text: "Install Authenticator App\n• Open App Store or Play Store\n• Install Microsoft Authenticator or Google Authenticator" },
-      { text: "Scan QR Code\n• Open the authenticator app\n• Scan the QR code provided by IT" },
-      { text: "Verify MFA\n• Enter the 6-digit code\n• Confirm setup" }
-    ]},
-    { id: "b_basic_it_review", title: "Basic IT Review", tag: "Diagnostics", steps: [
-      { text: "Check System Status\n• Confirm device powers on\n• Check for error messages" },
-      { text: "Check Connectivity\n• Verify Wi-Fi or Ethernet connection\n• Test access to internal systems" },
-      { text: "Check Updates\n• Verify OS is up to date\n• Check application versions" },
-      { text: "Collect Information\n• Note error messages\n• Take screenshots if possible\n• Provide details to IT" }
-    ]}
-  ];
+  function flowBuiltins() {
+    if (snippetConfig && Array.isArray(snippetConfig.flows)) return snippetConfig.flows;
+    if (typeof DEFAULT_CONFIG !== "undefined" && Array.isArray(DEFAULT_CONFIG.flows)) return DEFAULT_CONFIG.flows;
+    return [];
+  }
+  const flowText = (v) => getLocalizedText(v);
+  function flowT(key, fb) {
+    if (snippetConfig.dictionary && snippetConfig.dictionary[key]) return getLocalizedText(snippetConfig.dictionary[key]);
+    return fb;
+  }
+
 
   let flowStore = { overrides: {}, user: [] };
   try {
@@ -1081,7 +1030,6 @@
     if (fs && typeof fs === "object") flowStore = { overrides: fs.overrides || {}, user: fs.user || [] };
   } catch(e) {}
 
-  let flowsView = false;
   let flowDraft = null;
   let flowActiveStep = 0;
   let flowImgTarget = 0;
@@ -1090,9 +1038,9 @@
     try { localStorage.setItem(LS_FLOWS, JSON.stringify(flowStore)); }
     catch(e) { showToast("⚠️ Storage full — flow not saved"); }
   }
-  function isBuiltinFlow(id) { return FLOW_BUILTINS.some(f => f.id === id); }
+  function isBuiltinFlow(id) { return flowBuiltins().some(f => f.id === id); }
   function getFlows() {
-    return FLOW_BUILTINS.map(f => flowStore.overrides[f.id] || f).concat(flowStore.user);
+    return flowBuiltins().map(f => flowStore.overrides[f.id] || f).concat(flowStore.user);
   }
   function escapeFlowHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -1104,46 +1052,74 @@
     return b;
   }
 
-  // --- View toggle (same top-bar control pattern as dim/reset) ---
-  function toggleFlowsView() {
-    flowsView = !flowsView;
-    const drawerMax = document.getElementById("notes-drawer").classList.contains("maximized");
-    document.getElementById("content-area").style.display = (flowsView || drawerMax) ? "none" : "block";
-    document.getElementById("sidebar").style.display = flowsView ? "none" : "flex";
-    document.getElementById("notes-drawer").style.display = flowsView ? "none" : "flex";
-    document.getElementById("flows-area").style.display = flowsView ? "block" : "none";
-    document.getElementById("flows-btn").classList.toggle("dim-on", flowsView);
-    if (flowsView) renderFlows();
+  // --- Inline content section (rendered as the last category by renderSnippets) ---
+  function renderFlowsSection(container) {
+    const header = document.createElement("div");
+    header.className = "category-header";
+    header.textContent = flowT("Flow Cards", "Flow Cards");
+    container.appendChild(header);
+    const bar = document.createElement("div");
+    bar.className = "flow-toolbar";
+    const nb = document.createElement("button");
+    nb.className = "btn primary";
+    nb.textContent = flowT("flowNew", "➕ New Flow");
+    nb.addEventListener("click", () => openFlowEditor(null));
+    bar.appendChild(nb);
+    container.appendChild(bar);
+    const grid = document.createElement("div");
+    grid.className = "grid"; grid.id = "flows-grid";
+    container.appendChild(grid);
+    renderFlows();
   }
-  document.getElementById("flows-btn").addEventListener("click", toggleFlowsView);
 
   // --- Cards grid ---
   function renderFlows() {
     const grid = document.getElementById("flows-grid");
+    if (!grid) return;
     grid.innerHTML = "";
     getFlows().forEach(flow => {
       const builtin = isBuiltinFlow(flow.id);
       const edited = builtin && !!flowStore.overrides[flow.id];
+      const title = flowText(flow.title), tag = flowText(flow.tag);
       const card = document.createElement("div");
       card.className = "card flow-card";
-      let html = `<strong>${escapeFlowHtml(flow.title)}</strong>`;
-      if (flow.tag) html += `<span class="flow-tag">${escapeFlowHtml(flow.tag)}</span>`;
-      html += `<div class="flow-meta">${flow.steps.length} steps · ${builtin ? (edited ? "builtin (edited)" : "builtin") : "custom"}</div>`;
+      card.setAttribute("data-card-label", title);
+      let html = `<strong>${escapeFlowHtml(title)}</strong>`;
+      if (tag) html += `<span class="flow-tag">${escapeFlowHtml(tag)}</span>`;
+      html += `<div class="flow-meta">${flow.steps.length} ${flowT("flowSteps", "steps")} · ${builtin ? (edited ? flowT("flowEdited", "builtin (edited)") : flowT("flowBuiltin", "builtin")) : flowT("flowCustom", "custom")}</div>`;
       const thumbs = flow.steps.filter(st => st.img).slice(0, 3);
       if (thumbs.length) html += `<div class="flow-thumbs">${thumbs.map(st => `<img src="${escapeFlowHtml(st.img)}">`).join("")}</div>`;
       card.innerHTML = html;
       const actions = document.createElement("div");
       actions.className = "flow-actions";
-      actions.appendChild(flowBtn("✏️ Edit", () => openFlowEditor(flow.id)));
-      actions.appendChild(flowBtn("🖼️ Copy as image", () => copyFlowImage(flow)));
-      actions.appendChild(flowBtn("⬇ PNG", () => downloadFlowImage(flow)));
-      if (!builtin) actions.appendChild(flowBtn("🗑 Delete", () => deleteFlow(flow.id)));
-      else if (edited) actions.appendChild(flowBtn("↺ Revert", () => revertFlow(flow.id)));
+      actions.appendChild(flowBtn(flowT("flowEdit", "✏️ Edit"), () => openFlowEditor(flow.id)));
+      actions.appendChild(flowBtn(flowT("flowCopyText", "📋 Copy Text"), () => copyFlowText(flow)));
+      actions.appendChild(flowBtn(flowT("flowCopyImage", "🖼️ Copy as image"), () => copyFlowImage(flow)));
+      actions.appendChild(flowBtn(flowT("flowPng", "⬇ PNG"), () => downloadFlowImage(flow)));
+      if (!builtin) actions.appendChild(flowBtn(flowT("flowDelete", "🗑 Delete"), () => deleteFlow(flow.id)));
+      else if (edited) actions.appendChild(flowBtn(flowT("flowRevert", "↺ Revert"), () => revertFlow(flow.id)));
       card.appendChild(actions);
       grid.appendChild(card);
     });
-    const searchVal = document.getElementById("search-box").value;
-    if (searchVal) document.getElementById("search-box").dispatchEvent(new Event("input"));
+  }
+
+  // --- Copy as plain text (resolved in the current language) ---
+  function flowToText(flow) {
+    const lines = [flowText(flow.title)];
+    const tag = flowText(flow.tag);
+    if (tag) lines.push(String(tag).toUpperCase());
+    lines.push("");
+    flow.steps.forEach((st, i) => {
+      const t = String(flowText(st.text) || "").split("\n");
+      lines.push((i + 1) + ". " + (t[0] || ""));
+      t.slice(1).forEach(l => lines.push("   " + l));
+    });
+    return lines.join("\n");
+  }
+  function copyFlowText(flow) {
+    navigator.clipboard.writeText(flowToText(flow))
+      .then(() => showToast("📋 " + flowText(flow.title)))
+      .catch(() => showToast("⚠️ Copy failed"));
   }
 
   function deleteFlow(id) {
@@ -1160,7 +1136,11 @@
   // --- Editor ---
   function openFlowEditor(id) {
     const src = id ? getFlows().find(f => f.id === id) : null;
-    flowDraft = src ? JSON.parse(JSON.stringify(src)) : { id: null, title: "", tag: "", steps: [{ text: "" }] };
+    // Localized builtin fields flatten to plain strings in the current language.
+    flowDraft = src
+      ? { id: src.id, title: flowText(src.title), tag: flowText(src.tag) || "",
+          steps: src.steps.map(st => { const c = { text: flowText(st.text) || "" }; if (st.img) c.img = st.img; return c; }) }
+      : { id: null, title: "", tag: "", steps: [{ text: "" }] };
     flowActiveStep = 0;
     document.getElementById("flow-title-input").value = flowDraft.title;
     document.getElementById("flow-tag-input").value = flowDraft.tag || "";
@@ -1237,7 +1217,6 @@
     saveFlowStore(); closeFlowEditor(); renderFlows(); showToast("💾 Flow saved");
   }
 
-  document.getElementById("flow-new").addEventListener("click", () => openFlowEditor(null));
   document.getElementById("flow-save").addEventListener("click", saveFlowDraft);
   document.getElementById("flow-cancel").addEventListener("click", closeFlowEditor);
   document.getElementById("flow-add-step").addEventListener("click", () => {
@@ -1331,6 +1310,7 @@
   }
 
   function drawFlowCanvas(flow, imgs) {
+    const title = flowText(flow.title), tag = flowText(flow.tag);
     const S = 2, W = 760, pad = 28, numW = 44;
     const textX = pad + numW, textW = W - textX - pad, lineH = 20;
     const headFont = '700 15px "IBM Plex Sans", sans-serif';
@@ -1339,7 +1319,7 @@
 
     // layout pass
     const blocks = flow.steps.map(step => {
-      const lines = String(step.text || "").split("\n");
+      const lines = String(flowText(step.text) || "").split("\n");
       m.font = headFont;
       const head = wrapFlowText(m, lines[0] || "", textW);
       m.font = bodyFont;
@@ -1354,7 +1334,7 @@
       return { head, body, textH, im, imgW, imgH, h: Math.max(textH + (imgH ? imgH + 10 : 0), 28) };
     });
 
-    const headerH = flow.tag ? 92 : 76;
+    const headerH = tag ? 92 : 76;
     const stepGap = 20, footerH = 40;
     const H = headerH + blocks.reduce((a, b) => a + b.h + stepGap, 0) + footerH;
 
@@ -1369,11 +1349,11 @@
     ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
     ctx.font = '700 24px "IBM Plex Sans", sans-serif';
     ctx.fillStyle = "#ffffff";
-    ctx.fillText(flow.title, pad, 46);
-    if (flow.tag) {
+    ctx.fillText(title, pad, 46);
+    if (tag) {
       ctx.font = '700 11px "IBM Plex Mono", monospace';
       ctx.fillStyle = "#eab308";
-      ctx.fillText(String(flow.tag).toUpperCase(), pad, 68);
+      ctx.fillText(String(tag).toUpperCase(), pad, 68);
     }
     ctx.strokeStyle = "#262626"; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pad, headerH - 14); ctx.lineTo(W - pad, headerH - 14); ctx.stroke();
@@ -1417,7 +1397,7 @@
       if (!blob) return showToast("⚠️ Image export failed");
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url; a.download = flowSlug(flow.title) + ".png";
+      a.href = url; a.download = flowSlug(flowText(flow.title)) + ".png";
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 5000);
       showToast(msg);
