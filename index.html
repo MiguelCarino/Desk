@@ -110,14 +110,14 @@
     }
     #lang-select:hover, #lang-select:focus { border-color: var(--accent); color: var(--text-header); }
 
-    #dim-btn, #reset-btn {
+    #dim-btn, #reset-btn, #flows-btn {
       width: 30px; height: 30px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px;
       font-size: 14px; transition: 0.18s;
     }
-    #dim-btn:hover { border-color: var(--accent); background: var(--accent); color: #050505; }
-    #dim-btn.dim-on { color: var(--accent); border-color: var(--accent); }
+    #dim-btn:hover, #flows-btn:hover { border-color: var(--accent); background: var(--accent); color: #050505; }
+    #dim-btn.dim-on, #flows-btn.dim-on { color: var(--accent); border-color: var(--accent); }
     #reset-btn:hover { border-color: var(--err, #ef4444); color: #ef4444; background: rgba(239,68,68,0.08); }
 
     /* Search */
@@ -251,6 +251,51 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
     ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
 
+    /* --- Flow cards --- */
+    #flows-area { flex: 1; padding: 20px; overflow-y: auto; background: var(--bg-content); display: none; }
+    .flow-toolbar { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+    .flow-card { cursor: default; }
+    .flow-tag {
+      display: inline-block; font-size: 10px; color: var(--accent);
+      border: 1px solid var(--accent-glow); background: var(--accent-faint);
+      border-radius: 4px; padding: 1px 6px; margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .flow-meta { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+    .flow-thumbs { display: flex; gap: 6px; margin-bottom: 8px; }
+    .flow-thumbs img { height: 44px; max-width: 90px; object-fit: cover; border: 1px solid var(--border); border-radius: 4px; }
+    .flow-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .flow-actions .btn { padding: 6px 8px; font-size: 0.6rem; }
+    #flow-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 500; display: none; overflow-y: auto; }
+    .flow-editor {
+      max-width: 720px; margin: 50px auto; background: var(--bg-elev);
+      border: 1px solid var(--border); border-radius: 10px; padding: 18px;
+    }
+    .flow-editor h3 {
+      margin: 0 0 14px; font-family: var(--display); font-size: 0.9rem;
+      color: var(--text-header); text-transform: uppercase; letter-spacing: 1px;
+    }
+    .flow-editor-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .flow-editor-row .control-group { flex: 1; margin-bottom: 0; }
+    .flow-step {
+      display: flex; gap: 10px; border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px; margin-bottom: 10px; background: var(--bg-content);
+    }
+    .flow-step-num { font-family: var(--mono); font-weight: 700; color: var(--accent); width: 22px; text-align: center; flex-shrink: 0; padding-top: 8px; }
+    .flow-step-main { flex: 1; min-width: 0; }
+    .flow-step textarea {
+      width: 100%; min-height: 64px; resize: vertical; background: var(--bg-elev);
+      border: 1px solid var(--border); color: var(--text-header); border-radius: 6px;
+      padding: 8px 10px; font-family: var(--mono); font-size: 0.8rem; outline: none; transition: 0.15s;
+    }
+    .flow-step textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-faint); }
+    .flow-step-img { margin-top: 8px; }
+    .flow-step-img img { max-width: 200px; max-height: 110px; display: block; border: 1px solid var(--border); border-radius: 6px; }
+    .flow-step-side { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+    .flow-step-side .btn { padding: 4px 6px; font-size: 0.6rem; }
+    .flow-editor-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+    .flow-hint { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin: 8px 0 0; }
+
     /* --- Tab bar merged INTO the Carino navbar (via data-carino-actions) --- */
     #carinoNav #top-bar { height: auto; background: transparent; border: none; padding: 0; align-items: center; gap: 6px; }
     #carinoNav #tabs-container { display: flex; gap: 4px; overflow-x: auto; max-width: 46vw; scrollbar-width: thin; }
@@ -275,6 +320,7 @@
       <select id="lang-select">
         <option value="en">EN</option>
       </select>
+      <div id="flows-btn" title="Flow cards — step-by-step guides">⧉</div>
       <div id="dim-btn" title="Toggle card dimming">◉</div>
       <div id="reset-btn" title="Reset — delete all stored data and load default template">↺</div>
     </div>
@@ -313,6 +359,14 @@
       <div id="snippets-grid"></div>
     </main>
 
+    <main id="flows-area">
+      <div class="flow-toolbar">
+        <button class="btn primary" id="flow-new">➕ New Flow</button>
+      </div>
+      <div class="category-header">Flow Cards</div>
+      <div id="flows-grid" class="grid"></div>
+    </main>
+
     <div id="notes-drawer">
       <div class="drawer-header" id="drawer-handle">
         <span id="note-header-text">📝 Notes</span>
@@ -325,6 +379,30 @@
       <textarea id="note-input" placeholder="..."></textarea>
     </div>
   </div>
+
+  <div id="flow-modal">
+    <div class="flow-editor">
+      <h3>Flow Editor</h3>
+      <div class="flow-editor-row">
+        <div class="control-group">
+          <label>Title</label>
+          <input type="text" id="flow-title-input" class="input-std" placeholder="e.g. Clear Chrome Cache">
+        </div>
+        <div class="control-group">
+          <label>Audience / Tag (optional)</label>
+          <input type="text" id="flow-tag-input" class="input-std" placeholder="e.g. End Users">
+        </div>
+      </div>
+      <div id="flow-steps"></div>
+      <button class="btn" id="flow-add-step">➕ Add Step</button>
+      <p class="flow-hint">Paste a screenshot (Ctrl+V) to attach it to the selected step · first line of a step = heading</p>
+      <div class="flow-editor-foot">
+        <button class="btn" id="flow-cancel">Cancel</button>
+        <button class="btn primary" id="flow-save">💾 Save Flow</button>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="flow-img-upload" accept="image/*" style="display:none">
 
   <input type="file" id="jsonUpload" accept=".json" />
   <script src="./assets/js/default.js"></script>
@@ -931,6 +1009,438 @@
     const d = document.getElementById("notes-drawer");
     resizeDrawer(d.classList.contains("minimized") ? "normal" : "minimized");
   });
+
+  // =====================================================================
+  // FLOW CARDS — step-by-step end-user guides (ported from ProcessFlow)
+  // flow = { id, title, tag?, steps: [ { text, img? (dataURL) } ] }
+  // =====================================================================
+  const LS_FLOWS = "support_ide_flows";
+
+  const FLOW_BUILTINS = [
+    { id: "b_rustdesk", title: "RustDesk Remote Session", tag: "Remote Support", steps: [
+      { text: "Download RustDesk\n• Go to https://rustdesk.com\n• Click 'Download'\n• Choose your operating system" },
+      { text: "Install RustDesk\n• Open the downloaded file\n• Accept the license agreement\n• Complete the installation" },
+      { text: "Share Connection ID\n• Open RustDesk\n• Copy the ID shown on the left\n• Send the ID to your technician" },
+      { text: "Approve Connection\n• Wait for the connection request\n• Click 'Accept'\n• Do not close RustDesk during the session" }
+    ]},
+    { id: "b_anydesk", title: "AnyDesk Remote Session", tag: "Remote Support", steps: [
+      { text: "Download AnyDesk\n• Go to https://anydesk.com\n• Click 'Download Now'" },
+      { text: "Run AnyDesk\n• Open the downloaded file\n• No installation required (optional)" },
+      { text: "Share Address\n• Copy 'This Desk' address\n• Send it to IT support" }
+    ]},
+    { id: "b_chrome_cache", title: "Clear Chrome Cache", tag: "Browser", steps: [
+      { text: "Open Chrome Settings\n• Click the 3 dots (top right)\n• Select 'Settings'" },
+      { text: "Open Clear Browsing Data\n• Go to 'Privacy and security'\n• Click 'Delete browsing data'" },
+      { text: "Clear Cache\n• Time range: All time\n• Check 'Cached images and files'\n• Click 'Delete data'" }
+    ]},
+    { id: "b_firefox_cache", title: "Clear Firefox Cache", tag: "Browser", steps: [
+      { text: "Open Firefox Settings\n• Click the 3 lines (top right)\n• Select 'Settings'" },
+      { text: "Clear Data\n• Go to 'Privacy & Security'\n• Click 'Clear Data'" },
+      { text: "Confirm\n• Check 'Cached Web Content'\n• Click 'Clear'" }
+    ]},
+    { id: "b_restart_router", title: "Restart Router", tag: "Network", steps: [
+      { text: "Locate Router\n• Find the modem/router device\n• Ensure it is powered on" },
+      { text: "Power Cycle\n• Unplug the power cable\n• Wait 30 seconds\n• Plug the power back in" },
+      { text: "Wait for Connection\n• Wait 2–3 minutes\n• Check internet connection again" }
+    ]},
+    { id: "b_flush_dns_windows", title: "Flush DNS (Windows)", tag: "Network", steps: [
+      { text: "Open Command Prompt\n• Press Windows + R\n• Type cmd\n• Press Enter" },
+      { text: "Flush DNS Cache\n• Type: ipconfig /flushdns\n• Press Enter\n• Wait for confirmation message" }
+    ]},
+    { id: "b_windows_update", title: "Windows Update", tag: "OS", steps: [
+      { text: "Open Windows Update\n• Click Start\n• Go to Settings → Windows Update" },
+      { text: "Check for Updates\n• Click 'Check for updates'\n• Wait for scan to complete" },
+      { text: "Install & Restart\n• Install available updates\n• Restart if prompted" }
+    ]},
+    { id: "b_macos_update", title: "macOS Update", tag: "OS", steps: [
+      { text: "Open System Settings\n• Click Apple menu\n• Open 'System Settings'" },
+      { text: "Software Update\n• Go to 'General'\n• Click 'Software Update'" },
+      { text: "Install Updates\n• Click 'Update Now'\n• Restart if required" }
+    ]},
+    { id: "b_password_reset", title: "Password Reset", tag: "Security", steps: [
+      { text: "Open Password Reset Page\n• Go to the company password portal\n• Click 'Forgot password'" },
+      { text: "Verify Identity\n• Enter your email or username\n• Complete verification steps" },
+      { text: "Create New Password\n• Choose a strong password\n• Confirm the new password\n• Save changes" }
+    ]},
+    { id: "b_mfa_setup", title: "MFA Setup", tag: "Security", steps: [
+      { text: "Install Authenticator App\n• Open App Store or Play Store\n• Install Microsoft Authenticator or Google Authenticator" },
+      { text: "Scan QR Code\n• Open the authenticator app\n• Scan the QR code provided by IT" },
+      { text: "Verify MFA\n• Enter the 6-digit code\n• Confirm setup" }
+    ]},
+    { id: "b_basic_it_review", title: "Basic IT Review", tag: "Diagnostics", steps: [
+      { text: "Check System Status\n• Confirm device powers on\n• Check for error messages" },
+      { text: "Check Connectivity\n• Verify Wi-Fi or Ethernet connection\n• Test access to internal systems" },
+      { text: "Check Updates\n• Verify OS is up to date\n• Check application versions" },
+      { text: "Collect Information\n• Note error messages\n• Take screenshots if possible\n• Provide details to IT" }
+    ]}
+  ];
+
+  let flowStore = { overrides: {}, user: [] };
+  try {
+    const fs = JSON.parse(localStorage.getItem(LS_FLOWS));
+    if (fs && typeof fs === "object") flowStore = { overrides: fs.overrides || {}, user: fs.user || [] };
+  } catch(e) {}
+
+  let flowsView = false;
+  let flowDraft = null;
+  let flowActiveStep = 0;
+  let flowImgTarget = 0;
+
+  function saveFlowStore() {
+    try { localStorage.setItem(LS_FLOWS, JSON.stringify(flowStore)); }
+    catch(e) { showToast("⚠️ Storage full — flow not saved"); }
+  }
+  function isBuiltinFlow(id) { return FLOW_BUILTINS.some(f => f.id === id); }
+  function getFlows() {
+    return FLOW_BUILTINS.map(f => flowStore.overrides[f.id] || f).concat(flowStore.user);
+  }
+  function escapeFlowHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  function flowBtn(label, fn) {
+    const b = document.createElement("button");
+    b.className = "btn"; b.textContent = label;
+    b.addEventListener("click", (e) => { e.stopPropagation(); fn(); });
+    return b;
+  }
+
+  // --- View toggle (same top-bar control pattern as dim/reset) ---
+  function toggleFlowsView() {
+    flowsView = !flowsView;
+    const drawerMax = document.getElementById("notes-drawer").classList.contains("maximized");
+    document.getElementById("content-area").style.display = (flowsView || drawerMax) ? "none" : "block";
+    document.getElementById("sidebar").style.display = flowsView ? "none" : "flex";
+    document.getElementById("notes-drawer").style.display = flowsView ? "none" : "flex";
+    document.getElementById("flows-area").style.display = flowsView ? "block" : "none";
+    document.getElementById("flows-btn").classList.toggle("dim-on", flowsView);
+    if (flowsView) renderFlows();
+  }
+  document.getElementById("flows-btn").addEventListener("click", toggleFlowsView);
+
+  // --- Cards grid ---
+  function renderFlows() {
+    const grid = document.getElementById("flows-grid");
+    grid.innerHTML = "";
+    getFlows().forEach(flow => {
+      const builtin = isBuiltinFlow(flow.id);
+      const edited = builtin && !!flowStore.overrides[flow.id];
+      const card = document.createElement("div");
+      card.className = "card flow-card";
+      let html = `<strong>${escapeFlowHtml(flow.title)}</strong>`;
+      if (flow.tag) html += `<span class="flow-tag">${escapeFlowHtml(flow.tag)}</span>`;
+      html += `<div class="flow-meta">${flow.steps.length} steps · ${builtin ? (edited ? "builtin (edited)" : "builtin") : "custom"}</div>`;
+      const thumbs = flow.steps.filter(st => st.img).slice(0, 3);
+      if (thumbs.length) html += `<div class="flow-thumbs">${thumbs.map(st => `<img src="${escapeFlowHtml(st.img)}">`).join("")}</div>`;
+      card.innerHTML = html;
+      const actions = document.createElement("div");
+      actions.className = "flow-actions";
+      actions.appendChild(flowBtn("✏️ Edit", () => openFlowEditor(flow.id)));
+      actions.appendChild(flowBtn("🖼️ Copy as image", () => copyFlowImage(flow)));
+      actions.appendChild(flowBtn("⬇ PNG", () => downloadFlowImage(flow)));
+      if (!builtin) actions.appendChild(flowBtn("🗑 Delete", () => deleteFlow(flow.id)));
+      else if (edited) actions.appendChild(flowBtn("↺ Revert", () => revertFlow(flow.id)));
+      card.appendChild(actions);
+      grid.appendChild(card);
+    });
+    const searchVal = document.getElementById("search-box").value;
+    if (searchVal) document.getElementById("search-box").dispatchEvent(new Event("input"));
+  }
+
+  function deleteFlow(id) {
+    if (!confirm("Delete this flow?")) return;
+    flowStore.user = flowStore.user.filter(f => f.id !== id);
+    saveFlowStore(); renderFlows(); showToast("🗑 Flow deleted");
+  }
+  function revertFlow(id) {
+    if (!confirm("Revert this builtin flow to its original version?")) return;
+    delete flowStore.overrides[id];
+    saveFlowStore(); renderFlows(); showToast("↺ Flow reverted");
+  }
+
+  // --- Editor ---
+  function openFlowEditor(id) {
+    const src = id ? getFlows().find(f => f.id === id) : null;
+    flowDraft = src ? JSON.parse(JSON.stringify(src)) : { id: null, title: "", tag: "", steps: [{ text: "" }] };
+    flowActiveStep = 0;
+    document.getElementById("flow-title-input").value = flowDraft.title;
+    document.getElementById("flow-tag-input").value = flowDraft.tag || "";
+    renderFlowSteps();
+    document.getElementById("flow-modal").style.display = "block";
+  }
+  function closeFlowEditor() {
+    flowDraft = null;
+    document.getElementById("flow-modal").style.display = "none";
+  }
+
+  function renderFlowSteps() {
+    const wrap = document.getElementById("flow-steps");
+    wrap.innerHTML = "";
+    flowDraft.steps.forEach((step, idx) => {
+      const row = document.createElement("div");
+      row.className = "flow-step";
+      const num = document.createElement("div");
+      num.className = "flow-step-num"; num.textContent = idx + 1;
+      const main = document.createElement("div");
+      main.className = "flow-step-main";
+      const ta = document.createElement("textarea");
+      ta.value = step.text || "";
+      ta.placeholder = "Step text — first line is the heading…";
+      ta.addEventListener("input", (e) => { step.text = e.target.value; });
+      ta.addEventListener("focus", () => { flowActiveStep = idx; });
+      main.appendChild(ta);
+      if (step.img) {
+        const holder = document.createElement("div");
+        holder.className = "flow-step-img";
+        const im = document.createElement("img"); im.src = step.img;
+        holder.appendChild(im);
+        main.appendChild(holder);
+      }
+      const side = document.createElement("div");
+      side.className = "flow-step-side";
+      side.appendChild(flowBtn("↑", () => moveFlowStep(idx, -1)));
+      side.appendChild(flowBtn("↓", () => moveFlowStep(idx, 1)));
+      side.appendChild(flowBtn("📷", () => { flowImgTarget = idx; document.getElementById("flow-img-upload").click(); }));
+      if (step.img) side.appendChild(flowBtn("✂🖼", () => { delete step.img; renderFlowSteps(); }));
+      side.appendChild(flowBtn("✕", () => {
+        if (flowDraft.steps.length === 1) return showToast("⚠️ A flow needs at least one step");
+        flowDraft.steps.splice(idx, 1); renderFlowSteps();
+      }));
+      row.appendChild(num); row.appendChild(main); row.appendChild(side);
+      wrap.appendChild(row);
+    });
+  }
+
+  function moveFlowStep(idx, dir) {
+    const to = idx + dir;
+    if (to < 0 || to >= flowDraft.steps.length) return;
+    const moved = flowDraft.steps.splice(idx, 1)[0];
+    flowDraft.steps.splice(to, 0, moved);
+    flowActiveStep = to;
+    renderFlowSteps();
+  }
+
+  function saveFlowDraft() {
+    if (!flowDraft) return;
+    flowDraft.title = document.getElementById("flow-title-input").value.trim();
+    flowDraft.tag = document.getElementById("flow-tag-input").value.trim();
+    if (!flowDraft.title) return showToast("⚠️ Title required");
+    flowDraft.steps = flowDraft.steps.filter(st => (st.text && st.text.trim()) || st.img);
+    if (!flowDraft.steps.length) return showToast("⚠️ At least one step required");
+    if (flowDraft.id && isBuiltinFlow(flowDraft.id)) {
+      flowStore.overrides[flowDraft.id] = flowDraft; // copy-on-write, builtin stays intact
+    } else if (flowDraft.id) {
+      flowStore.user = flowStore.user.map(f => f.id === flowDraft.id ? flowDraft : f);
+    } else {
+      flowDraft.id = "u" + Date.now();
+      flowStore.user.push(flowDraft);
+    }
+    saveFlowStore(); closeFlowEditor(); renderFlows(); showToast("💾 Flow saved");
+  }
+
+  document.getElementById("flow-new").addEventListener("click", () => openFlowEditor(null));
+  document.getElementById("flow-save").addEventListener("click", saveFlowDraft);
+  document.getElementById("flow-cancel").addEventListener("click", closeFlowEditor);
+  document.getElementById("flow-add-step").addEventListener("click", () => {
+    if (!flowDraft) return;
+    flowDraft.steps.push({ text: "" });
+    flowActiveStep = flowDraft.steps.length - 1;
+    renderFlowSteps();
+  });
+  document.getElementById("flow-modal").addEventListener("click", (e) => {
+    if (e.target.id === "flow-modal") closeFlowEditor();
+  });
+
+  // --- Step images: paste from clipboard or pick a file, downscaled to ≤900px ---
+  document.getElementById("flow-modal").addEventListener("paste", (e) => {
+    if (!flowDraft || !e.clipboardData) return;
+    const items = e.clipboardData.items || [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.indexOf("image/") === 0) {
+        e.preventDefault();
+        downscaleFlowImage(items[i].getAsFile(), (dataUrl) => {
+          const step = flowDraft && (flowDraft.steps[flowActiveStep] || flowDraft.steps[0]);
+          if (step) { step.img = dataUrl; renderFlowSteps(); showToast("🖼️ Image pasted"); }
+        });
+        return;
+      }
+    }
+  });
+
+  document.getElementById("flow-img-upload").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file || !flowDraft) return;
+    downscaleFlowImage(file, (dataUrl) => {
+      const step = flowDraft && flowDraft.steps[flowImgTarget];
+      if (step) { step.img = dataUrl; renderFlowSteps(); }
+    });
+  });
+
+  function downscaleFlowImage(file, cb) {
+    if (!file) return;
+    const img = new Image();
+    img.onload = () => {
+      const w = Math.min(900, img.naturalWidth || 900);
+      const h = Math.max(1, Math.round((img.naturalHeight || 1) * (w / (img.naturalWidth || w))));
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(img.src);
+      cb(c.toDataURL("image/png"));
+    };
+    img.onerror = () => { URL.revokeObjectURL(img.src); showToast("⚠️ Could not read image"); };
+    img.src = URL.createObjectURL(file);
+  }
+
+  // --- Share as image: pure-canvas PNG render (no html2canvas) ---
+  function wrapFlowText(ctx, text, maxW) {
+    const out = [];
+    String(text).split("\n").forEach(line => {
+      let cur = "";
+      line.split(" ").forEach(word => {
+        const test = cur ? cur + " " + word : word;
+        if (ctx.measureText(test).width > maxW && cur) { out.push(cur); cur = word; }
+        else cur = test;
+        while (ctx.measureText(cur).width > maxW && cur.length > 1) {
+          let cut = cur.length - 1;
+          while (cut > 1 && ctx.measureText(cur.slice(0, cut)).width > maxW) cut--;
+          out.push(cur.slice(0, cut)); cur = cur.slice(cut);
+        }
+      });
+      out.push(cur);
+    });
+    return out;
+  }
+
+  function loadFlowImages(flow, cb) {
+    const imgs = {};
+    const srcs = flow.steps.map(st => st.img).filter(Boolean);
+    let left = srcs.length;
+    if (!left) return cb(imgs);
+    srcs.forEach(src => {
+      const im = new Image();
+      im.onload = im.onerror = () => { imgs[src] = im; if (--left === 0) cb(imgs); };
+      im.src = src;
+    });
+  }
+
+  function renderFlowCanvas(flow, cb) {
+    const go = () => loadFlowImages(flow, (imgs) => cb(drawFlowCanvas(flow, imgs)));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(go);
+    else go();
+  }
+
+  function drawFlowCanvas(flow, imgs) {
+    const S = 2, W = 760, pad = 28, numW = 44;
+    const textX = pad + numW, textW = W - textX - pad, lineH = 20;
+    const headFont = '700 15px "IBM Plex Sans", sans-serif';
+    const bodyFont = '400 13.5px "IBM Plex Sans", sans-serif';
+    const m = document.createElement("canvas").getContext("2d");
+
+    // layout pass
+    const blocks = flow.steps.map(step => {
+      const lines = String(step.text || "").split("\n");
+      m.font = headFont;
+      const head = wrapFlowText(m, lines[0] || "", textW);
+      m.font = bodyFont;
+      const body = lines.length > 1 ? wrapFlowText(m, lines.slice(1).join("\n"), textW) : [];
+      const textH = (head.length + body.length) * lineH;
+      let imgW = 0, imgH = 0;
+      const im = step.img && imgs[step.img];
+      if (im && im.naturalWidth) {
+        imgW = Math.min(textW, im.naturalWidth);
+        imgH = Math.round(im.naturalHeight * (imgW / im.naturalWidth));
+      }
+      return { head, body, textH, im, imgW, imgH, h: Math.max(textH + (imgH ? imgH + 10 : 0), 28) };
+    });
+
+    const headerH = flow.tag ? 92 : 76;
+    const stepGap = 20, footerH = 40;
+    const H = headerH + blocks.reduce((a, b) => a + b.h + stepGap, 0) + footerH;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = W * S; canvas.height = H * S;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(S, S);
+
+    // dark card background + gold accent header
+    ctx.fillStyle = "#0b0b0b"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#eab308"; ctx.fillRect(0, 0, W, 4);
+    ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+    ctx.font = '700 24px "IBM Plex Sans", sans-serif';
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(flow.title, pad, 46);
+    if (flow.tag) {
+      ctx.font = '700 11px "IBM Plex Mono", monospace';
+      ctx.fillStyle = "#eab308";
+      ctx.fillText(String(flow.tag).toUpperCase(), pad, 68);
+    }
+    ctx.strokeStyle = "#262626"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad, headerH - 14); ctx.lineTo(W - pad, headerH - 14); ctx.stroke();
+
+    let y = headerH + 8;
+    blocks.forEach((b, i) => {
+      ctx.beginPath();
+      ctx.arc(pad + 13, y + 9, 13, 0, Math.PI * 2);
+      ctx.strokeStyle = "#eab308"; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.font = '700 13px "IBM Plex Mono", monospace';
+      ctx.fillStyle = "#eab308"; ctx.textAlign = "center";
+      ctx.fillText(String(i + 1), pad + 13, y + 14);
+      ctx.textAlign = "left";
+
+      let ly = y + 14;
+      ctx.font = headFont; ctx.fillStyle = "#ffffff";
+      b.head.forEach(line => { ctx.fillText(line, textX, ly); ly += lineH; });
+      ctx.font = bodyFont; ctx.fillStyle = "#a3a3a3";
+      b.body.forEach(line => { ctx.fillText(line, textX, ly); ly += lineH; });
+      if (b.im && b.imgW) {
+        const iy = y + b.textH + 6;
+        ctx.drawImage(b.im, textX, iy, b.imgW, b.imgH);
+        ctx.strokeStyle = "#262626"; ctx.lineWidth = 1;
+        ctx.strokeRect(textX + 0.5, iy + 0.5, b.imgW - 1, b.imgH - 1);
+      }
+      y += b.h + stepGap;
+    });
+
+    ctx.font = '400 10px "IBM Plex Mono", monospace';
+    ctx.fillStyle = "#666666";
+    ctx.fillText("support.carino.systems", pad, H - 16);
+    return canvas;
+  }
+
+  function flowSlug(t) {
+    return String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "flow";
+  }
+
+  function downloadFlowCanvas(canvas, flow, msg) {
+    canvas.toBlob((blob) => {
+      if (!blob) return showToast("⚠️ Image export failed");
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = flowSlug(flow.title) + ".png";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      showToast(msg);
+    }, "image/png");
+  }
+
+  function downloadFlowImage(flow) {
+    renderFlowCanvas(flow, (canvas) => downloadFlowCanvas(canvas, flow, "⬇ PNG downloaded"));
+  }
+
+  function copyFlowImage(flow) {
+    renderFlowCanvas(flow, (canvas) => {
+      if (!navigator.clipboard || !window.ClipboardItem) {
+        return downloadFlowCanvas(canvas, flow, "Clipboard unavailable — PNG downloaded");
+      }
+      canvas.toBlob((blob) => {
+        if (!blob) return showToast("⚠️ Image export failed");
+        navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+          .then(() => showToast("🖼️ Flow image copied"))
+          .catch(() => downloadFlowCanvas(canvas, flow, "Clipboard blocked — PNG downloaded"));
+      }, "image/png");
+    });
+  }
 </script>
   <script src="carino-navbar.js" data-app="Support" defer></script>
 </body>
