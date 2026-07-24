@@ -464,6 +464,62 @@
     .composer-chip:hover { border-color: #ef4444; color: #fca5a5; }
     #composer-dock .btn { padding: 5px 8px; }
 
+    /* --- T4: Edit-files media modal + Multisearch popup --- */
+    #media-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 660; display: none; }
+    #media-shell {
+      width: 92vw; height: 90vh; margin: 4vh auto 0;
+      background: var(--bg-elev); border: 1px solid var(--accent); border-radius: 10px;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 24px var(--accent-glow);
+    }
+    #media-head {
+      display: flex; align-items: center; gap: 12px; padding: 8px 14px;
+      background: var(--bg-nav); border-bottom: 1px solid var(--accent);
+      font-family: var(--mono); font-size: 12px; flex-shrink: 0;
+    }
+    #media-head strong { color: var(--accent); font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; }
+    #media-head .media-sub { color: var(--text-muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #media-open-full {
+      margin-left: auto; color: var(--text-main); text-decoration: none;
+      border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px;
+      font-family: var(--mono); font-size: 11px; white-space: nowrap; transition: 0.15s;
+    }
+    #media-open-full:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-faint); }
+    #media-close {
+      cursor: pointer; color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px;
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0; transition: 0.15s;
+    }
+    #media-close:hover { color: #050505; background: var(--accent); border-color: var(--accent); }
+    #media-body { position: relative; flex: 1; background: #050505; }
+    #media-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: none; background: #050505; }
+    #media-offline {
+      position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; background: var(--bg-content); color: var(--text-main);
+      font-family: var(--mono); font-size: 12.5px; text-align: center; padding: 24px; z-index: 2; line-height: 1.6;
+    }
+    #media-offline .big { font-size: 1.8rem; opacity: 0.5; }
+
+    #msearch-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 660; display: none; overflow-y: auto; }
+    #msearch-modal .flow-editor { max-width: 560px; }
+    #msearch-targets {
+      max-height: 250px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px; margin-bottom: 12px; background: var(--bg-content);
+    }
+    .ms-row {
+      display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 6px;
+      font-family: var(--mono); font-size: 12px; color: var(--text-main); cursor: pointer;
+    }
+    .ms-row:hover { background: var(--accent-faint); }
+    .ms-row input[type="checkbox"] { accent-color: var(--accent); flex-shrink: 0; margin: 0; }
+    .ms-row .ms-title { color: var(--text-header); white-space: nowrap; }
+    .ms-row .ms-url { color: var(--text-muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .ms-del { flex-shrink: 0; cursor: pointer; color: var(--text-muted); font-size: 11px; padding: 1px 5px; border-radius: 4px; }
+    .ms-del:hover { color: #fca5a5; background: rgba(239,68,68,0.1); }
+    .ms-add-row { display: flex; gap: 6px; margin-bottom: 4px; }
+    .ms-add-row .input-std { flex: 1; min-width: 0; }
+    .ms-add-row .btn { flex-shrink: 0; }
+
     /* --- Tab bar merged INTO the Carino navbar (via data-carino-actions) --- */
     #carinoNav #top-bar { height: auto; background: transparent; border: none; padding: 0; align-items: center; gap: 6px; }
     #carinoNav #tabs-container { display: flex; gap: 4px; overflow-x: auto; max-width: 46vw; scrollbar-width: thin; }
@@ -644,6 +700,47 @@
       <div class="flow-editor-foot">
         <button class="btn" id="quick-cancel">Cancel</button>
         <button class="btn primary" id="quick-copy">📋 Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="media-modal">
+    <div id="media-shell">
+      <div id="media-head">
+        <strong id="media-title">🖼 Edit Files</strong>
+        <span class="media-sub" id="media-sub">media.carino.systems — PDF → images · OCR · signature cleanup · image/audio conversion</span>
+        <a id="media-open-full" href="https://media.carino.systems" target="_blank" rel="noopener">open full ↗</a>
+        <span id="media-close" title="Close">✕</span>
+      </div>
+      <div id="media-body">
+        <div id="media-offline">
+          <div class="big">📡</div>
+          <div id="media-offline-text">media.carino.systems did not load — you appear to be offline.<br>The media suite needs a network connection. Files are dropped directly inside the tool; nothing passes through this page.</div>
+          <button class="btn" id="media-retry">↻ Retry</button>
+        </div>
+        <iframe id="media-frame" title="Carino Media Suite"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div id="msearch-modal">
+    <div class="flow-editor">
+      <h3 id="msearch-title">🔎 Multisearch</h3>
+      <div class="control-group">
+        <label id="msearch-query-label">Query</label>
+        <input type="text" id="msearch-query" class="input-std" placeholder="One query — every checked target opens in a new tab">
+      </div>
+      <div id="msearch-targets"></div>
+      <div class="ms-add-row">
+        <input type="text" id="msearch-add-title" class="input-std" placeholder="Label">
+        <input type="text" id="msearch-add-url" class="input-std" placeholder="URL with [str] placeholder">
+        <button class="btn" id="msearch-add">➕ Add</button>
+      </div>
+      <p class="flow-hint" id="msearch-hint">[str] marks where the query goes · targets persist in this browser</p>
+      <div class="flow-editor-foot">
+        <button class="btn" id="msearch-defaults">↺ Defaults</button>
+        <button class="btn" id="msearch-cancel">Close</button>
+        <button class="btn primary" id="msearch-go">↗ Search</button>
       </div>
     </div>
   </div>
@@ -862,8 +959,9 @@
     persistNow();
     persistSuppressed = true;
     // Wipe every app key (config, sessions, active, flows, trash, lang, …)
+    // plus the newer 'sds.'-prefixed keys (multisearch targets).
     Object.keys(localStorage)
-      .filter(k => k.indexOf("support_ide_") === 0)
+      .filter(k => k.indexOf("support_ide_") === 0 || k.indexOf("sds.") === 0)
       .forEach(k => localStorage.removeItem(k));
     location.reload();
   });
@@ -1478,6 +1576,7 @@
     });
 
     renderFlowsSection(container);
+    renderToolsSection(container); // T4: Edit files + Multisearch cards
 
     applyFieldCardFiltering();
     const searchVal = document.getElementById("search-box").value;
@@ -2151,7 +2250,8 @@
   }
   function anyModalOpen() {
     return isLayerOpen("flow-modal") || isLayerOpen("fill-modal") || isLayerOpen("shortcut-overlay") ||
-           isLayerOpen("digest-modal") || isLayerOpen("sheet-modal") || isLayerOpen("quick-modal");
+           isLayerOpen("digest-modal") || isLayerOpen("sheet-modal") || isLayerOpen("quick-modal") ||
+           isLayerOpen("media-modal") || isLayerOpen("msearch-modal");
   }
 
   function keymapMatches(e, m) {
@@ -2181,6 +2281,8 @@
   // --- Esc stack: exactly ONE action per press, top layer first ---
   function escStackAction() {
     if (isLayerOpen("shortcut-overlay")) { toggleShortcutOverlay(false); return true; }
+    if (isLayerOpen("media-modal")) { closeMediaModal(); return true; }
+    if (isLayerOpen("msearch-modal")) { closeMultisearch(); return true; }
     if (isLayerOpen("flow-modal")) { requestCloseFlowEditor(); return true; }
     if (isLayerOpen("fill-modal")) { closeFillPopover(); return true; }
     if (isLayerOpen("quick-modal")) { closeQuickEdit(); return true; }
@@ -2956,6 +3058,259 @@
         if (isLayerOpen("fill-modal")) return void commitFillPopover();
         const dock = document.getElementById("composer-dock");
         if (dock.style.display !== "none" && dock.contains(document.activeElement)) return void copyComposerAll();
+        return false;
+      } }
+  );
+
+  // =====================================================================
+  // T4 — EDIT FILES (media.carino.systems popup) + MULTISEARCH
+  // Two extra cards in a trailing "Tools" category (same builder grammar
+  // as snippet cards: accessible, search-indexed) and two modals that
+  // join the existing Esc stack / modal registry.
+  // =====================================================================
+
+  // --- Edit files: cross-origin iframe onto the fleet media suite.
+  // Files are dropped directly inside the frame; nothing passes between
+  // the two pages. Offline note appears only when the frame never loads. ---
+  const MEDIA_URL = "https://media.carino.systems";
+  let mediaLoaded = false, mediaFailed = false, mediaTimer = null;
+
+  function startMediaLoad() {
+    const iframe = document.getElementById("media-frame");
+    mediaLoaded = false; mediaFailed = false;
+    document.getElementById("media-offline").style.display = "none";
+    iframe.src = MEDIA_URL;
+    clearTimeout(mediaTimer);
+    mediaTimer = setTimeout(() => {
+      if (!mediaLoaded) {
+        mediaFailed = true;
+        document.getElementById("media-offline").style.display = "flex";
+      }
+    }, 7000);
+  }
+  document.getElementById("media-frame").addEventListener("load", () => {
+    mediaLoaded = true;
+    clearTimeout(mediaTimer);
+    document.getElementById("media-offline").style.display = "none";
+  });
+  document.getElementById("media-frame").addEventListener("error", () => {
+    mediaFailed = true;
+    clearTimeout(mediaTimer);
+    document.getElementById("media-offline").style.display = "flex";
+  });
+
+  function openMediaModal() {
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    document.getElementById("media-title").textContent = `🖼 ${flowT("mediaCardTitle", "Edit Files")}`;
+    document.getElementById("media-offline-text").innerHTML =
+      escapeFlowHtml(flowT("mediaOffline1", "media.carino.systems did not load — you appear to be offline.")) + "<br>" +
+      escapeFlowHtml(flowT("mediaOffline2", "The media suite needs a network connection. Files are dropped directly inside the tool; nothing passes through this page."));
+    document.getElementById("media-retry").textContent = flowT("mediaRetry", "↻ Retry");
+    document.getElementById("media-modal").style.display = "block";
+    const iframe = document.getElementById("media-frame");
+    if (!iframe.getAttribute("src") || mediaFailed) startMediaLoad();
+  }
+  function closeMediaModal() {
+    clearTimeout(mediaTimer);
+    document.getElementById("media-modal").style.display = "none";
+  }
+  document.getElementById("media-close").addEventListener("click", closeMediaModal);
+  document.getElementById("media-retry").addEventListener("click", startMediaLoad);
+  document.getElementById("media-modal").addEventListener("click", (e) => {
+    if (e.target.id === "media-modal") closeMediaModal();
+  });
+
+  // --- Multisearch: one query fanned out across checked link templates.
+  // Core ported from Multisearch-index — [str] substitution scheme and its
+  // default template set (the 'packages' category it starts on). Targets
+  // are editable and persist under the 'sds.' key (wiped by ↺ Reset). ---
+  const LS_MSEARCH = "sds.multisearch";
+
+  const MSEARCH_DEFAULTS = [
+    { title: 'NixOS — Unstable',          url: 'https://search.nixos.org/packages?channel=unstable&query=[str]', on: false },
+    { title: 'NixOS — 24.11 Stable',      url: 'https://search.nixos.org/packages?channel=24.11&query=[str]', on: false },
+    { title: 'NixOS — Options',           url: 'https://search.nixos.org/options?channel=unstable&query=[str]', on: false },
+    { title: 'GNU Guix',                  url: 'https://packages.guix.gnu.org/search/?query=[str]', on: false },
+    { title: 'Fedora',                    url: 'https://packages.fedoraproject.org/search?query=[str]', on: true },
+    { title: 'Fedora Rawhide',            url: 'https://packages.fedoraproject.org/search?query=[str]&branch=devel', on: false },
+    { title: 'EPEL 9 (RHEL/Rocky/Alma)',  url: 'https://packages.fedoraproject.org/search?query=[str]&repo=epel9', on: false },
+    { title: 'Rocky Linux',               url: 'https://pkgs.org/search/?q=[str]&repos=Rocky+Linux', on: false },
+    { title: 'AlmaLinux',                 url: 'https://pkgs.org/search/?q=[str]&repos=AlmaLinux', on: false },
+    { title: 'Debian Bookworm (12)',      url: 'https://packages.debian.org/bookworm/[str]', on: true },
+    { title: 'Debian Trixie (13)',        url: 'https://packages.debian.org/trixie/[str]', on: false },
+    { title: 'Debian Forky (14)',         url: 'https://packages.debian.org/forky/[str]', on: false },
+    { title: 'Debian Sid (Unstable)',     url: 'https://packages.debian.org/sid/[str]', on: false },
+    { title: 'Debian Experimental',       url: 'https://packages.debian.org/experimental/[str]', on: false },
+    { title: 'Ubuntu 22.04 LTS (Jammy)',  url: 'https://packages.ubuntu.com/jammy/[str]', on: false },
+    { title: 'Ubuntu 24.04 LTS (Noble)',  url: 'https://packages.ubuntu.com/noble/[str]', on: false },
+    { title: 'Ubuntu 25.04 (Plucky)',     url: 'https://packages.ubuntu.com/plucky/[str]', on: false },
+    { title: 'Ubuntu 25.10 (Questing)',   url: 'https://packages.ubuntu.com/questing/[str]', on: false },
+    { title: 'Ubuntu 26.04 LTS (Resolute)', url: 'https://packages.ubuntu.com/resolute/[str]', on: false },
+    { title: 'Arch Linux (Official)',     url: 'https://archlinux.org/packages/?q=[str]', on: false },
+    { title: 'AUR (User Repository)',     url: 'https://aur.archlinux.org/packages/?K=[str]', on: false },
+    { title: 'Alpine Linux — Edge',       url: 'https://pkgs.alpinelinux.org/packages?name=*[str]*&branch=edge', on: false },
+    { title: 'Alpine Linux — 3.21',       url: 'https://pkgs.alpinelinux.org/packages?name=*[str]*&branch=v3.21', on: false },
+    { title: 'Void Linux (glibc)',        url: 'https://voidlinux.org/packages/?arch=x86_64&q=[str]', on: false },
+    { title: 'Void Linux (musl)',         url: 'https://voidlinux.org/packages/?arch=x86_64-musl&q=[str]', on: false },
+    { title: 'Gentoo Portage',            url: 'https://packages.gentoo.org/packages/search?q=[str]', on: false },
+    { title: 'openSUSE Tumbleweed',       url: 'https://software.opensuse.org/package/[str]', on: false },
+    { title: 'openSUSE Leap 15.6',        url: 'https://software.opensuse.org/find?q=[str]', on: false },
+    { title: 'FreeBSD Ports',             url: 'https://www.freshports.org/search.php?query=[str]', on: false },
+    { title: 'NetBSD pkgsrc',             url: 'https://pkgsrc.se/search.php?q=[str]', on: false },
+    { title: 'OpenBSD Ports',             url: 'https://openports.pl/search?q=[str]', on: false },
+    { title: 'Flathub (Flatpak)',         url: 'https://flathub.org/apps/search?q=[str]', on: false },
+    { title: 'Snapcraft',                 url: 'https://snapcraft.io/search?q=[str]', on: false },
+    { title: 'Homebrew Formulae',         url: 'https://formulae.brew.sh/formula/[str]', on: false },
+    { title: 'Homebrew Casks',            url: 'https://formulae.brew.sh/cask/[str]', on: false },
+    { title: 'pkgs.org (All Distros)',    url: 'https://pkgs.org/search/?q=[str]', on: true },
+    { title: 'SlackBuilds',               url: 'https://slackbuilds.org/result/?search=[str]', on: false }
+  ];
+
+  function loadMsearchTargets() {
+    try {
+      const s = JSON.parse(localStorage.getItem(LS_MSEARCH));
+      if (s && Array.isArray(s.targets) && s.targets.length) return s.targets;
+    } catch(e) {}
+    return MSEARCH_DEFAULTS.map(t => ({ ...t }));
+  }
+  let msearchTargets = loadMsearchTargets();
+  function saveMsearchTargets() {
+    try { localStorage.setItem(LS_MSEARCH, JSON.stringify({ targets: msearchTargets })); } catch(e) {}
+  }
+
+  function syncMsearchGo() {
+    const n = msearchTargets.filter(t => t.on).length;
+    document.getElementById("msearch-go").textContent = `↗ ${flowT("msSearch", "Search")} (${n})`;
+  }
+
+  function renderMsearchTargets() {
+    const wrap = document.getElementById("msearch-targets");
+    wrap.innerHTML = "";
+    msearchTargets.forEach((t, i) => {
+      const row = document.createElement("label");
+      row.className = "ms-row";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = !!t.on;
+      cb.addEventListener("change", () => { t.on = cb.checked; saveMsearchTargets(); syncMsearchGo(); });
+      const title = document.createElement("span");
+      title.className = "ms-title"; title.textContent = t.title;
+      const url = document.createElement("span");
+      url.className = "ms-url"; url.textContent = t.url;
+      const del = document.createElement("span");
+      del.className = "ms-del"; del.textContent = "✕";
+      del.title = flowT("msDeleteTip", "Remove target");
+      del.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        msearchTargets.splice(i, 1);
+        saveMsearchTargets(); renderMsearchTargets();
+      });
+      row.appendChild(cb); row.appendChild(title); row.appendChild(url); row.appendChild(del);
+      wrap.appendChild(row);
+    });
+    syncMsearchGo();
+  }
+
+  function openMultisearch() {
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    document.getElementById("msearch-title").textContent = flowT("msTitle", "🔎 Multisearch");
+    document.getElementById("msearch-query-label").textContent = flowT("msQueryLabel", "Query");
+    document.getElementById("msearch-query").placeholder = flowT("msQueryPh", "One query — every checked target opens in a new tab");
+    document.getElementById("msearch-hint").textContent = flowT("msHint", "[str] marks where the query goes · targets persist in this browser");
+    document.getElementById("msearch-defaults").textContent = flowT("msDefaults", "↺ Defaults");
+    document.getElementById("msearch-cancel").textContent = flowT("msClose", "Close");
+    document.getElementById("msearch-add").textContent = flowT("msAdd", "➕ Add");
+    renderMsearchTargets();
+    document.getElementById("msearch-modal").style.display = "block";
+    const q = document.getElementById("msearch-query");
+    q.focus(); q.select();
+  }
+  function closeMultisearch() {
+    document.getElementById("msearch-modal").style.display = "none";
+  }
+
+  function runMultisearch() {
+    const q = document.getElementById("msearch-query").value.trim();
+    if (!q) { document.getElementById("msearch-query").focus(); return showToast(flowT("msNoQuery", "⚠ Type a query first"), true); }
+    const on = msearchTargets.filter(t => t.on);
+    if (!on.length) return showToast(flowT("msNoTargets", "⚠ Check at least one target"), true);
+    logEvent("open", `${flowT("msCardTitle", "Multisearch")} "${q}" ×${on.length}`);
+    on.forEach(t => window.open(t.url.replace("[str]", encodeURIComponent(q)), "_blank", "noopener"));
+    showToast(`↗ ${on.length} ${flowT("msOpened", "searches opened")}`);
+  }
+
+  document.getElementById("msearch-go").addEventListener("click", runMultisearch);
+  document.getElementById("msearch-cancel").addEventListener("click", closeMultisearch);
+  document.getElementById("msearch-modal").addEventListener("click", (e) => {
+    if (e.target.id === "msearch-modal") closeMultisearch();
+  });
+  document.getElementById("msearch-query").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.ctrlKey) { e.preventDefault(); runMultisearch(); }
+  });
+  document.getElementById("msearch-add").addEventListener("click", () => {
+    const tEl = document.getElementById("msearch-add-title");
+    const uEl = document.getElementById("msearch-add-url");
+    const title = tEl.value.trim(), url = uEl.value.trim();
+    if (!title || url.indexOf("[str]") === -1) {
+      return showToast(flowT("msAddInvalid", "⚠ Need a label and a URL containing [str]"), true);
+    }
+    msearchTargets.push({ title, url, on: true });
+    tEl.value = ""; uEl.value = "";
+    saveMsearchTargets(); renderMsearchTargets();
+    showToast(`➕ ${title}`);
+  });
+  document.getElementById("msearch-defaults").addEventListener("click", () => {
+    if (!confirm(flowT("msDefaultsConfirm", "Reset multisearch targets to the defaults?"))) return;
+    msearchTargets = MSEARCH_DEFAULTS.map(t => ({ ...t }));
+    saveMsearchTargets(); renderMsearchTargets();
+  });
+
+  // --- Tools cards: rendered by renderSnippets as the trailing category ---
+  function renderToolsSection(container) {
+    const header = document.createElement("div");
+    header.className = "category-header";
+    header.textContent = flowT("toolsSection", "Tools");
+    container.appendChild(header);
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    const media = document.createElement("div");
+    media.className = "card";
+    media.setAttribute("data-card-label", "Edit files");
+    media.innerHTML = `<strong>🖼 ${escapeFlowHtml(flowT("mediaCardTitle", "Edit files"))}</strong>` +
+      escapeFlowHtml(flowT("mediaCardDesc", "PDF → images · OCR · signature cleanup · image & audio conversion — opens the fleet media suite in a popup"));
+    media.onclick = openMediaModal;
+    makeCardAccessible(media);
+    stampSearchIndex(media, ["edit files", "media", "pdf", "ocr", "signature", "image", "audio", "convert", "tools",
+                             flowT("mediaCardTitle", "Edit files"), flowT("mediaCardDesc", "")]);
+    media.setAttribute("data-label-search", foldSearch(`edit files media ${flowT("mediaCardTitle", "")}`));
+    grid.appendChild(media);
+
+    const ms = document.createElement("div");
+    ms.className = "card";
+    ms.setAttribute("data-card-label", "Multisearch");
+    ms.innerHTML = `<strong>🔎 ${escapeFlowHtml(flowT("msCardTitle", "Multisearch"))}</strong>` +
+      escapeFlowHtml(flowT("msCardDesc", "One query across your search targets — each checked source opens in a new tab"));
+    ms.onclick = openMultisearch;
+    makeCardAccessible(ms);
+    stampSearchIndex(ms, ["multisearch", "search", "targets", "query", "sources", "tools",
+                          flowT("msCardTitle", "Multisearch"), flowT("msCardDesc", "")]);
+    ms.setAttribute("data-label-search", foldSearch(`multisearch ${flowT("msCardTitle", "")}`));
+    grid.appendChild(ms);
+
+    container.appendChild(grid);
+  }
+
+  // --- T4 KEYMAP entries ---
+  KEYMAP.push(
+    { key: "e", when: "idle", desc: "kMediaTools", fb: "Open Edit files (media suite)",
+      run: () => openMediaModal() },
+    { key: "m", when: "idle", desc: "kMultisearch", fb: "Open multisearch",
+      run: () => openMultisearch() },
+    // Ctrl+Enter contextual confirm — multisearch modal runs the search.
+    { key: "Enter", ctrl: true, when: "global",
+      run: () => {
+        if (isLayerOpen("msearch-modal")) return void runMultisearch();
         return false;
       } }
   );
