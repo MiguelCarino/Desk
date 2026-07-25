@@ -11,6 +11,7 @@
       /* Carino design tokens (branding.carino.systems) */
       --bg-nav: #0d0d0d;
       --bg-sidebar: #0b0b0b;
+      --bg-card: #0b0b0b;
       --bg-content: #050505;
       --bg-notes: #0b0b0b;
       --bg-elev: #0d0d0d;
@@ -87,7 +88,7 @@
     .tab.status-pending.active { border-top-color: var(--status-pending); }
     .tab.status-done.active    { border-top-color: var(--status-done); }
 
-    .tab-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; }
+    .tab-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
     .tab.status-ongoing .tab-status-dot { background: var(--status-ongoing); }
     .tab.status-pending .tab-status-dot { background: var(--status-pending); }
     .tab.status-done .tab-status-dot    { background: var(--status-done); }
@@ -528,7 +529,7 @@
     #carinoNav .tab.status-ongoing.active { border-color: var(--status-ongoing); }
     #carinoNav .tab.status-pending.active { border-color: var(--status-pending); }
     #carinoNav .tab.status-done.active    { border-color: var(--status-done); }
-    #carinoNav #new-tab-btn { height: 34px; width: 34px; border-radius: 6px; color: #aaa; }
+    #carinoNav #new-tab-btn { height: 34px; width: 34px; border-radius: 6px; color: #a3a3a3; }
     #carinoNav .top-right-controls { height: auto; margin-left: 6px; }
   </style>
 </head>
@@ -748,9 +749,6 @@
   <input type="file" id="jsonUpload" accept=".json" />
   <script src="./assets/js/default.js"></script>
 <script>
-  // --- DEFAULT JSON (FOR FIRST LOAD) ---
-  
-
   // --- STATE ---
   let sessions = [];
   let activeSessionId = null;
@@ -785,7 +783,6 @@
     } 
     else if (typeof DEFAULT_CONFIG !== 'undefined') {
       // NEW USER (Offline): Load from default.js
-      console.log("Loading Default Config");
       loadConfigInternal(DEFAULT_CONFIG, true); // true = wipe and start fresh
     }
 
