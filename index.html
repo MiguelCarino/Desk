@@ -635,7 +635,7 @@
         </div>
         <div class="control-group" id="flow-footer-custom-group" style="display:none;">
           <label>Footer text</label>
-          <input type="text" id="flow-footer-input" class="input-std" placeholder="support.carino.systems">
+          <input type="text" id="flow-footer-input" class="input-std" placeholder="desk.carino.systems">
         </div>
       </div>
       <div id="flow-steps"></div>
@@ -2104,7 +2104,7 @@
     if (flow && typeof flow.footer === "string" && flow.footer) return flow.footer;
     const cfg = flowConfig();
     const univ = cfg && cfg.config ? cfg.config.flowFooter : undefined;
-    return univ === undefined ? "support.carino.systems" : String(univ || "");
+    return univ === undefined ? "desk.carino.systems" : String(univ || "");
   }
 
   function drawFlowCanvas(flow, imgs) {

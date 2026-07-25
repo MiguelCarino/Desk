@@ -5,7 +5,7 @@ const DEFAULT_CONFIG = {
     /* Universal footer line for exported flow PNGs. Per-flow override via
        flow.footer: a string = custom text, false (or "none") = no footer.
        Set flowFooter to "" to disable the footer everywhere. */
-    "flowFooter": "support.carino.systems"
+    "flowFooter": "desk.carino.systems"
   },
 
   "theme": {
@@ -530,9 +530,9 @@ const DEFAULT_CONFIG = {
     "tags": ["Consulting"],
     "shortcuts": [
       { "label": "Quote Tool", "url": "https://quote.carino.systems" },
-      { "label": "Kanban", "url": "https://tasks.carino.systems" },
+      { "label": "Kanban", "url": "https://kanban.carino.systems" },
       { "label": "Time Zones", "url": "https://time.carino.systems" },
-      { "label": "Resume", "url": "https://resume.carino.systems" }
+      { "label": "Resume", "url": "https://vitae.carino.systems" }
     ],
     "flows": [
       { "id": "f_onboarding",
@@ -721,7 +721,7 @@ const DEFAULT_CONFIG = {
     "tags": ["IT", "Admin"],
     "shortcuts": [
       { "label": "Netplan Config", "url": "https://netplan.carino.systems" },
-      { "label": "Net Topology", "url": "https://network.carino.systems" },
+      { "label": "Net Topology", "url": "https://topo.carino.systems" },
       { "label": "Hardware Ref", "url": "https://hardware.carino.systems" },
       { "label": "SimpleSetup", "url": "https://setup.carino.systems" },
       { "label": "CVE Radar", "url": "https://cve.carino.systems" },
