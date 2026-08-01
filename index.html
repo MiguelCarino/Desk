@@ -102,18 +102,10 @@
     }
     #new-tab-btn:hover { color: #050505; background: var(--accent); }
 
-    /* Right Controls (Lang + Info) */
+    /* Right Controls (Info) */
     .top-right-controls {
       margin-left: auto; display: flex; align-items: center; gap: 10px; height: 100%;
     }
-
-    #lang-select {
-      background: var(--bg-elev); border: 1px solid var(--border);
-      color: var(--text-main); font-family: var(--mono); font-size: 11px;
-      border-radius: 6px; padding: 4px 6px;
-      outline: none; cursor: pointer; height: 30px;
-    }
-    #lang-select:hover, #lang-select:focus { border-color: var(--accent); color: var(--text-header); }
 
     #dim-btn, #reset-btn, #kbd-btn {
       width: 30px; height: 30px;
@@ -542,9 +534,6 @@
     <div id="new-tab-btn" title="New Ticket">+</div>
     
     <div class="top-right-controls">
-      <select id="lang-select">
-        <option value="en">EN</option>
-      </select>
       <div id="kbd-btn" title="Keyboard shortcuts">?</div>
       <div id="dim-btn" title="Toggle card dimming">◉</div>
       <div id="reset-btn" title="Reset — delete all stored data and load default template">↺</div>
@@ -759,14 +748,16 @@
   let fieldCards = {};
   let focusedField = null;
   let dimmingEnabled = true;
-  // Resolved during init: localStorage → config.config.defaultLang → 'en'
-  let currentLang = localStorage.getItem("support_ide_lang") || "";
+  // The UI/default language comes from the template JSON alone
+  // (config.config.defaultLang → 'en'). There is no global language switcher:
+  // each card declares its own languages as the keys of its JSON value object
+  // and offers them as per-card chips.
+  let currentLang = "";
   let defaultLangFallback = "en";
 
   const LS_CONFIG = "support_ide_config";
   const LS_SESSIONS = "support_ide_sessions";
   const LS_ACTIVE = "support_ide_active";
-  const LS_LANG = "support_ide_lang";
   const LS_TRASH = "support_ide_trash";
 
   // --- INIT ---
@@ -822,34 +813,12 @@
   });
 
   // --- LANGUAGE ENGINE ---
-  function initLanguageSelector(config) {
-    const select = document.getElementById("lang-select");
-    select.innerHTML = ""; 
-
-    let langs = ["en"];
-    if(config.config) {
-        if(config.config.supportedLangs) langs = config.config.supportedLangs;
-        if(config.config.defaultLang) {
-            defaultLangFallback = config.config.defaultLang;
-            if(!currentLang) currentLang = defaultLangFallback;
-        }
-    }
-    if(!langs.includes(currentLang)) currentLang = defaultLangFallback;
-
-    langs.forEach(code => {
-        const opt = document.createElement("option");
-        opt.value = code;
-        opt.innerText = code.toUpperCase();
-        select.appendChild(opt);
-    });
-
-    select.value = currentLang;
-    
-    select.addEventListener("change", (e) => {
-        currentLang = e.target.value;
-        localStorage.setItem(LS_LANG, currentLang);
-        refreshUI();
-    });
+  // No global selector: the template's defaultLang drives UI strings and the
+  // main-click copy; per-card chips (built from each card's own JSON keys)
+  // cover every other language a card declares.
+  function initLanguage(config) {
+    if (config.config && config.config.defaultLang) defaultLangFallback = config.config.defaultLang;
+    currentLang = defaultLangFallback;
   }
 
   function getLocalizedText(obj) {
@@ -1224,7 +1193,7 @@
     fieldOptions = json.fieldOptions || {};
     fieldCards = json.fieldCards || {};
     
-    initLanguageSelector(json);
+    initLanguage(json);
 
     if(json.theme) applyTheme(json.theme);
     localStorage.setItem(LS_CONFIG, JSON.stringify(json));
@@ -1431,11 +1400,6 @@
       : "";
   }
 
-  function supportedLangs() {
-    return (snippetConfig.config && Array.isArray(snippetConfig.config.supportedLangs) &&
-            snippetConfig.config.supportedLangs.length)
-      ? snippetConfig.config.supportedLangs : ["en"];
-  }
 
   // Small hover-tool button for snippet cards (✎ / 📌 / language chips).
   function cardTool(label, title, fn) {
@@ -1477,10 +1441,14 @@
       };
     }
     // Hover tool row: language chips + ✎ quick-edit (text cards), 📌 pin (all).
+    // A card's available languages are exactly the keys of its JSON value
+    // object — declared per card, not by any global list. One language means
+    // no choice, so chips only appear from two up.
     const tools = document.createElement("div");
     tools.className = "card-tools";
     if (!isUrl && value && typeof value === "object") {
-      supportedLangs().forEach(lang => {
+      const cardLangs = Object.keys(value);
+      if (cardLangs.length > 1) cardLangs.forEach(lang => {
         const chip = cardTool(lang.toUpperCase(), flowT("langChipTip", "Copy in this language"),
           () => copyCardInLang(labelText, value, lang, usageKey));
         chip.classList.add("lang-chip");
@@ -2311,16 +2279,6 @@
     const sb = document.getElementById("search-box");
     sb.focus(); sb.select();
   }
-  function cycleLanguage() {
-    const langs = (snippetConfig.config && Array.isArray(snippetConfig.config.supportedLangs) &&
-                   snippetConfig.config.supportedLangs.length)
-      ? snippetConfig.config.supportedLangs : ["en"];
-    currentLang = langs[(langs.indexOf(currentLang) + 1) % langs.length];
-    localStorage.setItem(LS_LANG, currentLang);
-    document.getElementById("lang-select").value = currentLang;
-    refreshUI();
-    showToast(`🌐 ${flowT("langSwitched", "Language")}: ${currentLang.toUpperCase()}`);
-  }
   function cycleDrawerState() {
     const d = document.getElementById("notes-drawer");
     resizeDrawer(d.classList.contains("minimized") ? "normal"
@@ -2528,8 +2486,6 @@
         if (isTyping() || anyModalOpen()) return false;
         toggleShortcutOverlay(true);
       } },
-    { key: "l", when: "idle", desc: "kCycleLang", fb: "Cycle language",
-      run: cycleLanguage },
     { key: "n", when: "idle", desc: "kOpenNotes", fb: "Open notes",
       run: () => { resizeDrawer("normal"); document.getElementById("note-input").focus(); } },
     { key: "n", shift: true, when: "idle", desc: "kCycleDrawer", fb: "Cycle notes drawer size",
@@ -3313,5 +3269,6 @@
   );
 </script>
   <script src="carino-navbar.js" data-app="Desk" defer></script>
+  <script src="carino-lang.js" defer></script>
 </body>
 </html>

@@ -28,7 +28,11 @@
         "url": "https://example.com/dashboard"
       }
     ],
-    "Welcome Message": "Hello [client],\n\nMy name is [agent]. I'm here to help you today.",
+    "Welcome Message": {
+      "en": "Hello [client],\n\nMy name is [agent]. I'm here to help you today.",
+      "es": "Hola [client],\n\nMi nombre es [agent]. Estoy aquí para ayudarle hoy.",
+      "pt": "Olá [client],\n\nMeu nome é [agent]. Estou aqui para ajudar você hoje."
+    },
     "Order Reference": "For your reference, your order ID is: [order]",
     "Internal Note": "Handled by: [name] ([internal_id])"
   },
