@@ -552,7 +552,7 @@
     <aside id="sidebar">
       <div class="sidebar-section">
         <div class="control-group">
-          <label>Status</label>
+          <label data-i18n>Status</label>
           <select id="status-select" class="input-std">
             <option value="ongoing">🔴 Ongoing</option>
             <option value="pending">🟡 Pending</option>
@@ -572,8 +572,8 @@
 
     <main id="content-area">
       <div id="welcome-msg" style="text-align:center; margin-top:50px; color:var(--text-main); opacity:0.6;">
-        <h3>NO CONFIGURATION LOADED</h3>
-        <p>Drag & Drop a JSON file here.</p>
+        <h3 data-i18n>NO CONFIGURATION LOADED</h3>
+        <p data-i18n>Drag & Drop a JSON file here.</p>
       </div>
       <div id="snippets-grid"></div>
     </main>
@@ -698,8 +698,8 @@
     <div id="media-shell">
       <div id="media-head">
         <strong id="media-title">🖼 Edit Files</strong>
-        <span class="media-sub" id="media-sub">media.carino.systems — PDF → images · OCR · signature cleanup · image/audio conversion</span>
-        <a id="media-open-full" href="https://media.carino.systems" target="_blank" rel="noopener">open full ↗</a>
+        <span class="media-sub" id="media-sub" data-i18n>media.carino.systems — PDF → images · OCR · signature cleanup · image/audio conversion</span>
+        <a id="media-open-full" href="https://media.carino.systems" target="_blank" rel="noopener" data-i18n>open full ↗</a>
         <span id="media-close" title="Close">✕</span>
       </div>
       <div id="media-body">
@@ -754,6 +754,11 @@
   // and offers them as per-card chips.
   let currentLang = "";
   let defaultLangFallback = "en";
+
+  // Application-chrome literals (confirms/alerts/toasts hard-coded in this
+  // file) route through the fleet i18n layer (i18n.js, deferred → window.t).
+  // Template/dictionary strings do NOT use this path — flowT() owns those.
+  function chromeT(s) { return (typeof window.t === "function") ? window.t(s) : s; }
 
   const LS_CONFIG = "support_ide_config";
   const LS_SESSIONS = "support_ide_sessions";
@@ -921,7 +926,7 @@
 
   // --- GENERAL UI ---
   document.getElementById("reset-btn").addEventListener("click", () => {
-    if (!confirm("Reset everything?\n\nThis will delete all stored data and reload the default template.")) return;
+    if (!confirm(chromeT("Reset everything?\n\nThis will delete all stored data and reload the default template."))) return;
     persistNow();
     persistSuppressed = true;
     // Wipe every app key (config, sessions, active, flows, trash, lang, …)
@@ -1048,7 +1053,7 @@
 
   function closeTab(e, id) {
     e.stopPropagation();
-    if (sessions.length === 1) return alert("Cannot close last tab");
+    if (sessions.length === 1) return alert(chromeT("Cannot close last tab"));
     persistNow();
     const index = sessions.findIndex(s => s.id === id);
     const closed = sessions.splice(index, 1)[0];
@@ -1148,13 +1153,13 @@
 
   // --- ACTIONS ---
   document.getElementById("btn-clear").addEventListener("click", () => {
-    if(!confirm("Clear fields?")) return;
+    if(!confirm(chromeT("Clear fields?"))) return;
     const session = sessions.find(s => s.id === activeSessionId);
     if(!session) return;
     Object.keys(session.data).forEach(k => { if(!hiddenFields[k]) session.data[k] = ""; });
     document.querySelectorAll("#dynamic-inputs [data-key]").forEach(ctrl => { ctrl.value = ""; });
     document.querySelectorAll("#dynamic-inputs .filter-preview").forEach(fp => { fp.textContent = ""; });
-    renderSnippets(); showToast("Cleared");
+    renderSnippets(); showToast(chromeT("Cleared"));
   });
 
   document.getElementById("status-select").addEventListener("change", (e) => {
@@ -1216,23 +1221,23 @@
       try {
         const json = JSON.parse(e.target.result);
         if(json.appType === "workspace_backup") {
-          if(confirm("Restore Backup?")) {
+          if(confirm(chromeT("Restore Backup?"))) {
              persistNow();
              activeSessionId = null;
              loadConfigInternal(json.config, false);
              sessions = json.sessions;
              sessions.forEach(s => { if(!s.logId) s.logId = newLogId(); if(!Array.isArray(s.events)) s.events = []; });
              switchTab(json.activeId);
-             showToast("Backup Restored");
+             showToast(chromeT("Backup Restored"));
           }
         } else {
-           if(confirm("Load Config? (Clears Tickets)")) {
+           if(confirm(chromeT("Load Config? (Clears Tickets)"))) {
              persistNow();
              loadConfigInternal(json, true);
-             showToast("Config Loaded");
+             showToast(chromeT("Config Loaded"));
            }
         }
-      } catch(err) { alert("Invalid JSON"); }
+      } catch(err) { alert(chromeT("Invalid JSON")); }
     };
     reader.readAsText(file);
   }
@@ -1724,7 +1729,7 @@
 
   function saveFlowStore() {
     try { localStorage.setItem(LS_FLOWS, JSON.stringify(flowStore)); }
-    catch(e) { showToast("⚠️ Storage full — flow not saved"); }
+    catch(e) { showToast(chromeT("⚠️ Storage full — flow not saved")); }
   }
   function isBuiltinFlow(id) { return flowBuiltins().some(f => f.id === id); }
   function getFlows() {
@@ -1819,14 +1824,14 @@
   }
 
   function deleteFlow(id) {
-    if (!confirm("Delete this flow?")) return;
+    if (!confirm(chromeT("Delete this flow?"))) return;
     flowStore.user = flowStore.user.filter(f => f.id !== id);
-    saveFlowStore(); renderSnippets(); showToast("🗑 Flow deleted");
+    saveFlowStore(); renderSnippets(); showToast(chromeT("🗑 Flow deleted"));
   }
   function revertFlow(id) {
-    if (!confirm("Revert this builtin flow to its original version?")) return;
+    if (!confirm(chromeT("Revert this builtin flow to its original version?"))) return;
     delete flowStore.overrides[id];
-    saveFlowStore(); renderSnippets(); showToast("↺ Flow reverted");
+    saveFlowStore(); renderSnippets(); showToast(chromeT("↺ Flow reverted"));
   }
 
   // --- Editor ---
@@ -1924,7 +1929,7 @@
       side.appendChild(flowBtn("📷", () => { flowImgTarget = idx; document.getElementById("flow-img-upload").click(); }));
       if (step.img) side.appendChild(flowBtn("✂🖼", () => { delete step.img; renderFlowSteps(); }));
       side.appendChild(flowBtn("✕", () => {
-        if (flowDraft.steps.length === 1) return showToast("⚠️ A flow needs at least one step");
+        if (flowDraft.steps.length === 1) return showToast(chromeT("⚠️ A flow needs at least one step"));
         flowDraft.steps.splice(idx, 1); renderFlowSteps();
       }));
       row.appendChild(num); row.appendChild(main); row.appendChild(side);
@@ -1945,9 +1950,9 @@
     if (!flowDraft) return;
     flowDraft.title = document.getElementById("flow-title-input").value.trim();
     flowDraft.tag = document.getElementById("flow-tag-input").value.trim();
-    if (!flowDraft.title) return showToast("⚠️ Title required");
+    if (!flowDraft.title) return showToast(chromeT("⚠️ Title required"));
     flowDraft.steps = flowDraft.steps.filter(st => (st.text && st.text.trim()) || st.img);
-    if (!flowDraft.steps.length) return showToast("⚠️ At least one step required");
+    if (!flowDraft.steps.length) return showToast(chromeT("⚠️ At least one step required"));
     // T3 footer: Universal stores nothing (deletes the key), Custom stores
     // the text, None stores false.
     const fMode = document.getElementById("flow-footer-mode").value;
@@ -1963,7 +1968,7 @@
       flowDraft.id = "u" + Date.now();
       flowStore.user.push(flowDraft);
     }
-    saveFlowStore(); closeFlowEditor(); renderSnippets(); showToast("💾 Flow saved");
+    saveFlowStore(); closeFlowEditor(); renderSnippets(); showToast(chromeT("💾 Flow saved"));
   }
 
   function syncFlowFooterControls() {
@@ -1993,7 +1998,7 @@
         e.preventDefault();
         downscaleFlowImage(items[i].getAsFile(), (dataUrl) => {
           const step = flowDraft && (flowDraft.steps[flowActiveStep] || flowDraft.steps[0]);
-          if (step) { step.img = dataUrl; renderFlowSteps(); showToast("🖼️ Image pasted"); }
+          if (step) { step.img = dataUrl; renderFlowSteps(); showToast(chromeT("🖼️ Image pasted")); }
         });
         return;
       }
@@ -2022,7 +2027,7 @@
       URL.revokeObjectURL(img.src);
       cb(c.toDataURL("image/png"));
     };
-    img.onerror = () => { URL.revokeObjectURL(img.src); showToast("⚠️ Could not read image"); };
+    img.onerror = () => { URL.revokeObjectURL(img.src); showToast(chromeT("⚠️ Could not read image")); };
     img.src = URL.createObjectURL(file);
   }
 
@@ -2163,7 +2168,7 @@
 
   function downloadFlowCanvas(canvas, flow, msg) {
     canvas.toBlob((blob) => {
-      if (!blob) return showToast("⚠️ Image export failed");
+      if (!blob) return showToast(chromeT("⚠️ Image export failed"));
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url; a.download = flowSlug(flowText(flow.title)) + ".png";
@@ -2175,20 +2180,20 @@
 
   function downloadFlowImage(flow) {
     logEvent("flow", `${flowText(flow.title)} → PNG`);
-    renderFlowCanvas(flow, (canvas) => downloadFlowCanvas(canvas, flow, "⬇ PNG downloaded"));
+    renderFlowCanvas(flow, (canvas) => downloadFlowCanvas(canvas, flow, chromeT("⬇ PNG downloaded")));
   }
 
   function copyFlowImage(flow) {
     logEvent("flow", `${flowText(flow.title)} → PNG`);
     renderFlowCanvas(flow, (canvas) => {
       if (!navigator.clipboard || !window.ClipboardItem) {
-        return downloadFlowCanvas(canvas, flow, "Clipboard unavailable — PNG downloaded");
+        return downloadFlowCanvas(canvas, flow, chromeT("Clipboard unavailable — PNG downloaded"));
       }
       canvas.toBlob((blob) => {
-        if (!blob) return showToast("⚠️ Image export failed");
+        if (!blob) return showToast(chromeT("⚠️ Image export failed"));
         navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
-          .then(() => showToast("🖼️ Flow image copied"))
-          .catch(() => downloadFlowCanvas(canvas, flow, "Clipboard blocked — PNG downloaded"));
+          .then(() => showToast(chromeT("🖼️ Flow image copied")))
+          .catch(() => downloadFlowCanvas(canvas, flow, chromeT("Clipboard blocked — PNG downloaded")));
       }, "image/png");
     });
   }
@@ -2808,7 +2813,7 @@
     const s = sessions.find(x => x.id === activeSessionId);
     if (!s) return;
     downloadFile(`${new Date().toISOString().slice(0, 10)}-${s.logId}.txt`, buildLegacyLogText(s));
-    showToast("Log Saved");
+    showToast(chromeT("Log Saved"));
   });
   document.getElementById("sheet-print").addEventListener("click", () => {
     document.body.classList.add("printing");
@@ -3270,5 +3275,6 @@
 </script>
   <script src="carino-navbar.js" data-app="Desk" defer></script>
   <script src="carino-lang.js" defer></script>
+  <script src="i18n.js" defer></script>
 </body>
 </html>
