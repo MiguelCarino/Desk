@@ -2100,18 +2100,25 @@
       if(Array.isArray(content.shortcuts)) {
         content.shortcuts.forEach(sc => {
           const missing = findUnresolved(sc.url);
+          // Same split as buildSnippetCard: sc.label is the identity (fieldCards
+          // targets it through data-card-label), labelText is what is shown.
+          const labelText = translateKey(sc.label);
           const card = document.createElement("div");
           card.className = "card url-card";
           card.setAttribute("data-card-label", sc.label);
-          card.innerHTML = `<strong>${sc.label} ↗</strong>${snippetToDisplay(sc.url)}${snippetBadge(missing)}`;
+          card.innerHTML = `<strong>${labelText} ↗</strong>${snippetToDisplay(sc.url)}${snippetBadge(missing)}`;
           card.onclick = () => {
-            if (missing.length) return openFillPopover(missing, sc.url, sc.label, true);
-            logEvent("open", sc.label);
+            if (missing.length) return openFillPopover(missing, sc.url, labelText, true);
+            logEvent("open", labelText);
             window.open(resolveTemplate(sc.url), "_blank", "noopener");
           };
           makeCardAccessible(card);
-          stampSearchIndex(card, [sc.label, sc.url, catKey, ...dictTranslations(catKey), ...placeholderValues([sc.url])]);
-          card.setAttribute("data-label-search", foldSearch(sc.label));
+          // Indexed in every language, so search finds a link card whatever
+          // the visitor is reading it in.
+          stampSearchIndex(card, [sc.label, ...dictTranslations(sc.label), sc.url,
+                                  catKey, ...dictTranslations(catKey), ...placeholderValues([sc.url])]);
+          card.setAttribute("data-label-search",
+            foldSearch([sc.label, ...dictTranslations(sc.label)].filter(Boolean).join(" ")));
           grid.appendChild(card);
         });
       }

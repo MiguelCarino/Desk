@@ -50,6 +50,62 @@ const DEFAULT_CONFIG = {
 
     "Saludos": { "es": "Saludos", "en": "Greetings", "pt": "Saudações", "ja": "挨拶", "ru": "Приветствие" },
 
+    /* Remaining card titles. The JSON key is the card's id and stays as
+       authored; only the displayed label is translated (translateKey). */
+    "Genérico": { "es": "Genérico", "en": "Generic", "pt": "Genérico", "ja": "汎用", "ru": "Общее" },
+    "Solicitar Logs": { "es": "Solicitar Logs", "en": "Request Logs", "pt": "Solicitar Logs", "ja": "ログの依頼", "ru": "Запросить журналы" },
+    "Pedir Info Basica": { "es": "Pedir Info Básica", "en": "Request Basic Info", "pt": "Pedir Informações Básicas", "ja": "基本情報の依頼", "ru": "Запросить базовые данные" },
+    "Confirmar Solucion": { "es": "Confirmar Solución", "en": "Confirm Fix", "pt": "Confirmar Solução", "ja": "解決の確認", "ru": "Подтвердить решение" },
+    "Reinicio": { "es": "Reinicio", "en": "Restart", "pt": "Reinício", "ja": "再起動", "ru": "Перезагрузка" },
+    "Solicitar MFA": { "es": "Solicitar MFA", "en": "Request MFA", "pt": "Solicitar MFA", "ja": "多要素認証の確認", "ru": "Запросить МФА" },
+    "Solicitar Repro": { "es": "Solicitar Reproducción", "en": "Request Repro Steps", "pt": "Solicitar Reprodução", "ja": "再現手順の依頼", "ru": "Запросить шаги воспроизведения" },
+    "Pedir Detalles": { "es": "Pedir Detalles", "en": "Request Details", "pt": "Pedir Detalhes", "ja": "詳細の依頼", "ru": "Запросить детали" },
+    "Diagnostico": { "es": "Diagnóstico", "en": "Diagnostics", "pt": "Diagnóstico", "ja": "診断", "ru": "Диагностика" },
+    "Pedir Datos": { "es": "Pedir Datos", "en": "Request Network Data", "pt": "Pedir Dados", "ja": "ネットワーク情報の依頼", "ru": "Запросить данные сети" },
+    "Pruebas Basicas": { "es": "Pruebas Básicas", "en": "Basic Tests", "pt": "Testes Básicos", "ja": "基本テスト", "ru": "Базовые проверки" },
+    "Posible Phishing": { "es": "Posible Phishing", "en": "Possible Phishing", "pt": "Possível Phishing", "ja": "フィッシングの疑い", "ru": "Возможный фишинг" },
+    "Incidente": { "es": "Incidente", "en": "Incident", "pt": "Incidente", "ja": "インシデント", "ru": "Инцидент" },
+
+    "Ticket Link": { "es": "Enlace del Ticket", "en": "Ticket Link", "pt": "Link do Chamado", "ja": "チケットのリンク", "ru": "Ссылка на заявку" },
+    "User Lookup": { "es": "Buscar Usuario", "en": "User Lookup", "pt": "Buscar Usuário", "ja": "ユーザー検索", "ru": "Поиск пользователя" },
+    "Asset Lookup": { "es": "Buscar Activo", "en": "Asset Lookup", "pt": "Buscar Ativo", "ja": "資産の検索", "ru": "Поиск устройства" },
+    "Endpoint Health": { "es": "Estado del Equipo", "en": "Endpoint Health", "pt": "Saúde do Dispositivo", "ja": "端末の状態", "ru": "Состояние устройства" },
+    "SSO Logs": { "es": "Logs de SSO", "en": "SSO Logs", "pt": "Logs de SSO", "ja": "SSOのログ", "ru": "Журналы SSO" },
+    "Device Mgmt": { "es": "Gestión de Equipos", "en": "Device Mgmt", "pt": "Gestão de Dispositivos", "ja": "端末管理", "ru": "Управление устройствами" },
+    "Status Page": { "es": "Página de Estado", "en": "Status Page", "pt": "Página de Status", "ja": "ステータスページ", "ru": "Страница состояния" },
+
+    /* Link-card titles (section "shortcuts"). These render through the same
+       translateKey() path as snippet cards, so they need entries too. */
+    "Password Reset Portal": { "es": "Portal de Contraseñas", "en": "Password Reset Portal", "pt": "Portal de Senhas", "ja": "パスワード再設定ポータル", "ru": "Портал сброса паролей" },
+    "SSO Admin": { "es": "Admin SSO", "en": "SSO Admin", "pt": "Admin SSO", "ja": "SSO管理", "ru": "Администрирование SSO" },
+    "Software Catalog": { "es": "Catálogo de Software", "en": "Software Catalog", "pt": "Catálogo de Software", "ja": "ソフトウェアカタログ", "ru": "Каталог ПО" },
+    "Asset Inventory": { "es": "Inventario de Activos", "en": "Asset Inventory", "pt": "Inventário de Ativos", "ja": "資産インベントリ", "ru": "Инвентаризация устройств" },
+    "Warranty Lookup": { "es": "Consulta de Garantía", "en": "Warranty Lookup", "pt": "Consulta de Garantia", "ja": "保証の確認", "ru": "Проверка гарантии" },
+    "VPN Portal": { "es": "Portal VPN", "en": "VPN Portal", "pt": "Portal VPN", "ja": "VPNポータル", "ru": "Портал VPN" },
+    "Network Status": { "es": "Estado de la Red", "en": "Network Status", "pt": "Status da Rede", "ja": "ネットワークの状態", "ru": "Состояние сети" },
+    "Security Portal": { "es": "Portal de Seguridad", "en": "Security Portal", "pt": "Portal de Segurança", "ja": "セキュリティポータル", "ru": "Портал безопасности" },
+    "Report Phishing": { "es": "Reportar Phishing", "en": "Report Phishing", "pt": "Reportar Phishing", "ja": "フィッシングの報告", "ru": "Сообщить о фишинге" },
+    "Quote Tool": { "es": "Herramienta de Cotización", "en": "Quote Tool", "pt": "Ferramenta de Orçamento", "ja": "見積ツール", "ru": "Инструмент смет" },
+    "Time Zones": { "es": "Zonas Horarias", "en": "Time Zones", "pt": "Fusos Horários", "ja": "タイムゾーン", "ru": "Часовые пояса" },
+    "Resume": { "es": "Currículum", "en": "Resume", "pt": "Currículo", "ja": "履歴書", "ru": "Резюме" },
+    "Hash Check": { "es": "Verificar Hash", "en": "Hash Check", "pt": "Verificar Hash", "ja": "ハッシュの確認", "ru": "Проверка хеша" },
+    "DICOM Editor": { "es": "Editor DICOM", "en": "DICOM Editor", "pt": "Editor DICOM", "ja": "DICOMエディター", "ru": "Редактор DICOM" },
+    "Netplan Config": { "es": "Configuración Netplan", "en": "Netplan Config", "pt": "Configuração Netplan", "ja": "Netplan設定", "ru": "Настройка Netplan" },
+    "Net Topology": { "es": "Topología de Red", "en": "Net Topology", "pt": "Topologia de Rede", "ja": "ネットワーク構成図", "ru": "Топология сети" },
+    "Hardware Ref": { "es": "Referencia de Hardware", "en": "Hardware Ref", "pt": "Referência de Hardware", "ja": "ハードウェア資料", "ru": "Справочник по оборудованию" },
+    "Password Gen": { "es": "Generador de Contraseñas", "en": "Password Gen", "pt": "Gerador de Senhas", "ja": "パスワード生成", "ru": "Генератор паролей" },
+
+    /* Product and brand names: listed so every card title has an explicit
+       entry, but identical in all five languages by design. */
+    "GitHub": { "es": "GitHub", "en": "GitHub", "pt": "GitHub", "ja": "GitHub", "ru": "GitHub" },
+    "Kanban": { "es": "Kanban", "en": "Kanban", "pt": "Kanban", "ja": "Kanban", "ru": "Kanban" },
+    "Branding": { "es": "Branding", "en": "Branding", "pt": "Branding", "ja": "Branding", "ru": "Branding" },
+    "Metadata": { "es": "Metadata", "en": "Metadata", "pt": "Metadata", "ja": "Metadata", "ru": "Metadata" },
+    "Carino PACS": { "es": "Carino PACS", "en": "Carino PACS", "pt": "Carino PACS", "ja": "Carino PACS", "ru": "Carino PACS" },
+    "Retina Suite": { "es": "Retina Suite", "en": "Retina Suite", "pt": "Retina Suite", "ja": "Retina Suite", "ru": "Retina Suite" },
+    "SimpleSetup": { "es": "SimpleSetup", "en": "SimpleSetup", "pt": "SimpleSetup", "ja": "SimpleSetup", "ru": "SimpleSetup" },
+    "CVE Radar": { "es": "CVE Radar", "en": "CVE Radar", "pt": "CVE Radar", "ja": "CVE Radar", "ru": "CVE Radar" },
+
     "Flow Cards": { "es": "Tarjetas de Flujo", "en": "Flow Cards", "pt": "Cartões de Fluxo", "ja": "フローカード", "ru": "Карточки сценариев" },
     "flowNew": { "es": "➕ Nuevo Flujo", "en": "➕ New Flow", "pt": "➕ Novo Fluxo", "ja": "➕ 新しいフロー", "ru": "➕ Новый сценарий" },
     "flowEdit": { "es": "✏️ Editar", "en": "✏️ Edit", "pt": "✏️ Editar", "ja": "✏️ 編集", "ru": "✏️ Изменить" },
