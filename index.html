@@ -107,15 +107,15 @@
       margin-left: auto; display: flex; align-items: center; gap: 10px; height: 100%;
     }
 
-    #dim-btn, #reset-btn, #kbd-btn {
+    #dim-btn, #settings-btn {
       width: 30px; height: 30px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px;
       font-size: 14px; transition: 0.18s;
     }
-    #dim-btn:hover, #kbd-btn:hover { border-color: var(--accent); background: var(--accent); color: #050505; }
+    #dim-btn:hover, #settings-btn:hover { border-color: var(--accent); background: var(--accent); color: #050505; }
     #dim-btn.dim-on { color: var(--accent); border-color: var(--accent); }
-    #reset-btn:hover { border-color: var(--err, #ef4444); color: #ef4444; background: rgba(239,68,68,0.08); }
+    #settings-btn.open { color: var(--accent); border-color: var(--accent); }
 
     /* Search */
     #command-palette {
@@ -149,9 +149,26 @@
     }
     .card.card-selected { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-    /* Keyboard shortcuts overlay */
-    #shortcut-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 700; display: none; overflow-y: auto; }
-    #shortcut-overlay .flow-editor { max-width: 560px; }
+    /* Settings — Options + Keyboard shortcuts, one dialog with tabs */
+    #settings-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 700; display: none; overflow-y: auto; }
+    #settings-modal .flow-editor { max-width: 560px; }
+    .set-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 14px 0 0; }
+    .set-tab {
+      background: transparent; border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-family: var(--mono); font-size: 11.5px;
+      text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer;
+      padding: 7px 12px; margin-bottom: -1px;
+    }
+    .set-tab:hover { color: var(--text-header); }
+    .set-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .set-panel { padding-top: 14px; }
+    .set-panel[hidden] { display: none; }
+    /* Two columns, matching the sidebar footer the options came from. */
+    .set-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .set-grid .btn { justify-content: flex-start; }
+    .set-grid .btn.danger { color: #fca5a5; border-color: rgba(239,68,68,0.35); }
+    .set-grid .btn.danger:hover { color: #050505; background: #ef4444; border-color: #ef4444; }
+    #shortcut-list { max-height: 46vh; overflow-y: auto; }
     .kbd-row {
       display: flex; align-items: center; gap: 12px;
       padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
@@ -513,6 +530,27 @@
     .ms-add-row .input-std { flex: 1; min-width: 0; }
     .ms-add-row .btn { flex-shrink: 0; }
 
+    /* --- Remote configuration source --- */
+    #cfgsrc-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 660; display: none; overflow-y: auto; }
+    #cfgsrc-modal .flow-editor { max-width: 600px; }
+    #cfgsrc-status {
+      border: 1px solid var(--border); border-radius: 8px; background: var(--bg-content);
+      padding: 10px 12px; margin: 12px 0; font-family: var(--mono); font-size: 11.5px;
+      color: var(--text-main); line-height: 1.7;
+    }
+    #cfgsrc-status .cs-row { display: flex; gap: 8px; }
+    #cfgsrc-status .cs-key { color: var(--text-muted); flex-shrink: 0; min-width: 92px; }
+    #cfgsrc-status .cs-val { color: var(--text-header); overflow-wrap: anywhere; }
+    .cs-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .cs-dot.ok { background: #4ade80; }
+    .cs-dot.stale { background: #eab308; }
+    .cs-dot.err { background: #ef4444; }
+    .cs-dot.off { background: var(--text-muted); }
+    /* Sidebar source button carries the same dot so a broken sync is visible
+       without opening the modal. Hidden entirely while no source is set. */
+    #btn-source .cs-dot { margin-right: 4px; }
+    #btn-source.is-off .cs-dot { display: none; }
+
     /* --- Tab bar merged INTO the Carino navbar (via data-carino-actions) --- */
     #carinoNav #top-bar { height: auto; background: transparent; border: none; padding: 0; align-items: center; gap: 6px; }
     #carinoNav #tabs-container { display: flex; gap: 4px; overflow-x: auto; max-width: 46vw; scrollbar-width: thin; }
@@ -534,9 +572,8 @@
     <div id="new-tab-btn" title="New Ticket">+</div>
     
     <div class="top-right-controls">
-      <div id="kbd-btn" title="Keyboard shortcuts">?</div>
       <div id="dim-btn" title="Toggle card dimming">◉</div>
-      <div id="reset-btn" title="Reset — delete all stored data and load default template">↺</div>
+      <div id="settings-btn" title="Settings">⚙</div>
     </div>
   </div>
 
@@ -561,11 +598,9 @@
         </div>
         <div id="dynamic-inputs"></div>
       </div>
+      <!-- Clear / Load / Source / Backup / Digest now live in ⚙ Settings › Options.
+           Save Log stays here: it acts on the ticket the sidebar is editing. -->
       <div class="sidebar-footer">
-        <button class="btn" id="btn-clear">🧹 Clear</button>
-        <button class="btn" id="btn-load" onclick="document.getElementById('jsonUpload').click()">📂 Load</button>
-        <button class="btn" id="btn-backup">💾 Backup</button>
-        <button class="btn" id="btn-digest">📊 Digest</button>
         <button class="btn primary full-span" id="btn-save">📄 Save Log</button>
       </div>
     </aside>
@@ -676,10 +711,35 @@
     </div>
   </div>
 
-  <div id="shortcut-overlay">
+  <div id="settings-modal">
     <div class="flow-editor">
-      <h3 id="shortcut-title">Keyboard Shortcuts</h3>
-      <div id="shortcut-list"></div>
+      <h3 id="settings-title" data-i18n>⚙ Settings</h3>
+      <div class="set-tabs" role="tablist">
+        <button class="set-tab active" id="set-tab-options" data-panel="set-panel-options" role="tab" data-i18n>Options</button>
+        <button class="set-tab" id="set-tab-shortcuts" data-panel="set-panel-shortcuts" role="tab" data-i18n>Shortcuts</button>
+      </div>
+
+      <!-- Same element ids as before, so applyUILabels() still labels these
+           from the template dictionary and every existing listener still binds. -->
+      <div class="set-panel" id="set-panel-options" role="tabpanel">
+        <div class="set-grid">
+          <button class="btn" id="btn-clear">🧹 Clear</button>
+          <button class="btn" id="btn-load" onclick="document.getElementById('jsonUpload').click()">📂 Load</button>
+          <button class="btn is-off" id="btn-source" title="Connect a configuration source"><span class="cs-dot off"></span><span data-i18n>🔗 Source</span></button>
+          <button class="btn" id="btn-backup">💾 Backup</button>
+          <button class="btn" id="btn-digest">📊 Digest</button>
+          <button class="btn danger" id="btn-reset" data-i18n>↺ Reset</button>
+        </div>
+        <p class="flow-hint" id="settings-hint" data-i18n>Reset deletes every ticket, flow and stored setting in this browser and reloads the default template.</p>
+      </div>
+
+      <div class="set-panel" id="set-panel-shortcuts" role="tabpanel" hidden>
+        <div id="shortcut-list"></div>
+      </div>
+
+      <div class="flow-editor-foot">
+        <button class="btn" id="settings-close" data-i18n>Close</button>
+      </div>
     </div>
   </div>
 
@@ -731,6 +791,34 @@
         <button class="btn" id="msearch-defaults">↺ Defaults</button>
         <button class="btn" id="msearch-cancel">Close</button>
         <button class="btn primary" id="msearch-go">↗ Search</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cfgsrc-modal">
+    <div class="flow-editor">
+      <h3 id="cfgsrc-title" data-i18n>🔗 Configuration Source</h3>
+      <div class="control-group">
+        <label id="cfgsrc-url-label" data-i18n>Configuration URL</label>
+        <input type="url" id="cfgsrc-url" class="input-std" placeholder="https://your-org.example.com/desk.json" spellcheck="false">
+      </div>
+      <div class="control-group">
+        <label id="cfgsrc-interval-label" data-i18n>Check for updates</label>
+        <select id="cfgsrc-interval" class="input-std">
+          <option value="0" data-i18n>Manually only</option>
+          <option value="60" data-i18n>Every minute</option>
+          <option value="300" data-i18n>Every 5 minutes</option>
+          <option value="900" data-i18n>Every 15 minutes</option>
+          <option value="3600" data-i18n>Every hour</option>
+        </select>
+      </div>
+      <div id="cfgsrc-status"></div>
+      <p class="flow-hint" id="cfgsrc-hint" data-i18n>The URL must return JSON and allow cross-origin reads (Access-Control-Allow-Origin) · your open tickets are never cleared by a sync</p>
+      <div class="flow-editor-foot">
+        <button class="btn" id="cfgsrc-disconnect" data-i18n>✕ Disconnect</button>
+        <button class="btn" id="cfgsrc-cancel" data-i18n>Close</button>
+        <button class="btn" id="cfgsrc-sync" data-i18n>↻ Sync now</button>
+        <button class="btn primary" id="cfgsrc-connect" data-i18n>🔗 Connect</button>
       </div>
     </div>
   </div>
@@ -802,6 +890,16 @@
          if(sessions.length === 0) createNewSession(true);
       }
     }
+
+    // 3. Remote configuration (cache-first — everything above already rendered).
+    //    An invite link may set the source on this very load, hence before the
+    //    sync. Failures are silent here: the cached config is still serving.
+    consumeConfigUrlParam();
+    renderSourceButton();
+    if (getConfigSource()) {
+      syncRemoteConfig().catch(() => {});
+      scheduleConfigSync();
+    }
   });
 
   let persistSuppressed = false; // set during reset so beforeunload can't resurrect wiped keys
@@ -818,13 +916,90 @@
   });
 
   // --- LANGUAGE ENGINE ---
-  // No global selector: the template's defaultLang drives UI strings and the
-  // main-click copy; per-card chips (built from each card's own JSON keys)
-  // cover every other language a card declares.
+  // The template's own language set drives UI strings and the main-click copy;
+  // per-card chips (built from each card's own JSON keys) cover every other
+  // language a card declares.
+  //
+  // The FLEET selector (carino-lang.js) picks among them. Before this, a
+  // template declaring defaultLang:"pt" pinned the whole workspace to
+  // Portuguese no matter what the visitor chose, because currentLang was set
+  // straight from defaultLang. defaultLang is now only the fallback for a
+  // language the template does not actually carry.
+
+  // Languages this template can render: declared via config.supportedLangs, or
+  // inferred from the keys the dictionary's value objects actually use.
+  function templateLangs(config) {
+    const c = config && config.config;
+    if (c && Array.isArray(c.supportedLangs) && c.supportedLangs.length) return c.supportedLangs.slice();
+    const out = [];
+    const dict = config && config.dictionary;
+    if (dict) Object.keys(dict).forEach((k) => {
+      const v = dict[k];
+      if (v && typeof v === "object" && !Array.isArray(v)) {
+        Object.keys(v).forEach((l) => { if (out.indexOf(l) === -1) out.push(l); });
+      }
+    });
+    return out;
+  }
+
+  // True when the template actually speaks the visitor's fleet language. When
+  // it does, the org's own wording wins everywhere. When it does not (a fleet
+  // locale of ja/ru against an es/en/pt template), chrome strings fall through
+  // to the fleet dictionary in i18n.js instead of sitting on the template's
+  // default language — otherwise a Japanese visitor reads "Save Log".
+  let templateCoversFleetLang = false;
+
+  function pickTemplateLang(config) {
+    const fleet = (window.CarinoLang && window.CarinoLang.current) || "";
+    const langs = templateLangs(config);
+    templateCoversFleetLang = false;
+    if (!fleet || !langs.length) return defaultLangFallback;
+    const low = String(fleet).toLowerCase();
+    const base = low.split("-")[0];
+    // 'pt-BR' matches a template that only declares 'pt', and vice versa.
+    const exact = langs.find((l) => String(l).toLowerCase() === low);
+    if (exact) { templateCoversFleetLang = true; return exact; }
+    const byBase = langs.find((l) => String(l).toLowerCase().split("-")[0] === base);
+    if (byBase) { templateCoversFleetLang = true; return byBase; }
+    // No match. English is the better base for template CONTENT (cards, field
+    // options) than another org's default language; app chrome meanwhile gets
+    // the real translation from i18n.js via flowT/dictText below.
+    const en = langs.find((l) => String(l).toLowerCase().split("-")[0] === "en");
+    return en || defaultLangFallback;
+  }
+
   function initLanguage(config) {
     if (config.config && config.config.defaultLang) defaultLangFallback = config.config.defaultLang;
-    currentLang = defaultLangFallback;
+    currentLang = pickTemplateLang(config);
   }
+
+  /* Template dictionary value, else the fleet translation of the English
+     source. Used by every chrome surface that the template MAY override.
+     Note the deliberate asymmetry: an org that ships the visitor's language
+     always wins; otherwise the visitor's own language beats the org's default. */
+  function dictText(entry, englishFallback) {
+    if (entry && templateCoversFleetLang) {
+      const v = getLocalizedText(entry);
+      if (v) return v;
+    }
+    if (englishFallback) return chromeT(englishFallback);
+    return entry ? getLocalizedText(entry) : "";
+  }
+
+  // Follow the fleet switcher live. i18n.js re-renders the static chrome on the
+  // same event; this covers everything the template dictionary owns (button
+  // labels, status options, card content, digest, flows). Always re-renders:
+  // switching ja→ru leaves currentLang on 'en' both times, yet every chrome
+  // string still has to change.
+  window.addEventListener("carino:langchange", () => {
+    if (!snippetConfig || !snippetConfig.dictionary) return;
+    currentLang = pickTemplateLang(snippetConfig);
+    // Deferred on purpose. This inline script is parsed before the deferred
+    // i18n.js, so our listener runs FIRST — and chromeT() would still read the
+    // previous locale. A zero timeout lets every langchange handler finish
+    // (i18n.js updates its LOCALE in its own) before we re-render.
+    setTimeout(refreshUI, 0);
+  });
 
   function getLocalizedText(obj) {
     if (typeof obj === 'string') return obj; // Not translated
@@ -884,6 +1059,12 @@
     renderSnippets(); // Updates content AND headers
     const session = sessions.find(s => s.id === activeSessionId);
     if(session) updateNoteHeader(session.title);
+    // These two label themselves as they render, which never happens on a bare
+    // language switch — the composer dock and the media retry button can both
+    // be on screen already.
+    renderComposer();
+    const mediaRetry = document.getElementById("media-retry");
+    if (mediaRetry) mediaRetry.textContent = flowT("mediaRetry", "↻ Retry");
   }
 
   function applyTheme(theme) {
@@ -898,6 +1079,14 @@
     if(theme.textHeader) root.style.setProperty('--text-header', theme.textHeader);
   }
 
+  // English source for each label the template may override, so dictText() has
+  // something to hand to the fleet dictionary when the template can't answer.
+  const CHROME_EN = {
+    "btn-load": "📂 Load", "btn-backup": "💾 Backup", "btn-save": "📄 Save Log",
+    "btn-clear": "🧹 Clear", "btn-digest": "📊 Digest",
+    "search-box": "Search...", "note-input": "Case notes..."
+  };
+
   function applyUILabels(dict) {
     if(!dict) return;
     const map = {
@@ -908,24 +1097,33 @@
 
     Object.keys(map).forEach(id => {
         const el = document.getElementById(id);
-        const text = getLocalizedText(map[id]);
+        const text = dictText(map[id], CHROME_EN[id]);
         if(el && text) {
             if(el.tagName === "INPUT" || el.tagName === "TEXTAREA") el.placeholder = text;
             else el.innerText = text;
         }
     });
-    
-    if(dict.statusOngoing) document.querySelector("option[value='ongoing']").innerText = getLocalizedText(dict.statusOngoing);
-    if(dict.statusPending) document.querySelector("option[value='pending']").innerText = getLocalizedText(dict.statusPending);
-    if(dict.statusDone) document.querySelector("option[value='done']").innerText = getLocalizedText(dict.statusDone);
 
-    document.getElementById("kbd-btn").title = flowT("kbdBtnTitle", "Keyboard shortcuts");
+    const status = [["ongoing", dict.statusOngoing, "🔴 Ongoing"],
+                    ["pending", dict.statusPending, "🟡 Pending"],
+                    ["done",    dict.statusDone,    "🟢 Done"]];
+    status.forEach(([value, entry, en]) => {
+      const opt = document.querySelector("option[value='" + value + "']");
+      const text = dictText(entry, en);
+      if (opt && text) opt.innerText = text;
+    });
+
+    // The '?' button folded into ⚙ Settings; the template's shortcut title now
+    // labels the Shortcuts tab. Guarded so an older template can't break the pass.
+    const kbdTab = document.getElementById("set-tab-shortcuts");
+    const kbdKey = dict.kbdOverlayTitle ? "kbdOverlayTitle" : (dict.kbdBtnTitle ? "kbdBtnTitle" : null);
+    if (kbdTab && kbdKey) kbdTab.innerText = flowT(kbdKey, "Shortcuts");
     document.getElementById("search-clear").title = flowT("searchClearTitle", "Clear search");
     document.getElementById("timeline-toggle").title = flowT("timelineToggleTitle", "Notes / timeline");
   }
 
   // --- GENERAL UI ---
-  document.getElementById("reset-btn").addEventListener("click", () => {
+  function resetWorkspace() {
     if (!confirm(chromeT("Reset everything?\n\nThis will delete all stored data and reload the default template."))) return;
     persistNow();
     persistSuppressed = true;
@@ -935,7 +1133,8 @@
       .filter(k => k.indexOf("support_ide_") === 0 || k.indexOf("sds.") === 0)
       .forEach(k => localStorage.removeItem(k));
     location.reload();
-  });
+  }
+  document.getElementById("btn-reset").addEventListener("click", resetWorkspace);
 
   document.getElementById("dim-btn").addEventListener("click", () => {
     dimmingEnabled = !dimmingEnabled;
@@ -1172,10 +1371,7 @@
   });
 
   function updateNoteHeader(title) {
-    let headerText = "📝 Notes";
-    if(snippetConfig.dictionary && snippetConfig.dictionary.notesHeader) {
-        headerText = getLocalizedText(snippetConfig.dictionary.notesHeader);
-    }
+    let headerText = dictText(snippetConfig.dictionary && snippetConfig.dictionary.notesHeader, "📝 Notes");
     if(drawerModes[activeSessionId] === "timeline") headerText = flowT("timelineHeader", "🕒 Timeline");
     document.getElementById("note-header-text").innerText = `${headerText} - ${title}`;
   }
@@ -1240,6 +1436,393 @@
       } catch(err) { alert(chromeT("Invalid JSON")); }
     };
     reader.readAsText(file);
+  }
+
+  /* ============================================================
+     REMOTE CONFIGURATION SOURCE
+     The organisation hosts its own desk.json anywhere that allows
+     cross-origin reads; Desk is only the client. There is no Carino
+     backend in this path — the org keeps custody of its config.
+
+     Boot order is deliberately cache-first: the app renders instantly
+     from the localStorage copy and the network result is hot-applied
+     afterwards if it differs. A slow or dead config host therefore
+     never blocks (or breaks) an agent mid-shift.
+     ============================================================ */
+  const LS_CFG_SRC = "support_ide_config_source";
+  const LS_CFG_RAW = "support_ide_config_raw"; // exact bytes last applied, for change detection
+  const CFG_DEFAULT_INTERVAL = 300; // seconds
+
+  let cfgSyncTimer = null;
+  let cfgSyncing = false;
+  let cfgLastError = "";
+
+  function getConfigSource() {
+    try {
+      const raw = localStorage.getItem(LS_CFG_SRC);
+      if (!raw) return null;
+      const s = JSON.parse(raw);
+      return (s && typeof s.url === "string" && s.url) ? s : null;
+    } catch (e) { return null; }
+  }
+
+  function setConfigSource(src) {
+    if (!src) localStorage.removeItem(LS_CFG_SRC);
+    else localStorage.setItem(LS_CFG_SRC, JSON.stringify(src));
+    renderSourceButton();
+  }
+
+  // Only http(s). A file:// or data: config would sidestep CORS entirely and
+  // is exactly the shape a malicious "just paste this link" attack takes.
+  function normalizeConfigUrl(input) {
+    const raw = (input || "").trim();
+    if (!raw) return null;
+    // Relative paths are legitimate (an org that self-hosts Desk next to its
+    // desk.json), but bare text is a typo — without this it would silently
+    // resolve against our own origin and fail later as a confusing 404.
+    if (!/^[a-z][a-z0-9+.-]*:/i.test(raw) && raw[0] !== "/") return null;
+    let u;
+    try { u = new URL(raw, location.href); } catch (e) { return null; }
+    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+    // Browsers block http from an https page anyway; fail loudly here instead
+    // of leaving the agent staring at an opaque network error.
+    if (location.protocol === "https:" && u.protocol === "http:" &&
+        !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(u.hostname)) return null;
+    return u.href;
+  }
+
+  // A wrong-but-valid JSON URL must not blank the workspace. Require the
+  // shape loadConfigInternal actually consumes before letting it through.
+  function looksLikeDeskConfig(json) {
+    if (!json || typeof json !== "object" || Array.isArray(json)) return false;
+    if (json.appType === "workspace_backup") return false; // backups carry tickets; never auto-apply
+    return json.fields !== undefined || json.dictionary !== undefined;
+  }
+
+  function configRevision(json) {
+    const c = json && json.config;
+    if (!c) return "";
+    return String(c.revision || c.version || "");
+  }
+
+  /* Applies a freshly fetched config WITHOUT touching sessions. This is the
+     whole reason remote sync is safe to run mid-shift: hardReset stays false,
+     so open tickets, their field values and the trash all survive. */
+  function applyRemoteConfig(json, rawText, meta) {
+    persistNow();
+    const prevRev = configRevision(snippetConfig);
+    loadConfigInternal(json, false);
+    localStorage.setItem(LS_CFG_RAW, rawText);
+
+    const src = getConfigSource() || {};
+    src.etag = meta.etag || "";
+    src.lastModified = meta.lastModified || "";
+    src.lastSync = Date.now();
+    src.revision = configRevision(json);
+    setConfigSource(src);
+
+    const rev = src.revision;
+    const label = rev
+      ? (prevRev && prevRev !== rev ? `${prevRev} → ${rev}` : rev)
+      : "";
+    showToast(chromeT("⬇ Configuration updated by your organization") + (label ? ` (${label})` : ""));
+  }
+
+  /* Returns "updated" | "unchanged" | throws.
+     `manual` only affects how loudly failures are reported. */
+  async function syncRemoteConfig({ manual = false } = {}) {
+    const src = getConfigSource();
+    if (!src || cfgSyncing) return "unchanged";
+    cfgSyncing = true;
+    renderSourceButton();
+    try {
+      // If-None-Match is NOT a CORS-safelisted request header, so sending it
+      // forces a preflight. Plenty of perfectly good static hosts answer OPTIONS
+      // with a 403 — raw.githubusercontent.com does — which would fail the whole
+      // fetch. So conditional requests are an optimisation we back out of on the
+      // first sign of trouble, permanently, per source.
+      const conditional = !src.noConditional && !!(src.etag || src.lastModified);
+      const doFetch = (useConditional) => {
+        const headers = {};
+        if (useConditional) {
+          headers["Accept"] = "application/json"; // also non-safelisted; keep it on the same side of the fence
+          if (src.etag) headers["If-None-Match"] = src.etag;
+          if (src.lastModified) headers["If-Modified-Since"] = src.lastModified;
+        }
+        return fetch(src.url, {
+          // no-store keeps the browser's HTTP cache out of the loop entirely, so
+          // a CDN max-age can't pin an agent to a stale config and our own
+          // If-None-Match is what decides freshness.
+          cache: "no-store",
+          credentials: "omit",
+          redirect: "follow",
+          headers
+        });
+      };
+
+      let res;
+      if (conditional) {
+        try {
+          res = await doFetch(true);
+        } catch (preflightErr) {
+          // Network-level failure with headers attached: could be a blocked
+          // preflight, could be a genuinely dead host. Retry plain — if that
+          // works it was the preflight, and we stop asking.
+          res = await doFetch(false);
+          const s = getConfigSource() || {};
+          s.noConditional = true;
+          setConfigSource(s);
+          src.noConditional = true;
+        }
+      } else {
+        res = await doFetch(false);
+      }
+
+      if (res.status === 304) {
+        const s = getConfigSource() || {};
+        s.lastSync = Date.now(); setConfigSource(s);
+        cfgLastError = "";
+        return "unchanged";
+      }
+      if (!res.ok) throw new Error("HTTP " + res.status);
+
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); }
+      catch (e) { throw new Error(chromeT("Response was not valid JSON")); }
+      if (!looksLikeDeskConfig(json)) throw new Error(chromeT("Not a Desk configuration"));
+
+      cfgLastError = "";
+      // Byte-identical payload → don't re-render the grid under the agent's
+      // cursor just because the host doesn't send ETags.
+      if (text === localStorage.getItem(LS_CFG_RAW)) {
+        const s = getConfigSource() || {};
+        s.etag = res.headers.get("ETag") || s.etag || "";
+        s.lastModified = res.headers.get("Last-Modified") || s.lastModified || "";
+        s.lastSync = Date.now();
+        setConfigSource(s);
+        return "unchanged";
+      }
+
+      applyRemoteConfig(json, text, {
+        etag: res.headers.get("ETag") || "",
+        lastModified: res.headers.get("Last-Modified") || ""
+      });
+      return "updated";
+    } catch (err) {
+      // Offline is the common case, not an emergency: the cached config is
+      // still live, so a background failure stays silent and only colours the
+      // status dot. Manual syncs always report.
+      cfgLastError = (err && err.message) ? err.message : String(err);
+      if (manual) showToast(chromeT("⚠ Sync failed") + " — " + cfgLastError, true);
+      throw err;
+    } finally {
+      cfgSyncing = false;
+      renderSourceButton();
+      renderSourceStatus();
+    }
+  }
+
+  function scheduleConfigSync() {
+    if (cfgSyncTimer) { clearInterval(cfgSyncTimer); cfgSyncTimer = null; }
+    const src = getConfigSource();
+    if (!src) return;
+    const secs = Number(src.interval == null ? CFG_DEFAULT_INTERVAL : src.interval);
+    if (!secs) return; // manual-only
+    cfgSyncTimer = setInterval(() => { syncRemoteConfig().catch(() => {}); }, secs * 1000);
+  }
+
+  // Coming back to the tab after a while is the moment an agent is most likely
+  // to be looking at a stale config, so revalidate then too (throttled).
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    const src = getConfigSource();
+    if (!src || !Number(src.interval == null ? CFG_DEFAULT_INTERVAL : src.interval)) return;
+    if (src.lastSync && Date.now() - src.lastSync < 60000) return;
+    syncRemoteConfig().catch(() => {});
+  });
+
+  function cfgStatusState() {
+    const src = getConfigSource();
+    if (!src) return "off";
+    if (cfgLastError) return "err";
+    if (!src.lastSync) return "stale";
+    const secs = Number(src.interval == null ? CFG_DEFAULT_INTERVAL : src.interval);
+    if (secs && Date.now() - src.lastSync > secs * 3000) return "stale";
+    return "ok";
+  }
+
+  function renderSourceButton() {
+    const btn = document.getElementById("btn-source");
+    if (!btn) return;
+    const state = cfgStatusState();
+    btn.classList.toggle("is-off", state === "off");
+    const dot = btn.querySelector(".cs-dot");
+    if (dot) dot.className = "cs-dot " + (cfgSyncing ? "stale" : state);
+    const src = getConfigSource();
+    btn.title = src
+      ? chromeT("Configuration source") + ": " + src.url
+      : chromeT("Connect a configuration source");
+  }
+
+  function fmtStamp(ms) {
+    if (!ms) return chromeT("never");
+    const d = new Date(ms);
+    const diff = Math.round((Date.now() - ms) / 1000);
+    const rel = diff < 60 ? chromeT("just now")
+      : diff < 3600 ? Math.floor(diff / 60) + " " + chromeT("min ago")
+      : diff < 86400 ? Math.floor(diff / 3600) + " " + chromeT("h ago")
+      : d.toLocaleDateString();
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " · " + rel;
+  }
+
+  function renderSourceStatus() {
+    const box = document.getElementById("cfgsrc-status");
+    if (!box) return;
+    const src = getConfigSource();
+    const state = cfgStatusState();
+    const rows = []; // [key, value, showDot]
+
+    if (!src) {
+      rows.push([chromeT("Status"), chromeT("Not connected — using the local configuration"), true]);
+    } else {
+      const stateLabel = cfgSyncing ? chromeT("Syncing…")
+        : state === "err" ? chromeT("Last sync failed — running on the cached copy")
+        : state === "stale" ? chromeT("Waiting for first successful sync")
+        : chromeT("Connected");
+      rows.push([chromeT("Status"), stateLabel, true]);
+      rows.push([chromeT("Source"), src.url, false]);
+      rows.push([chromeT("Last checked"), fmtStamp(src.lastSync), false]);
+      if (src.revision) rows.push([chromeT("Revision"), src.revision, false]);
+      if (cfgLastError) rows.push([chromeT("Error"), cfgLastError, false]);
+    }
+
+    // Built node-by-node with textContent: a hostile config host must not be
+    // able to inject markup here through its URL, ETag or an error string.
+    box.innerHTML = "";
+    rows.forEach(([k, v, showDot]) => {
+      const row = document.createElement("div");
+      row.className = "cs-row";
+      const kEl = document.createElement("span");
+      kEl.className = "cs-key";
+      kEl.textContent = k;
+      const vEl = document.createElement("span");
+      vEl.className = "cs-val";
+      if (showDot) {
+        const d = document.createElement("span");
+        d.className = "cs-dot " + (cfgSyncing ? "stale" : state);
+        vEl.appendChild(d);
+      }
+      vEl.appendChild(document.createTextNode(v));
+      row.appendChild(kEl);
+      row.appendChild(vEl);
+      box.appendChild(row);
+    });
+  }
+
+  function openSourceModal() {
+    const src = getConfigSource();
+    document.getElementById("cfgsrc-url").value = src ? src.url : "";
+    document.getElementById("cfgsrc-interval").value =
+      String(src && src.interval != null ? src.interval : CFG_DEFAULT_INTERVAL);
+    renderSourceStatus();
+    document.getElementById("cfgsrc-modal").style.display = "block";
+    document.getElementById("cfgsrc-url").focus();
+  }
+  function closeSourceModal() {
+    document.getElementById("cfgsrc-modal").style.display = "none";
+  }
+
+  async function connectSource() {
+    const url = normalizeConfigUrl(document.getElementById("cfgsrc-url").value);
+    if (!url) return showToast(chromeT("⚠ Enter a valid https:// URL"), true);
+    const interval = Number(document.getElementById("cfgsrc-interval").value);
+    const prev = getConfigSource();
+    // Changing the URL invalidates the cached validators and the preflight
+    // verdict — a different host may well answer OPTIONS just fine.
+    const same = prev && prev.url === url;
+    setConfigSource({
+      url, interval,
+      etag: same ? prev.etag : "",
+      lastModified: same ? prev.lastModified : "",
+      lastSync: 0,
+      revision: same ? prev.revision : "",
+      noConditional: same ? !!prev.noConditional : false
+    });
+    cfgLastError = "";
+    renderSourceStatus();
+    try {
+      const r = await syncRemoteConfig({ manual: true });
+      if (r === "unchanged") showToast(chromeT("✓ Configuration source connected"));
+      scheduleConfigSync();
+    } catch (e) {
+      // Keep the URL saved so the agent can fix a typo without retyping it,
+      // but make it obvious nothing was loaded.
+      scheduleConfigSync();
+    }
+  }
+
+  function disconnectSource() {
+    if (!getConfigSource()) return;
+    if (!confirm(chromeT("Disconnect the configuration source? The current configuration stays loaded."))) return;
+    setConfigSource(null);
+    localStorage.removeItem(LS_CFG_RAW);
+    cfgLastError = "";
+    if (cfgSyncTimer) { clearInterval(cfgSyncTimer); cfgSyncTimer = null; }
+    renderSourceStatus();
+    showToast(chromeT("Configuration source disconnected"));
+  }
+
+  document.getElementById("btn-source").addEventListener("click", openSourceModal);
+  document.getElementById("cfgsrc-cancel").addEventListener("click", closeSourceModal);
+  document.getElementById("cfgsrc-connect").addEventListener("click", connectSource);
+  document.getElementById("cfgsrc-disconnect").addEventListener("click", disconnectSource);
+  document.getElementById("cfgsrc-sync").addEventListener("click", () => {
+    if (!getConfigSource()) return showToast(chromeT("⚠ No configuration source set"), true);
+    syncRemoteConfig({ manual: true })
+      .then(r => { if (r === "unchanged") showToast(chromeT("✓ Already up to date")); })
+      .catch(() => {});
+  });
+  document.getElementById("cfgsrc-modal").addEventListener("click", (e) => {
+    if (e.target.id === "cfgsrc-modal") closeSourceModal();
+  });
+  // The status panel and the button tooltip are built in JS, so data-i18n
+  // can't reach them — redraw when the fleet language switches.
+  window.addEventListener("carino:langchange", () => {
+    renderSourceButton();
+    if (isLayerOpen("cfgsrc-modal")) renderSourceStatus();
+  });
+
+  /* A ?config= link is the zero-setup onboarding path, but it is also an
+     obvious phishing vector — the link decides what snippets and escalation
+     contacts an agent sees. Never adopt one silently: name the host and make
+     a human agree, once per host. */
+  function consumeConfigUrlParam() {
+    let param;
+    try { param = new URLSearchParams(location.search).get("config"); }
+    catch (e) { return false; }
+    if (!param) return false;
+
+    // Drop it from the address bar either way, so a decline isn't re-prompted
+    // on every reload and the URL stops advertising the source.
+    const clean = new URL(location.href);
+    clean.searchParams.delete("config");
+    history.replaceState(null, "", clean.pathname + clean.search + clean.hash);
+
+    const url = normalizeConfigUrl(param);
+    if (!url) { showToast(chromeT("⚠ Enter a valid https:// URL"), true); return false; }
+
+    const existing = getConfigSource();
+    if (existing && existing.url === url) return false; // already trusted
+
+    const host = new URL(url).host;
+    if (!confirm(
+      chromeT("Load the support configuration from this server?") + "\n\n" + host +
+      "\n\n" + chromeT("It will control the snippets, fields and contacts shown in this workspace. Only continue if you recognise it.")
+    )) return false;
+
+    setConfigSource({ url, interval: CFG_DEFAULT_INTERVAL, etag: "", lastModified: "", lastSync: 0, revision: "" });
+    return true;
   }
 
   function renderSidebarInputs(fields) {
@@ -1712,8 +2295,11 @@
   }
   const flowText = (v) => getLocalizedText(v);
   function flowT(key, fb) {
-    if (snippetConfig.dictionary && snippetConfig.dictionary[key]) return getLocalizedText(snippetConfig.dictionary[key]);
-    return fb;
+    const entry = snippetConfig.dictionary && snippetConfig.dictionary[key];
+    // No English source to translate (a few dictionary-only keys pass ""), so
+    // the template is the only thing that can answer.
+    if (entry && !fb) return getLocalizedText(entry);
+    return dictText(entry, fb);
   }
 
 
@@ -2219,9 +2805,10 @@
     return !!el && el.style.display === "block";
   }
   function anyModalOpen() {
-    return isLayerOpen("flow-modal") || isLayerOpen("fill-modal") || isLayerOpen("shortcut-overlay") ||
+    return isLayerOpen("flow-modal") || isLayerOpen("fill-modal") || isLayerOpen("settings-modal") ||
            isLayerOpen("digest-modal") || isLayerOpen("sheet-modal") || isLayerOpen("quick-modal") ||
-           isLayerOpen("media-modal") || isLayerOpen("msearch-modal");
+           isLayerOpen("media-modal") || isLayerOpen("msearch-modal") ||
+           isLayerOpen("cfgsrc-modal");
   }
 
   function keymapMatches(e, m) {
@@ -2250,8 +2837,9 @@
 
   // --- Esc stack: exactly ONE action per press, top layer first ---
   function escStackAction() {
-    if (isLayerOpen("shortcut-overlay")) { toggleShortcutOverlay(false); return true; }
+    if (isLayerOpen("settings-modal")) { closeSettings(); return true; }
     if (isLayerOpen("media-modal")) { closeMediaModal(); return true; }
+    if (isLayerOpen("cfgsrc-modal")) { closeSourceModal(); return true; }
     if (isLayerOpen("msearch-modal")) { closeMultisearch(); return true; }
     if (isLayerOpen("flow-modal")) { requestCloseFlowEditor(); return true; }
     if (isLayerOpen("fill-modal")) { closeFillPopover(); return true; }
@@ -2425,7 +3013,12 @@
     return k.length === 1 ? k.toUpperCase() : k;
   }
   function buildShortcutOverlay() {
-    document.getElementById("shortcut-title").textContent = flowT("kbdOverlayTitle", "Keyboard Shortcuts");
+    // The old overlay's own <h3> is gone — the Shortcuts tab is the heading now,
+    // so the template's title key labels the tab instead.
+    const tab = document.getElementById("set-tab-shortcuts");
+    if (tab && snippetConfig.dictionary && snippetConfig.dictionary.kbdOverlayTitle) {
+      tab.innerText = flowT("kbdOverlayTitle", "Shortcuts");
+    }
     const list = document.getElementById("shortcut-list");
     list.innerHTML = "";
     [["global", flowT("kbdGroupGlobal", "Global")],
@@ -2457,16 +3050,51 @@
       });
     });
   }
-  function toggleShortcutOverlay(force) {
-    const ov = document.getElementById("shortcut-overlay");
-    const open = force !== undefined ? force : ov.style.display !== "block";
-    if (!open) { ov.style.display = "none"; return; }
-    buildShortcutOverlay();
-    ov.style.display = "block";
+  /* --- Settings dialog: Options + Shortcuts --- */
+  function setSettingsTab(name) {
+    document.querySelectorAll(".set-tab").forEach((t) => {
+      const on = t.dataset.panel === "set-panel-" + name;
+      t.classList.toggle("active", on);
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      document.getElementById(t.dataset.panel).hidden = !on;
+    });
+    // The shortcut rows are built from the live KEYMAP and the template
+    // dictionary, so they are rendered on show rather than cached.
+    if (name === "shortcuts") buildShortcutOverlay();
   }
-  document.getElementById("kbd-btn").addEventListener("click", () => toggleShortcutOverlay());
-  document.getElementById("shortcut-overlay").addEventListener("click", (e) => {
-    if (e.target.id === "shortcut-overlay") toggleShortcutOverlay(false);
+  function openSettings(tab) {
+    setSettingsTab(tab || "options");
+    if (typeof renderSourceButton === "function") renderSourceButton();
+    document.getElementById("settings-modal").style.display = "block";
+    document.getElementById("settings-btn").classList.add("open");
+  }
+  function closeSettings() {
+    document.getElementById("settings-modal").style.display = "none";
+    document.getElementById("settings-btn").classList.remove("open");
+  }
+  // Kept under its old name: '?' and the Esc stack still speak in these terms.
+  function toggleShortcutOverlay(force) {
+    const open = force !== undefined
+      ? force
+      : !(isLayerOpen("settings-modal") && !document.getElementById("set-panel-shortcuts").hidden);
+    if (!open) { closeSettings(); return; }
+    openSettings("shortcuts");
+  }
+  document.getElementById("settings-btn").addEventListener("click", () => {
+    if (isLayerOpen("settings-modal")) closeSettings(); else openSettings("options");
+  });
+  document.getElementById("settings-close").addEventListener("click", closeSettings);
+  document.querySelectorAll(".set-tab").forEach((t) => {
+    t.addEventListener("click", () => setSettingsTab(t.dataset.panel.replace("set-panel-", "")));
+  });
+  document.getElementById("settings-modal").addEventListener("click", (e) => {
+    if (e.target.id === "settings-modal") closeSettings();
+  });
+  // Every option either opens its own dialog or acts on the workspace, so the
+  // settings sheet gets out of the way once one is chosen. Bubble phase: the
+  // button's own handler has already run by the time this fires.
+  document.querySelector("#set-panel-options .set-grid").addEventListener("click", (e) => {
+    if (e.target.closest(".btn")) closeSettings();
   });
 
   // --- T1 KEYMAP entries ---
@@ -2487,7 +3115,9 @@
       run: focusSearch },
     { key: "?", when: "global", group: "idle", desc: "kShortcutOverlay", fb: "Toggle shortcuts overlay",
       run: () => {
-        if (isLayerOpen("shortcut-overlay")) return toggleShortcutOverlay(false);
+        // Already in Settings: '?' jumps to the Shortcuts tab, and closes only
+        // if that tab is the one showing.
+        if (isLayerOpen("settings-modal")) return toggleShortcutOverlay();
         if (isTyping() || anyModalOpen()) return false;
         toggleShortcutOverlay(true);
       } },
@@ -2525,7 +3155,10 @@
     return `${fmtTime(ev.t)} · ${EVENT_ICONS[ev.type] || "•"} ${ev.detail || ""}`;
   }
   function statusLabel(status) {
-    return flowT("status" + status.charAt(0).toUpperCase() + status.slice(1), status);
+    // The raw key ('ongoing') is a poor English source for the fleet
+    // dictionary — hand it the same label the <select> shows.
+    const EN = { ongoing: "🔴 Ongoing", pending: "🟡 Pending", done: "🟢 Done" };
+    return flowT("status" + status.charAt(0).toUpperCase() + status.slice(1), EN[status] || status);
   }
 
   function logEvent(type, detail, session) {
@@ -2977,11 +3610,13 @@
   function renderComposer() {
     const dock = document.getElementById("composer-dock");
     const blocks = getComposer();
+    // Labelled before the early return: a language switch with an empty
+    // composer must still leave the dock correct for when it next appears.
+    document.getElementById("composer-copy").textContent = flowT("composerCopyAll", "📋 Copy All");
+    document.getElementById("composer-clear").textContent = flowT("composerClear", "🧹 Clear");
     if (!blocks.length) { dock.style.display = "none"; return; }
     dock.style.display = "flex";
     document.getElementById("composer-count").textContent = `📝 ${blocks.length}`;
-    document.getElementById("composer-copy").textContent = flowT("composerCopyAll", "📋 Copy All");
-    document.getElementById("composer-clear").textContent = flowT("composerClear", "🧹 Clear");
     const chips = document.getElementById("composer-chips");
     chips.innerHTML = "";
     blocks.forEach((b, i) => {
