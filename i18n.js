@@ -21,6 +21,10 @@
 
 const I18N = {
     es: {
+        'Late shift.': 'Turno nocturno.',
+        'Good morning.': 'Buenos días.',
+        'Good afternoon.': 'Buenas tardes.',
+        'Good evening.': 'Buenas noches.',
         // Welcome / sidebar
         'NO CONFIGURATION LOADED': 'NINGUNA CONFIGURACIÓN CARGADA',
         'Drag & Drop a JSON file here.': 'Arrastra y suelta un archivo JSON aquí.',
@@ -70,6 +74,10 @@ const I18N = {
         'Clipboard blocked — PNG downloaded': 'Portapapeles bloqueado — PNG descargado',
     },
     'pt-BR': {
+        'Late shift.': 'Turno da noite.',
+        'Good morning.': 'Bom dia.',
+        'Good afternoon.': 'Boa tarde.',
+        'Good evening.': 'Boa noite.',
         'NO CONFIGURATION LOADED': 'NENHUMA CONFIGURAÇÃO CARREGADA',
         'Drag & Drop a JSON file here.': 'Arraste e solte um arquivo JSON aqui.',
         'Status': 'Status',
@@ -114,6 +122,10 @@ const I18N = {
         'Clipboard blocked — PNG downloaded': 'Área de transferência bloqueada — PNG baixado',
     },
     ja: {
+        'Late shift.': '夜勤お疲れさま。',
+        'Good morning.': 'おはようございます。',
+        'Good afternoon.': 'こんにちは。',
+        'Good evening.': 'こんばんは。',
         'NO CONFIGURATION LOADED': '設定が読み込まれていません',
         'Drag & Drop a JSON file here.': 'ここにJSONファイルをドラッグ＆ドロップしてください。',
         'Status': 'ステータス',
@@ -158,6 +170,10 @@ const I18N = {
         'Clipboard blocked — PNG downloaded': 'クリップボードがブロックされたため、PNGをダウンロードしました',
     },
     ru: {
+        'Late shift.': 'Ночная смена.',
+        'Good morning.': 'Доброе утро.',
+        'Good afternoon.': 'Добрый день.',
+        'Good evening.': 'Добрый вечер.',
         'NO CONFIGURATION LOADED': 'КОНФИГУРАЦИЯ НЕ ЗАГРУЖЕНА',
         'Drag & Drop a JSON file here.': 'Перетащите сюда JSON-файл.',
         'Status': 'Статус',
