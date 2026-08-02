@@ -1,4 +1,9 @@
 {
+  "config": {
+    "defaultLang": "en",
+    "supportedLangs": ["es", "en", "pt", "ja", "ru"]
+  },
+
   "logo": "https://carino.systems/assets/images/logo.webp",
   "note": "This is a shared note across the session.\nFeel free to include multiline content.",
   "googleSheetFields": ["timestamp", "client", "agent", "order"],
@@ -16,6 +21,21 @@
       "regex": "[^/]+$"
     }
   },
+
+  "dictionary": {
+    "Support Cases": { "es": "Casos de Soporte", "en": "Support Cases", "pt": "Casos de Suporte", "ja": "サポート案件", "ru": "Обращения в поддержку" },
+    "Follow Ups": { "es": "Seguimientos", "en": "Follow Ups", "pt": "Acompanhamentos", "ja": "フォローアップ", "ru": "Напоминания" },
+
+    "Welcome Message": { "es": "Mensaje de Bienvenida", "en": "Welcome Message", "pt": "Mensagem de Boas-vindas", "ja": "挨拶メッセージ", "ru": "Приветственное сообщение" },
+    "Order Reference": { "es": "Referencia del Pedido", "en": "Order Reference", "pt": "Referência do Pedido", "ja": "注文番号のご案内", "ru": "Номер заказа" },
+    "Internal Note": { "es": "Nota Interna", "en": "Internal Note", "pt": "Nota Interna", "ja": "内部メモ", "ru": "Внутренняя заметка" },
+    "Short Summary": { "es": "Resumen Breve", "en": "Short Summary", "pt": "Resumo Breve", "ja": "簡単な要約", "ru": "Краткая сводка" },
+    "Reminder": { "es": "Recordatorio", "en": "Reminder", "pt": "Lembrete", "ja": "リマインダー", "ru": "Напоминание" },
+
+    "Internal Wiki": { "es": "Wiki Interna", "en": "Internal Wiki", "pt": "Wiki Interna", "ja": "社内Wiki", "ru": "Внутренняя вики" },
+    "Client Dashboard": { "es": "Panel del Cliente", "en": "Client Dashboard", "pt": "Painel do Cliente", "ja": "顧客ダッシュボード", "ru": "Панель клиента" }
+  },
+
   "Support Cases": {
     "tags": ["urgent", "login issue", "escalation"],
     "shortcuts": [
@@ -29,17 +49,43 @@
       }
     ],
     "Welcome Message": {
-      "en": "Hello [client],\n\nMy name is [agent]. I'm here to help you today.",
       "es": "Hola [client],\n\nMi nombre es [agent]. Estoy aquí para ayudarle hoy.",
-      "pt": "Olá [client],\n\nMeu nome é [agent]. Estou aqui para ajudar você hoje."
+      "en": "Hello [client],\n\nMy name is [agent]. I'm here to help you today.",
+      "pt": "Olá [client],\n\nMeu nome é [agent]. Estou aqui para ajudar você hoje.",
+      "ja": "[client] 様\n\n担当の [agent] と申します。本日はお手伝いさせていただきます。",
+      "ru": "Здравствуйте, [client]!\n\nМеня зовут [agent]. Я помогу вам сегодня."
     },
-    "Order Reference": "For your reference, your order ID is: [order]",
-    "Internal Note": "Handled by: [name] ([internal_id])"
+    "Order Reference": {
+      "es": "Para su referencia, el número de su pedido es: [order]",
+      "en": "For your reference, your order ID is: [order]",
+      "pt": "Para sua referência, o número do seu pedido é: [order]",
+      "ja": "ご参考までに、お客様の注文番号は [order] です。",
+      "ru": "Для справки: номер вашего заказа — [order]"
+    },
+    "Internal Note": {
+      "es": "Atendido por: [name] ([internal_id])",
+      "en": "Handled by: [name] ([internal_id])",
+      "pt": "Atendido por: [name] ([internal_id])",
+      "ja": "対応者：[name]（[internal_id]）",
+      "ru": "Обработал: [name] ([internal_id])"
+    }
   },
 
   "Follow Ups": {
     "tags": ["reminder", "next step"],
-    "Short Summary": "Hi [client], just a quick follow-up regarding your case.",
-    "Reminder": "Please let us know if your issue with order [order] has been resolved."
+    "Short Summary": {
+      "es": "Hola [client], solo un breve seguimiento sobre su caso.",
+      "en": "Hi [client], just a quick follow-up regarding your case.",
+      "pt": "Olá [client], apenas um breve acompanhamento sobre o seu caso.",
+      "ja": "[client] 様、ご案件について簡単にご確認のご連絡です。",
+      "ru": "Здравствуйте, [client]! Небольшое напоминание по вашему обращению."
+    },
+    "Reminder": {
+      "es": "Por favor, indíquenos si su problema con el pedido [order] ya se ha resuelto.",
+      "en": "Please let us know if your issue with order [order] has been resolved.",
+      "pt": "Por favor, informe-nos se o seu problema com o pedido [order] já foi resolvido.",
+      "ja": "ご注文 [order] に関する問題が解決したかどうか、お知らせください。",
+      "ru": "Сообщите, пожалуйста, решён ли вопрос по заказу [order]."
+    }
   }
 }
