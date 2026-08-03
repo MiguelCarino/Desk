@@ -275,6 +275,10 @@ const DEFAULT_CONFIG = {
       "es": "Ciclar el tamaño del panel de notas",
       "en": "Cycle notes drawer size",
       "pt": "Alternar o tamanho do painel de notas", "ja": "メモ欄の高さを切り替え", "ru": "Переключить размер панели заметок" },
+    "kDrawerOrient": {
+      "es": "Notas: al lado o abajo",
+      "en": "Notes: side / bottom",
+      "pt": "Notas: ao lado ou abaixo", "ja": "メモ欄：横か下かを切り替え", "ru": "Заметки: сбоку или снизу" },
     "kToggleDim": {
       "es": "Atenuar tarjetas no relacionadas",
       "en": "Toggle card dimming",
@@ -313,6 +317,7 @@ const DEFAULT_CONFIG = {
 
     "timelineHeader": { "es": "🕒 Cronología", "en": "🕒 Timeline", "pt": "🕒 Linha do tempo", "ja": "🕒 タイムライン", "ru": "🕒 Хронология" },
     "timelineToggleTitle": { "es": "Notas / cronología", "en": "Notes / timeline", "pt": "Notas / linha do tempo", "ja": "メモ／タイムライン", "ru": "Заметки / хронология" },
+    "orientToggleTitle": { "es": "Notas: al lado / abajo", "en": "Notes: side / bottom", "pt": "Notas: ao lado / abaixo", "ja": "メモ欄：横／下", "ru": "Заметки: сбоку / снизу" },
     "timelineEmpty": {
       "es": "Aún no hay eventos en este ticket",
       "en": "No events yet for this ticket",

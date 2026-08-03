@@ -9,6 +9,10 @@
   <style>
     :root {
       /* Carino design tokens (branding.carino.systems) */
+      /* Only one of these is live at a time — see #notes-drawer. The bottom
+         drawer reads --drawer-h; the side panel reads --drawer-w. */
+      --drawer-h: 150px;   /* notes drawer height, bottom mode */
+      --drawer-w: 380px;   /* notes drawer width, side mode */
       --bg-nav: #0d0d0d;
       --bg-sidebar: #0b0b0b;
       --bg-card: #0b0b0b;
@@ -224,8 +228,15 @@
     .btn.primary:hover { background: #fbbf24; color: #050505; box-shadow: 0 4px 16px var(--accent-glow); }
 
     #content-area {
-      flex: 1; padding: 20px; overflow-y: auto;
-      background: var(--bg-content); padding-bottom: 200px;
+      flex: 1; padding: 20px; overflow-y: auto; background: var(--bg-content);
+      /* Clears the drawer plus the composer dock, whatever height either is. */
+      padding-bottom: calc(var(--drawer-h) + 70px);
+    }
+    /* Side mode: the drawer is out of the vertical stack, so the clearance
+       moves to the right edge and only the dock is left below. */
+    body.notes-vertical #content-area {
+      padding-bottom: 70px;
+      padding-right: calc(var(--drawer-w) + 20px);
     }
 
     .category-header {
@@ -278,22 +289,64 @@
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 
-    /* Drawer */
+    /* Drawer — one variable is the single source of truth for the size. In
+       bottom mode that is --drawer-h, in side mode --drawer-w; the composer
+       dock's offset and the content area's padding read whichever is live, so
+       a px drag and a % preset both resolve against #workspace with no JS
+       layout math. The variable the current mode does not read is simply
+       ignored, so switching sides never needs the other one reset. */
     #notes-drawer {
       position: absolute; bottom: 0; left: 300px; right: 0;
       background: var(--bg-notes); border-top: 1px solid var(--accent); z-index: 100;
-      transition: height 0.2s ease; height: 150px; display: flex; flex-direction: column;
+      transition: height 0.2s ease, width 0.2s ease; height: var(--drawer-h);
+      display: flex; flex-direction: column; overflow: hidden;
     }
-    #notes-drawer.minimized { height: 30px; }
-    #notes-drawer.maximized { height: 90%; border-top: 4px solid var(--accent); }
+    #notes-drawer.maximized { border-top: 4px solid var(--accent); }
+    /* A drag must track the pointer exactly, not ease toward it. */
+    #notes-drawer.dragging { transition: none; }
+    body.drawer-resizing { user-select: none; cursor: row-resize; }
+    body.drawer-resizing-x { user-select: none; cursor: col-resize; }
+
+    /* Side mode — the same drawer, docked right and driven by --drawer-w. */
+    #notes-drawer.vertical {
+      top: 0; bottom: 0; left: auto; right: 0; height: auto; width: var(--drawer-w);
+      border-top: none; border-left: 1px solid var(--accent);
+    }
+    #notes-drawer.vertical.maximized { border-top: none; border-left: 4px solid var(--accent); }
+    /* The header runs along the top of a panel that resizes sideways, so it
+       cannot be the drag target here — a left-edge grip takes over. */
+    .drawer-grip { display: none; }
+    #notes-drawer.vertical .drawer-grip {
+      display: block; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+      cursor: col-resize; touch-action: none; z-index: 2;
+    }
+    #notes-drawer.vertical .drawer-grip:hover { background: var(--accent-faint); }
+    #notes-drawer.vertical .drawer-header { cursor: default; }
+    /* Minimized side mode collapses to an icon rail: the ticket title would not
+       fit in 34px, so the controls stack and the label drops out. */
+    #notes-drawer.vertical.minimized .drawer-header {
+      flex: 0 0 auto; height: auto; padding: 8px 0;
+      flex-direction: column; justify-content: flex-start; gap: 8px;
+    }
+    #notes-drawer.vertical.minimized #note-header-text { display: none; }
+    #notes-drawer.vertical.minimized .drawer-controls {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    #notes-drawer.vertical.minimized .drawer-controls span { margin-left: 0; }
+    #notes-drawer.vertical.minimized #note-input,
+    #notes-drawer.vertical.minimized #timeline-list { display: none !important; }
 
     .drawer-header {
       height: 30px; background: var(--bg-card); padding: 0 15px;
       display: flex; align-items: center; justify-content: space-between;
       font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em;
       text-transform: uppercase; color: var(--text-muted);
-      cursor: row-resize; user-select: none;
+      cursor: row-resize; user-select: none; touch-action: none;
+      flex: 0 0 30px;
     }
+    /* A long ticket title must not push the window buttons off a narrow panel. */
+    #note-header-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .drawer-controls { flex: 0 0 auto; white-space: nowrap; }
     .drawer-controls span { margin-left: 10px; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
     .drawer-controls span:hover { color: var(--accent); background: var(--accent-faint); }
 
@@ -457,13 +510,20 @@
     #quick-text:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-faint); }
 
     #composer-dock {
-      position: absolute; left: 300px; right: 0; bottom: 150px; z-index: 101;
+      position: absolute; left: 300px; right: 0; bottom: var(--drawer-h); z-index: 101;
       display: flex; align-items: center; gap: 8px; padding: 6px 12px;
       background: var(--bg-elev); border-top: 1px solid var(--border);
       font-family: var(--mono); font-size: 11px; color: var(--text-main);
+      /* Follows the drawer at the same pace instead of snapping ahead of it. */
+      transition: bottom 0.2s ease, right 0.2s ease;
     }
-    #notes-drawer.minimized ~ #composer-dock { bottom: 30px; }
-    #notes-drawer.maximized ~ #composer-dock { display: none !important; }
+    /* Side mode: the dock sits on the floor of the content region, beside the
+       panel rather than above it. */
+    body.notes-vertical #composer-dock { bottom: 0; right: var(--drawer-w); }
+    /* Mid-drag the drawer drops its own easing; the dock has to drop it too or
+       it trails the pointer by a fifth of a second. */
+    body.drawer-resizing #composer-dock,
+    body.drawer-resizing-x #composer-dock { transition: none; }
     #composer-dock:focus { outline: none; box-shadow: inset 0 0 0 1px var(--accent); }
     #composer-count { color: var(--accent); font-weight: 700; white-space: nowrap; }
     #composer-chips { display: flex; gap: 6px; overflow-x: auto; flex: 1; scrollbar-width: thin; }
@@ -614,9 +674,11 @@
     </main>
 
     <div id="notes-drawer">
+      <div class="drawer-grip" id="drawer-grip"></div>
       <div class="drawer-header" id="drawer-handle">
         <span id="note-header-text">📝 Notes</span>
         <div class="drawer-controls">
+          <span id="orient-toggle" title="Notes: side / bottom" onclick="toggleDrawerOrientation()">▥</span>
           <span id="timeline-toggle" title="Notes / timeline" onclick="toggleTimeline()">🕒</span>
           <span onclick="resizeDrawer('minimized')">_</span>
           <span onclick="resizeDrawer('normal')">☐</span>
@@ -1121,6 +1183,7 @@
     if (kbdTab && kbdKey) kbdTab.innerText = flowT(kbdKey, "Shortcuts");
     document.getElementById("search-clear").title = flowT("searchClearTitle", "Clear search");
     document.getElementById("timeline-toggle").title = flowT("timelineToggleTitle", "Notes / timeline");
+    document.getElementById("orient-toggle").title = flowT("orientToggleTitle", "Notes: side / bottom");
   }
 
   // --- GENERAL UI ---
@@ -2277,17 +2340,162 @@
   document.body.addEventListener("drop", e => { e.preventDefault(); if(e.dataTransfer.files[0]) readJsonFile(e.dataTransfer.files[0]); });
   document.getElementById("jsonUpload").addEventListener("change", (e) => { if(e.target.files[0]) readJsonFile(e.target.files[0]); });
 
+  // --- NOTES DRAWER ---
+  // The drawer docks either along the bottom (a wide strip under the grid) or
+  // along the right (a tall column beside it); ▥/▤ swaps between the two. Each
+  // orientation keeps its own "normal" size, so switching back and forth never
+  // loses the size you dragged. Drag target, size preset and orientation all
+  // survive a reload.
+  const LS_DRAWER = "support_ide_drawer";
+  const DRAWER_MIN = 30;          // px — the header alone
+  const DRAWER_MAX_PCT = 0.85;    // of #workspace, so the grid never disappears
+  const DRAWER_MIN_W = 34;        // px — the icon rail
+  const DRAWER_MAX_W_PCT = 0.7;   // of the content region, so a grid column survives
+  let drawerNormalH = "150px";    // the size "normal" restores, remembered across drags
+  let drawerNormalW = "380px";
+  let drawerOrient = "horizontal";  // "horizontal" (bottom) | "vertical" (side)
+
+  function drawerVertical() { return drawerOrient === "vertical"; }
+  function drawerState() {
+    const d = document.getElementById("notes-drawer");
+    return d.classList.contains("minimized") ? "minimized"
+         : d.classList.contains("maximized") ? "maximized" : "normal";
+  }
+  function saveDrawerState() {
+    try {
+      localStorage.setItem(LS_DRAWER, JSON.stringify(
+        { state: drawerState(), h: drawerNormalH, w: drawerNormalW, orient: drawerOrient }));
+    } catch (e) { /* private mode */ }
+  }
+  // Writes whichever variable the current orientation reads; the other one is
+  // left alone because no rule in this mode looks at it.
+  function setDrawerSize(len) {
+    document.documentElement.style.setProperty(drawerVertical() ? "--drawer-w" : "--drawer-h", len);
+  }
+  function drawerMinSize() { return drawerVertical() ? DRAWER_MIN_W : DRAWER_MIN; }
+  function drawerMaxSize() {
+    const ws = document.getElementById("workspace");
+    if (!drawerVertical()) return ws.clientHeight * DRAWER_MAX_PCT;
+    // The sidebar is a flex sibling the panel never overlaps, so the budget is
+    // the content region, not the whole workspace.
+    return (ws.clientWidth - document.getElementById("sidebar").offsetWidth) * DRAWER_MAX_W_PCT;
+  }
+
   function resizeDrawer(state) {
     const drawer = document.getElementById("notes-drawer");
-    drawer.className = state;
+    // classList, not className — a bare assignment would drop .dragging.
+    drawer.classList.remove("minimized", "maximized");
+    if (state === "minimized" || state === "maximized") drawer.classList.add(state);
+    setDrawerSize(state === "minimized" ? drawerMinSize() + "px"
+                : state === "maximized" ? (drawerVertical() ? "50%" : "60%")
+                : (drawerVertical() ? drawerNormalW : drawerNormalH));
+    // Maximizing used to set content.display = 'none', so writing a long note
+    // meant losing the snippets you were writing it from. The presets above
+    // keep both visible.
     const content = document.getElementById("content-area");
-    if(state === 'maximized') content.style.display = 'none';
-    else { content.style.display = 'block'; content.style.paddingBottom = (state === 'normal' ? 160 : 40) + "px"; }
+    content.style.display = "";
+    content.style.paddingBottom = "";
+    saveDrawerState();
   }
-  document.getElementById("drawer-handle").addEventListener("dblclick", () => {
-    const d = document.getElementById("notes-drawer");
-    resizeDrawer(d.classList.contains("minimized") ? "normal" : "minimized");
-  });
+
+  function setDrawerOrientation(orient, state) {
+    drawerOrient = orient === "vertical" ? "vertical" : "horizontal";
+    const vert = drawerVertical();
+    document.getElementById("notes-drawer").classList.toggle("vertical", vert);
+    // #content-area precedes the drawer, so it can't be reached with a sibling
+    // selector — the body carries the mode for everything outside the panel.
+    document.body.classList.toggle("notes-vertical", vert);
+    // The glyph shows where the panel would go next, not where it is now.
+    document.getElementById("orient-toggle").textContent = vert ? "▤" : "▥";
+    resizeDrawer(state || drawerState());
+  }
+  function toggleDrawerOrientation() {
+    setDrawerOrientation(drawerVertical() ? "horizontal" : "vertical");
+  }
+
+  (function initDrawer() {
+    const drawer = document.getElementById("notes-drawer");
+    const handle = document.getElementById("drawer-handle");
+    const grip = document.getElementById("drawer-grip");
+    let start = 0, startSize = 0, axis = "y", dragEl = null;
+
+    // Both drag targets run the same maths: the drawer grows as the pointer
+    // moves away from the edge it is docked to, which is the negative delta on
+    // either axis.
+    function beginDrag(el, ax) {
+      return (e) => {
+        if (e.button !== 0 || e.target.closest(".drawer-controls")) return;
+        // Bottom mode resizes on Y (the header), side mode on X (the grip).
+        if (ax !== (drawerVertical() ? "x" : "y")) return;
+        axis = ax; dragEl = el;
+        start = ax === "y" ? e.clientY : e.clientX;
+        startSize = ax === "y" ? drawer.offsetHeight : drawer.offsetWidth;
+        drawer.classList.add("dragging");
+        document.body.classList.add(ax === "y" ? "drawer-resizing" : "drawer-resizing-x");
+        // Capture only keeps the drag alive past the element's edge; if the UA
+        // refuses it the drag must still start, not throw out of the handler.
+        try { el.setPointerCapture(e.pointerId); } catch (err) { /* no live pointer */ }
+        e.preventDefault();
+      };
+    }
+    function onMove(e) {
+      if (!dragEl) return;
+      const min = drawerMinSize();
+      const delta = (axis === "y" ? e.clientY : e.clientX) - start;
+      const size = Math.max(min, Math.min(drawerMaxSize(), startSize - delta));
+      setDrawerSize(size + "px");
+      // Dragging to the edge counts as minimized so Shift+N keeps cycling
+      // sensibly afterwards; any drag cancels the maximized preset.
+      drawer.classList.toggle("minimized", size <= min + 4);
+      drawer.classList.remove("maximized");
+    }
+    function endDrag(e) {
+      if (!dragEl) return;
+      drawer.classList.remove("dragging");
+      document.body.classList.remove("drawer-resizing", "drawer-resizing-x");
+      try {
+        if (dragEl.hasPointerCapture(e.pointerId)) dragEl.releasePointerCapture(e.pointerId);
+      } catch (err) { /* capture was never granted */ }
+      if (!drawer.classList.contains("minimized")) {
+        if (axis === "y") drawerNormalH = drawer.offsetHeight + "px";
+        else drawerNormalW = drawer.offsetWidth + "px";
+      }
+      dragEl = null;
+      saveDrawerState();
+    }
+
+    [[handle, "y"], [grip, "x"]].forEach(([el, ax]) => {
+      el.addEventListener("pointerdown", beginDrag(el, ax));
+      el.addEventListener("pointermove", onMove);
+      el.addEventListener("pointerup", endDrag);
+      el.addEventListener("pointercancel", endDrag);
+    });
+
+    handle.addEventListener("dblclick", (e) => {
+      if (e.target.closest(".drawer-controls")) return;  // the buttons own their clicks
+      resizeDrawer(drawer.classList.contains("minimized") ? "normal" : "minimized");
+    });
+
+    // A window resize can leave a stored px size above the new maximum, which
+    // would swallow the grid; re-clamp rather than leave the panel oversized.
+    window.addEventListener("resize", () => {
+      if (drawerState() !== "normal" || dragEl) return;
+      const max = Math.round(drawerMaxSize());
+      const cur = drawerVertical() ? drawer.offsetWidth : drawer.offsetHeight;
+      if (cur <= max) return;
+      setDrawerSize(max + "px");
+      if (drawerVertical()) drawerNormalW = max + "px"; else drawerNormalH = max + "px";
+      saveDrawerState();
+    });
+
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(LS_DRAWER) || "null"); } catch (e) { /* corrupt */ }
+    const isPx = (v) => typeof v === "string" && /^\d+(\.\d+)?px$/.test(v);
+    if (saved && isPx(saved.h)) drawerNormalH = saved.h;
+    if (saved && isPx(saved.w)) drawerNormalW = saved.w;
+    setDrawerOrientation((saved && saved.orient) || "horizontal",
+                         (saved && saved.state) || "normal");
+  })();
 
   // =====================================================================
   // FLOW CARDS — step-by-step end-user guides (ported from ProcessFlow)
@@ -3152,6 +3360,8 @@
       run: () => { resizeDrawer("normal"); document.getElementById("note-input").focus(); } },
     { key: "n", shift: true, when: "idle", desc: "kCycleDrawer", fb: "Cycle notes drawer size",
       run: cycleDrawerState },
+    { key: "v", when: "idle", desc: "kDrawerOrient", fb: "Notes: side / bottom",
+      run: toggleDrawerOrientation },
     { key: "d", when: "idle", desc: "kToggleDim", fb: "Toggle card dimming",
       run: () => document.getElementById("dim-btn").click() },
     // Search-box focused
@@ -3170,7 +3380,24 @@
   // =====================================================================
 
   // --- Session timeline core ---
-  var drawerModes = {}; // sessionId → "notes" | "timeline" (in-memory only)
+  // sessionId → "notes" | "timeline". Persisted like everything else in the
+  // workspace, so a session left on the timeline reopens on the timeline.
+  const LS_DRAWER_MODES = "support_ide_drawer_modes";
+  var drawerModes = (function () {
+    try {
+      const m = JSON.parse(localStorage.getItem(LS_DRAWER_MODES) || "{}");
+      return (m && typeof m === "object" && !Array.isArray(m)) ? m : {};
+    } catch (e) { return {}; }
+  })();
+  function saveDrawerModes() {
+    // Drop entries for sessions that no longer exist, so closed tickets don't
+    // accumulate in storage forever.
+    const live = {};
+    sessions.forEach(s => { if (drawerModes[s.id]) live[s.id] = drawerModes[s.id]; });
+    drawerModes = live;
+    try { localStorage.setItem(LS_DRAWER_MODES, JSON.stringify(live)); }
+    catch (e) { /* private mode */ }
+  }
   var pasteUndoId = null;
   const EVENT_ICONS = { copy: "📋", open: "↗", status: "🔁", flow: "🧭", create: "➕", close: "🗑", restore: "↩", paste: "📥" };
 
@@ -3237,6 +3464,7 @@
     if (drawerModes[activeSessionId] === "timeline" &&
         document.getElementById("notes-drawer").classList.contains("minimized")) resizeDrawer("normal");
     applyDrawerMode();
+    saveDrawerModes();
     const s = sessions.find(x => x.id === activeSessionId);
     if (s) updateNoteHeader(s.title);
   }
