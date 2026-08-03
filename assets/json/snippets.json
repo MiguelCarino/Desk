@@ -33,7 +33,11 @@
     "Reminder": { "es": "Recordatorio", "en": "Reminder", "pt": "Lembrete", "ja": "リマインダー", "ru": "Напоминание" },
 
     "Internal Wiki": { "es": "Wiki Interna", "en": "Internal Wiki", "pt": "Wiki Interna", "ja": "社内Wiki", "ru": "Внутренняя вики" },
-    "Client Dashboard": { "es": "Panel del Cliente", "en": "Client Dashboard", "pt": "Painel do Cliente", "ja": "顧客ダッシュボード", "ru": "Панель клиента" }
+    "Client Dashboard": { "es": "Panel del Cliente", "en": "Client Dashboard", "pt": "Painel do Cliente", "ja": "顧客ダッシュボード", "ru": "Панель клиента" },
+
+    "client": { "es": "Cliente", "en": "Client", "pt": "Cliente", "ja": "お客様", "ru": "Клиент" },
+    "order": { "es": "Pedido", "en": "Order", "pt": "Pedido", "ja": "注文", "ru": "Заказ" },
+    "agent": { "es": "Agente", "en": "Agent", "pt": "Atendente", "ja": "担当者", "ru": "Оператор" }
   },
 
   "Support Cases": {

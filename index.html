@@ -1063,6 +1063,7 @@
     // language switch — the composer dock and the media retry button can both
     // be on screen already.
     renderComposer();
+    relabelSidebarInputs();
     const mediaRetry = document.getElementById("media-retry");
     if (mediaRetry) mediaRetry.textContent = flowT("mediaRetry", "↻ Retry");
   }
@@ -1838,7 +1839,10 @@
       const group = document.createElement("div");
       group.className = "control-group";
       const label = document.createElement("label");
-      label.textContent = key;
+      // The key stays the identity (placeholders, session.data, fieldCards and
+      // googleSheetFields all address it); only the printed label translates.
+      label.setAttribute("data-key", key);
+      label.textContent = translateKey(key);
 
       let valueToSet = defaultVal;
       if (session) {
@@ -1860,7 +1864,9 @@
         control.appendChild(emptyOpt);
         options.forEach(opt => {
           const el = document.createElement("option");
-          el.value = opt; el.textContent = opt;
+          // Same split: the stored value stays the authored key so saved
+          // tickets, applyFilter and fieldCards keep matching across languages.
+          el.value = opt; el.textContent = translateKey(opt);
           control.appendChild(el);
         });
         control.value = valueToSet;
@@ -1917,6 +1923,20 @@
       }
 
       container.appendChild(group);
+    });
+  }
+
+  // A language switch must not re-render the sidebar — that would drop the
+  // focus ring, the field-card dim state and any half-typed value — so the
+  // existing nodes are relabelled in place instead.
+  function relabelSidebarInputs() {
+    document.querySelectorAll("#dynamic-inputs label[data-key]").forEach(l => {
+      l.textContent = translateKey(l.getAttribute("data-key"));
+    });
+    document.querySelectorAll("#dynamic-inputs select[data-key]").forEach(s => {
+      Array.from(s.options).forEach(o => {
+        if (o.value) o.textContent = translateKey(o.value);
+      });
     });
   }
 
@@ -2160,7 +2180,7 @@
       const group = document.createElement("div");
       group.className = "control-group";
       const lb = document.createElement("label");
-      lb.textContent = k;
+      lb.textContent = translateKey(k);
       const inp = document.createElement("input");
       inp.type = "text"; inp.className = "input-std";
       inp.setAttribute("data-fill-key", k);
@@ -3356,7 +3376,11 @@
     if (snippetConfig.fields) {
       Object.keys(snippetConfig.fields).forEach(k => {   // sidebar order
         if (hiddenFields && hiddenFields[k]) return;
-        if (d[k]) rows.push([k, d[k]]);
+        if (!d[k]) return;
+        // The sheet prints in the reader's language. Only dropdown values are
+        // translated — free text is whatever the agent actually typed.
+        const val = Array.isArray(fieldOptions[k]) ? translateKey(d[k]) : d[k];
+        rows.push([translateKey(k), val]);
       });
     }
     return {
