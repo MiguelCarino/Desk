@@ -89,7 +89,6 @@ const DEFAULT_CONFIG = {
     "Time Zones": { "es": "Zonas Horarias", "en": "Time Zones", "pt": "Fusos Horários", "ja": "タイムゾーン", "ru": "Часовые пояса" },
     "Resume": { "es": "Currículum", "en": "Resume", "pt": "Currículo", "ja": "履歴書", "ru": "Резюме" },
     "Hash Check": { "es": "Verificar Hash", "en": "Hash Check", "pt": "Verificar Hash", "ja": "ハッシュの確認", "ru": "Проверка хеша" },
-    "DICOM Editor": { "es": "Editor DICOM", "en": "DICOM Editor", "pt": "Editor DICOM", "ja": "DICOMエディター", "ru": "Редактор DICOM" },
     "Netplan Config": { "es": "Configuración Netplan", "en": "Netplan Config", "pt": "Configuração Netplan", "ja": "Netplan設定", "ru": "Настройка Netplan" },
     "Net Topology": { "es": "Topología de Red", "en": "Net Topology", "pt": "Topologia de Rede", "ja": "ネットワーク構成図", "ru": "Топология сети" },
     "Hardware Ref": { "es": "Referencia de Hardware", "en": "Hardware Ref", "pt": "Referência de Hardware", "ja": "ハードウェア資料", "ru": "Справочник по оборудованию" },
@@ -101,7 +100,8 @@ const DEFAULT_CONFIG = {
     "Kanban": { "es": "Kanban", "en": "Kanban", "pt": "Kanban", "ja": "Kanban", "ru": "Kanban" },
     "Branding": { "es": "Branding", "en": "Branding", "pt": "Branding", "ja": "Branding", "ru": "Branding" },
     "Metadata": { "es": "Metadata", "en": "Metadata", "pt": "Metadata", "ja": "Metadata", "ru": "Metadata" },
-    "Carino PACS": { "es": "Carino PACS", "en": "Carino PACS", "pt": "Carino PACS", "ja": "Carino PACS", "ru": "Carino PACS" },
+    "Carino DICOM": { "es": "Carino DICOM", "en": "Carino DICOM", "pt": "Carino DICOM", "ja": "Carino DICOM", "ru": "Carino DICOM" },
+    "Carino DICOM Editor": { "es": "Carino DICOM Editor", "en": "Carino DICOM Editor", "pt": "Carino DICOM Editor", "ja": "Carino DICOM Editor", "ru": "Carino DICOM Editor" },
     "Retina Suite": { "es": "Retina Suite", "en": "Retina Suite", "pt": "Retina Suite", "ja": "Retina Suite", "ru": "Retina Suite" },
     "SimpleSetup": { "es": "SimpleSetup", "en": "SimpleSetup", "pt": "SimpleSetup", "ja": "SimpleSetup", "ru": "SimpleSetup" },
     "CVE Radar": { "es": "CVE Radar", "en": "CVE Radar", "pt": "CVE Radar", "ja": "CVE Radar", "ru": "CVE Radar" },
@@ -804,19 +804,19 @@ const DEFAULT_CONFIG = {
   "Imagenología y PACS": {
     "tags": ["Medical", "IT"],
     "shortcuts": [
-      { "label": "Carino PACS", "url": "https://pacs.carino.systems" },
-      { "label": "DICOM Editor", "url": "https://dicom.carino.systems" },
+      { "label": "Carino DICOM", "url": "https://pacs.carino.systems" },
+      { "label": "Carino DICOM Editor", "url": "https://dicom.carino.systems" },
       { "label": "Retina Suite", "url": "https://retina.carino.systems" }
     ],
     "flows": [
       { "id": "f_pacs_setup",
-        "title": { "es": "Instalar Carino PACS", "en": "Install Carino PACS", "pt": "Instalar o Carino PACS", "ja": "Carino PACS の導入", "ru": "Установка Carino PACS" },
+        "title": { "es": "Instalar Carino DICOM", "en": "Install Carino DICOM", "pt": "Instalar o Carino DICOM", "ja": "Carino DICOM の導入", "ru": "Установка Carino DICOM" },
         "tag": { "es": "PACS", "en": "PACS", "pt": "PACS", "ja": "PACS", "ru": "PACS" },
         "steps": [
           { "text": {
-            "es": "Descargar Carino PACS\n• Entra a https://pacs.carino.systems\n• Descarga la versión para tu sistema\n• Instala o descomprime",
-            "en": "Download Carino PACS\n• Go to https://pacs.carino.systems\n• Download the build for your OS\n• Install or unzip",
-            "pt": "Baixar o Carino PACS\n• Acesse https://pacs.carino.systems\n• Baixe a versão para seu sistema\n• Instale ou descompacte", "ja": "Carino PACS をダウンロードする\n• https://pacs.carino.systems を開く\n• お使いのOS向けのビルドをダウンロードする\n• インストールまたは解凍する", "ru": "Скачайте Carino PACS\n• Откройте https://pacs.carino.systems\n• Скачайте сборку для вашей ОС\n• Установите или распакуйте" } },
+            "es": "Descargar Carino DICOM\n• Entra a https://pacs.carino.systems\n• Descarga la versión para tu sistema\n• Instala o descomprime",
+            "en": "Download Carino DICOM\n• Go to https://pacs.carino.systems\n• Download the build for your OS\n• Install or unzip",
+            "pt": "Baixar o Carino DICOM\n• Acesse https://pacs.carino.systems\n• Baixe a versão para seu sistema\n• Instale ou descompacte", "ja": "Carino DICOM をダウンロードする\n• https://pacs.carino.systems を開く\n• お使いのOS向けのビルドをダウンロードする\n• インストールまたは解凍する", "ru": "Скачайте Carino DICOM\n• Откройте https://pacs.carino.systems\n• Скачайте сборку для вашей ОС\n• Установите или распакуйте" } },
           { "text": {
             "es": "Configurar el nodo\n• Edita config.json\n• Define AE Title, puerto (104/11112) y carpeta de almacenamiento\n• Inicia el servicio",
             "en": "Configure the node\n• Edit config.json\n• Set AE Title, port (104/11112) and storage folder\n• Start the service",
