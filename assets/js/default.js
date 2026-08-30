@@ -804,8 +804,8 @@ const DEFAULT_CONFIG = {
   "Imagenología y PACS": {
     "tags": ["Medical", "IT"],
     "shortcuts": [
-      { "label": "Carino DICOM", "url": "https://pacs.carino.systems" },
-      { "label": "Carino DICOM Editor", "url": "https://dicom.carino.systems" },
+      { "label": "Carino DICOM", "url": "https://dicom.carino.systems" },
+      { "label": "Carino DICOM Editor", "url": "https://dcm.carino.systems" },
       { "label": "Retina Suite", "url": "https://retina.carino.systems" }
     ],
     "flows": [
@@ -814,9 +814,9 @@ const DEFAULT_CONFIG = {
         "tag": { "es": "PACS", "en": "PACS", "pt": "PACS", "ja": "PACS", "ru": "PACS" },
         "steps": [
           { "text": {
-            "es": "Descargar Carino DICOM\n• Entra a https://pacs.carino.systems\n• Descarga la versión para tu sistema\n• Instala o descomprime",
-            "en": "Download Carino DICOM\n• Go to https://pacs.carino.systems\n• Download the build for your OS\n• Install or unzip",
-            "pt": "Baixar o Carino DICOM\n• Acesse https://pacs.carino.systems\n• Baixe a versão para seu sistema\n• Instale ou descompacte", "ja": "Carino DICOM をダウンロードする\n• https://pacs.carino.systems を開く\n• お使いのOS向けのビルドをダウンロードする\n• インストールまたは解凍する", "ru": "Скачайте Carino DICOM\n• Откройте https://pacs.carino.systems\n• Скачайте сборку для вашей ОС\n• Установите или распакуйте" } },
+            "es": "Descargar Carino DICOM\n• Entra a https://dicom.carino.systems\n• Descarga la versión para tu sistema\n• Instala o descomprime",
+            "en": "Download Carino DICOM\n• Go to https://dicom.carino.systems\n• Download the build for your OS\n• Install or unzip",
+            "pt": "Baixar o Carino DICOM\n• Acesse https://dicom.carino.systems\n• Baixe a versão para seu sistema\n• Instale ou descompacte", "ja": "Carino DICOM をダウンロードする\n• https://dicom.carino.systems を開く\n• お使いのOS向けのビルドをダウンロードする\n• インストールまたは解凍する", "ru": "Скачайте Carino DICOM\n• Откройте https://dicom.carino.systems\n• Скачайте сборку для вашей ОС\n• Установите или распакуйте" } },
           { "text": {
             "es": "Configurar el nodo\n• Edita config.json\n• Define AE Title, puerto (104/11112) y carpeta de almacenamiento\n• Inicia el servicio",
             "en": "Configure the node\n• Edit config.json\n• Set AE Title, port (104/11112) and storage folder\n• Start the service",
@@ -835,9 +835,9 @@ const DEFAULT_CONFIG = {
         "tag": { "es": "DICOM", "en": "DICOM", "pt": "DICOM", "ja": "DICOM", "ru": "DICOM" },
         "steps": [
           { "text": {
-            "es": "Abrir el editor\n• Entra a https://dicom.carino.systems\n• Todo se procesa en tu navegador\n• Carga el archivo DICOM",
-            "en": "Open the editor\n• Go to https://dicom.carino.systems\n• Everything runs in your browser\n• Load the DICOM file",
-            "pt": "Abrir o editor\n• Acesse https://dicom.carino.systems\n• Tudo é processado no navegador\n• Carregue o arquivo DICOM", "ja": "エディターを開く\n• https://dicom.carino.systems を開く\n• すべてブラウザー内で処理されます\n• DICOM ファイルを読み込む", "ru": "Откройте редактор\n• Перейдите на https://dicom.carino.systems\n• Всё выполняется в вашем браузере\n• Загрузите DICOM-файл" } },
+            "es": "Abrir el editor\n• Entra a https://dcm.carino.systems\n• Todo se procesa en tu navegador\n• Carga el archivo DICOM",
+            "en": "Open the editor\n• Go to https://dcm.carino.systems\n• Everything runs in your browser\n• Load the DICOM file",
+            "pt": "Abrir o editor\n• Acesse https://dcm.carino.systems\n• Tudo é processado no navegador\n• Carregue o arquivo DICOM", "ja": "エディターを開く\n• https://dcm.carino.systems を開く\n• すべてブラウザー内で処理されます\n• DICOM ファイルを読み込む", "ru": "Откройте редактор\n• Перейдите на https://dcm.carino.systems\n• Всё выполняется в вашем браузере\n• Загрузите DICOM-файл" } },
           { "text": {
             "es": "Anonimizar\n• Usa la función 'Anonymize'\n• Revisa nombre, ID y fechas del paciente\n• Ajusta etiquetas manualmente si hace falta",
             "en": "Anonymize\n• Use the 'Anonymize' function\n• Review patient name, ID and dates\n• Adjust tags manually if needed",
