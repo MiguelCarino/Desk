@@ -1,5 +1,10 @@
 # Desk
-A basic web desk support snippet panel to improve desk support times.
+
+A help-desk snippet workspace: search, fill in and copy canned replies for support tickets.
+
+**[Open it →](https://desk.carino.systems/)** — runs in your browser, nothing to install, no account.
+
+![Desk](screenshot.webp)
 
 ## Hosting your own configuration
 

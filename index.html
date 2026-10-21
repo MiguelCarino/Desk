@@ -13,7 +13,18 @@
   <meta property="og:title" content="Desk">
   <meta property="og:description" content="Help-desk snippet workspace — search, fill in and copy canned replies for support tickets, in your browser.">
   <meta property="og:url" content="https://desk.carino.systems/">
-  <meta property="og:image" content="https://desk.carino.systems/logo.webp">
+  <meta property="og:image" content="https://desk.carino.systems/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Desk">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="alternate" hreflang="en" href="https://desk.carino.systems/">
+  <link rel="alternate" hreflang="es" href="https://desk.carino.systems/?lang=es">
+  <link rel="alternate" hreflang="pt-BR" href="https://desk.carino.systems/?lang=pt-BR">
+  <link rel="alternate" hreflang="ja" href="https://desk.carino.systems/?lang=ja">
+  <link rel="alternate" hreflang="ru" href="https://desk.carino.systems/?lang=ru">
+  <link rel="alternate" hreflang="x-default" href="https://desk.carino.systems/">
+  <script type="application/json" id="carino-head-i18n">{"es": {"title": "Desk — Respuestas predefinidas para mesa de ayuda", "desc": "Espacio de fragmentos para mesa de ayuda: busca, completa y copia respuestas predefinidas para tickets de soporte, en tu navegador."}, "pt-BR": {"title": "Desk — Respostas prontas para help desk", "desc": "Espaço de trechos para help desk: pesquise, preencha e copie respostas prontas para chamados de suporte, no navegador."}, "ja": {"title": "Desk — ヘルプデスク定型文テンプレート", "desc": "ヘルプデスク用スニペット集。サポートチケット向けの定型返信を検索・入力・コピー。ブラウザで動作。"}, "ru": {"title": "Desk — шаблоны ответов для службы поддержки", "desc": "Рабочее место со сниппетами для службы поддержки: ищите, заполняйте и копируйте готовые ответы на заявки прямо в браузере."}}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Desk", "url": "https://desk.carino.systems/", "description": "Help-desk snippet workspace — search, fill in and copy canned replies for support tickets, in your browser.", "operatingSystem": "Any (runs in a web browser)", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Miguel Cariño", "url": "https://carino.systems/"}}</script>
   <!-- /carino:head -->
   <link rel="stylesheet" href="fonts/carino-fonts.css">
@@ -36,7 +47,7 @@
       --url-card-color: #eab308;
       --text-main: #a3a3a3;
       --text-header: #ffffff;
-      --text-muted: #666666;
+      --text-muted: #8a8a8a;
 
       /* Static Colors */
       --border: #262626;
@@ -660,7 +671,7 @@
     <aside id="sidebar">
       <div class="sidebar-section">
         <div class="control-group">
-          <label data-i18n>Status</label>
+          <label for="status-select" data-i18n>Status</label>
           <select id="status-select" class="input-std">
             <option value="ongoing">🔴 Ongoing</option>
             <option value="pending">🟡 Pending</option>
@@ -1950,6 +1961,10 @@
         control.setAttribute("data-key", key);
         control.value = valueToSet;
       }
+
+      // Tie the printed label to its control, so it is announced and clickable.
+      control.id = "fld-" + key.replace(/[^A-Za-z0-9_-]/g, "_");
+      label.htmlFor = control.id;
 
       let preview = null;
       const updatePreview = (val) => {
