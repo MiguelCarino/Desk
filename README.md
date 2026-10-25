@@ -12,7 +12,7 @@ Desk can load its configuration from a URL you control instead of the bundled
 default. You host the JSON; Desk only reads it. Nothing about your configuration
 passes through Carino infrastructure, and there is no account to create.
 
-**Connect it:** open Desk → **⚙ Settings › Options › 🔗 Source** → paste the URL → *Connect*.
+**Connect it:** open Desk → **Settings › Options › Source** → paste the URL → *Connect*.
 You can also hand agents a link that pre-fills it:
 
 ```
@@ -26,7 +26,7 @@ once before trusting it.
 
 | | |
 |---|---|
-| Returns | the same JSON shape as a file you'd load with 📂 Load (must contain `fields` or `dictionary`) |
+| Returns | the same JSON shape as a file you'd load with **Export › Load** (must contain `fields` or `dictionary`) |
 | Scheme | `https://` (plain `http://` is allowed only for `localhost` during testing) |
 | CORS | must send `Access-Control-Allow-Origin` permitting `https://desk.carino.systems` (or `*`) |
 
@@ -57,7 +57,7 @@ Two properties are worth knowing when you edit a live configuration:
 
 - **Open tickets are never cleared by a sync.** A configuration update re-renders
   the snippet grid and sidebar; it does not touch the agent's tabs, typed field
-  values, or notes. (Loading a file manually with 📂 Load still resets tickets —
+  values, or notes. (Loading a file manually with Export › Load still resets tickets —
   that path is unchanged.)
 - **Desk is cache-first.** It renders instantly from its local copy and applies
   the network result afterwards. If your host is slow, unreachable, or serving
