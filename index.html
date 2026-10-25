@@ -28,6 +28,7 @@
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Desk", "url": "https://desk.carino.systems/", "description": "Help-desk snippet workspace — search, fill in and copy canned replies for support tickets, in your browser.", "operatingSystem": "Any (runs in a web browser)", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Miguel Cariño", "url": "https://carino.systems/"}}</script>
   <!-- /carino:head -->
   <link rel="stylesheet" href="fonts/carino-fonts.css">
+  <link rel="stylesheet" href="carino-ui.css">
   <style>
     :root {
       /* Carino design tokens (branding.carino.systems) */
@@ -35,31 +36,22 @@
          drawer reads --drawer-h; the side panel reads --drawer-w. */
       --drawer-h: 150px;   /* notes drawer height, bottom mode */
       --drawer-w: 380px;   /* notes drawer width, side mode */
+      /* The shared tokens (--accent, --bg-card, --text, --text-sec …) come
+         from carino-ui.css; a loaded template's "theme" may override some of
+         them at runtime (applyTheme). These are Desk's own. */
+      --rail-w: 340px;     /* the ticket rail (.ws-rail) */
       --bg-nav: #0d0d0d;
       --bg-sidebar: #0b0b0b;
-      --bg-card: #0b0b0b;
       --bg-content: #050505;
       --bg-notes: #0b0b0b;
-      --bg-elev: #0d0d0d;
-      --accent: #eab308;            /* Sharp Gold — the one accent */
-      --accent-faint: rgba(234,179,8,0.06);
-      --accent-glow: rgba(234,179,8,0.15);
       --url-card-color: #eab308;
-      --text-main: #a3a3a3;
-      --text-header: #ffffff;
-      --text-muted: #8a8a8a;
 
       /* Static Colors */
-      --border: #262626;
       --status-ongoing: #38bdf8;
       --status-pending: #eab308;
       --status-done: #22c55e;
       --tab-inactive: rgba(255,255,255,0.03);
       --tab-active: var(--bg-content);
-
-      --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-      --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-      --display: 'Red Hat Display', var(--sans);
     }
 
     * { box-sizing: border-box; }
@@ -68,28 +60,14 @@
       margin: 0; padding: 0;
       font-family: var(--sans);
       background: var(--bg-content);
-      color: var(--text-main);
+      color: var(--text-sec);
       height: 100vh;
       display: flex; flex-direction: column; overflow: hidden;
       transition: color 0.2s, background 0.2s;
     }
 
     /* --- UI COMPONENTS --- */
-    #notification-toast {
-      position: fixed; top: 76px; right: 20px;
-      background: rgba(34,197,94,0.10); color: #86efac;
-      border: 1px solid rgba(34,197,94,0.5);
-      padding: 10px 16px; border-radius: 8px;
-      font-family: var(--mono); font-weight: 700; font-size: 0.76rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      z-index: 9999; opacity: 0; pointer-events: none;
-      transform: translateY(-10px); transition: all 0.2s ease;
-    }
-    #notification-toast.show { opacity: 1; transform: translateY(0); }
-    #notification-toast.toast-error {
-      background: rgba(239,68,68,0.12); color: #fca5a5;
-      border-color: rgba(239,68,68,0.6);
-    }
+    /* #notification-toast is Branding's .toast (ok / err). */
 
     /* Top Bar */
     #top-bar {
@@ -106,7 +84,7 @@
       min-width: 120px; max-width: 200px; position: relative;
     }
     .tab.active {
-      background: var(--tab-active); color: var(--text-header);
+      background: var(--tab-active); color: var(--text);
       border-top: 2px solid var(--accent);
       border-bottom: 1px solid var(--bg-content); margin-bottom: -1px;
     }
@@ -143,14 +121,16 @@
     #dim-btn.dim-on { color: var(--accent); border-color: var(--accent); }
     #settings-btn.open { color: var(--accent); border-color: var(--accent); }
 
-    /* Search */
+    /* Search: the top of the snippet pane, sticky while the cards scroll. */
     #command-palette {
-      height: 48px; display: flex; align-items: center; padding: 0 14px;
-      border-bottom: 1px solid var(--border); background: var(--bg-content);
+      position: sticky; top: -20px; z-index: 5;
+      height: 48px; display: flex; align-items: center; padding: 0;
+      margin: -20px 0 14px; background: var(--bg-content);
+      border-bottom: 1px solid var(--border);
     }
     #search-box {
       width: 100%; background: var(--bg-elev);
-      border: 1px solid var(--border); color: var(--text-header);
+      border: 1px solid var(--border); color: var(--text);
       padding: 8px 12px; font-family: var(--mono); font-size: 13px; border-radius: 8px; outline: none;
       transition: 0.15s;
     }
@@ -185,7 +165,7 @@
       text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer;
       padding: 7px 12px; margin-bottom: -1px;
     }
-    .set-tab:hover { color: var(--text-header); }
+    .set-tab:hover { color: var(--text); }
     .set-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .set-panel { padding-top: 14px; }
     .set-panel[hidden] { display: none; }
@@ -200,22 +180,21 @@
       padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
     }
     .kbd-keys { min-width: 170px; display: flex; align-items: center; gap: 3px; flex-shrink: 0; flex-wrap: wrap; }
-    .kbd {
-      font-family: var(--mono); font-size: 11px; color: var(--text-header);
-      background: var(--bg-content); border: 1px solid var(--border);
-      border-bottom-width: 2px; border-radius: 4px; padding: 1px 6px;
-    }
     .kbd-plus { color: var(--text-muted); font-size: 10px; }
-    .kbd-desc { font-size: 12px; color: var(--text-main); }
+    .kbd-desc { font-size: 12px; color: var(--text-sec); }
 
-    /* Layout */
-    #workspace { display: flex; flex: 1; overflow: hidden; position: relative; }
+    /* Layout: the .ws shell. #sidebar is the rail, #content-area the pane;
+       carino-ui.js makes the rail a drawer at 900px and below. */
+    #workspace { flex: 1; min-height: 0; overflow: hidden; position: relative; }
 
     #sidebar {
-      width: 300px; background: var(--bg-sidebar);
-      border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; flex-shrink: 0;
+      width: var(--rail-w); background: var(--bg-sidebar);
+      padding: 0; gap: 0; overflow: hidden;
     }
+    #sidebar > .rail-head { margin: 15px 15px 0; }
+    #sidebar > .rail-head h1 { color: var(--text); }
+    .rail-privacy { padding: 0 10px 10px; background: rgba(0,0,0,0.2); }
+    .rail-privacy .privacy-line { padding-top: 10px; border-top: 1px solid var(--border); }
 
     .sidebar-section { padding: 15px; overflow-y: auto; flex: 1; }
     .control-group { margin-bottom: 12px; }
@@ -223,12 +202,6 @@
       display: block; font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase;
       letter-spacing: 0.1em; color: var(--text-muted); opacity: 1; margin-bottom: 5px; font-weight: 500;
     }
-    .input-std {
-      width: 100%; background: var(--bg-elev);
-      border: 1px solid var(--border); color: var(--text-header); border-radius: 6px;
-      padding: 8px 10px; font-family: var(--mono); font-size: 0.8rem; outline: none; transition: 0.15s;
-    }
-    .input-std:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-faint); }
 
     .sidebar-footer {
       padding: 10px; background: rgba(0,0,0,0.2);
@@ -237,17 +210,8 @@
     }
     .full-span { grid-column: span 2; }
 
-    .btn {
-      background: transparent;
-      border: 1px solid var(--border); color: var(--text-main);
-      padding: 9px 10px; font-family: var(--mono); font-size: 0.66rem; cursor: pointer;
-      text-align: center; text-transform: uppercase; letter-spacing: 0.05em;
-      font-weight: 700; border-radius: 6px; transition: 0.18s;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-faint); }
-    .btn.primary { background: var(--accent); color: #050505; border-color: var(--accent); }
-    .btn.primary:hover { background: #fbbf24; color: #050505; box-shadow: 0 4px 16px var(--accent-glow); }
+    /* Branding .btn / .btn-primary; Desk only centres and clips the label. */
+    .btn { justify-content: center; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     #content-area {
       flex: 1; padding: 20px; overflow-y: auto; background: var(--bg-content);
@@ -275,16 +239,17 @@
     }
 
     .card {
+      display: block;
       background: var(--bg-card); border: 1px solid var(--border);
       padding: 12px; cursor: pointer; border-radius: 10px;
       font-family: var(--mono); font-size: 12px;
-      color: var(--text-main); transition: all 0.2s;
+      color: var(--text-sec); transition: all 0.2s;
       position: relative;
     }
     .card:hover { background: linear-gradient(145deg,#17120a 0%,#0b0b0b 100%); border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.5), 0 0 18px var(--accent-glow); }
     .card:active { border-color: var(--accent); transform: translateY(0); }
     .card strong { color: var(--accent); display: block; margin-bottom: 6px; }
-    .highlight-var { color: var(--text-header); font-weight: bold; background: var(--accent-faint); border: 1px solid var(--accent-glow); border-radius: 3px; padding: 0 3px; }
+    .highlight-var { color: var(--text); font-weight: bold; background: var(--accent-faint); border: 1px solid var(--accent-glow); border-radius: 3px; padding: 0 3px; }
     .highlight-var.unresolved {
       color: #fbbf24; background: transparent;
       border: none; border-bottom: 1px dashed #fbbf24; border-radius: 0;
@@ -318,7 +283,7 @@
        layout math. The variable the current mode does not read is simply
        ignored, so switching sides never needs the other one reset. */
     #notes-drawer {
-      position: absolute; bottom: 0; left: 300px; right: 0;
+      position: absolute; bottom: 0; left: var(--rail-w); right: 0;
       background: var(--bg-notes); border-top: 1px solid var(--accent); z-index: 100;
       transition: height 0.2s ease, width 0.2s ease; height: var(--drawer-h);
       display: flex; flex-direction: column; overflow: hidden;
@@ -374,13 +339,13 @@
 
     #note-input {
       flex: 1; width: 100%; background: transparent; border: none;
-      color: var(--text-header); padding: 15px; resize: none;
+      color: var(--text); padding: 15px; resize: none;
       font-family: var(--mono); font-size: 13px; outline: none;
     }
     #note-input::placeholder { color: var(--text-muted); }
 
     #jsonUpload { display: none; }
-    #welcome-msg h3 { font-family: var(--display); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--text-header); }
+    #welcome-msg h3 { font-family: var(--display); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--text); }
     ::-webkit-scrollbar { width: 10px; height: 10px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
@@ -412,7 +377,7 @@
     }
     .flow-editor h3 {
       margin: 0 0 14px; font-family: var(--display); font-size: 0.9rem;
-      color: var(--text-header); text-transform: uppercase; letter-spacing: 1px;
+      color: var(--text); text-transform: uppercase; letter-spacing: 1px;
     }
     .flow-editor-row { display: flex; gap: 8px; margin-bottom: 12px; }
     .flow-editor-row .control-group { flex: 1; margin-bottom: 0; }
@@ -424,14 +389,14 @@
     .flow-step-main { flex: 1; min-width: 0; }
     .flow-step textarea {
       width: 100%; min-height: 64px; resize: vertical; background: var(--bg-elev);
-      border: 1px solid var(--border); color: var(--text-header); border-radius: 6px;
+      border: 1px solid var(--border); color: var(--text); border-radius: 6px;
       padding: 8px 10px; font-family: var(--mono); font-size: 0.8rem; outline: none; transition: 0.15s;
     }
     .flow-step textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-faint); }
     .flow-step-img { margin-top: 8px; }
     .flow-step-img img { max-width: 200px; max-height: 110px; display: block; border: 1px solid var(--border); border-radius: 6px; }
     .flow-step-side { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
-    .flow-step-side .btn { padding: 4px 6px; font-size: 0.6rem; }
+    .flow-step-side .btn { height: 26px; padding: 0 6px; font-size: var(--fs-micro); }
     .flow-editor-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
     .flow-hint { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin: 8px 0 0; }
 
@@ -444,13 +409,13 @@
     .tab.active .tab-num { color: var(--accent); }
     .tab-rename {
       width: 96px; background: var(--bg-elev); border: 1px solid var(--accent);
-      color: var(--text-header); font-family: var(--mono); font-size: 11px;
+      color: var(--text); font-family: var(--mono); font-size: 11px;
       border-radius: 4px; padding: 2px 4px; outline: none;
     }
 
     #timeline-list {
       flex: 1; overflow-y: auto; padding: 10px 15px; display: none;
-      font-family: var(--mono); font-size: 12px; color: var(--text-main);
+      font-family: var(--mono); font-size: 12px; color: var(--text-sec);
     }
     .timeline-row { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.03); white-space: pre-wrap; }
     .timeline-time { color: var(--accent); margin-right: 8px; }
@@ -462,7 +427,7 @@
     }
     #digest-text {
       background: var(--bg-content); border: 1px solid var(--border); border-radius: 8px;
-      padding: 14px; font-family: var(--mono); font-size: 12px; color: var(--text-main);
+      padding: 14px; font-family: var(--mono); font-size: 12px; color: var(--text-sec);
       white-space: pre-wrap; max-height: 55vh; overflow-y: auto; margin: 0;
     }
 
@@ -470,7 +435,7 @@
       background: var(--bg-content); border: 1px solid var(--border); border-radius: 8px;
       padding: 16px 18px; font-size: 12.5px; max-height: 60vh; overflow-y: auto;
     }
-    #sheet-body h2 { margin: 2px 0 4px; font-family: var(--display); color: var(--text-header); font-size: 1.1rem; }
+    #sheet-body h2 { margin: 2px 0 4px; font-family: var(--display); color: var(--text); font-size: 1.1rem; }
     #sheet-body h4 {
       margin: 12px 0 6px; font-family: var(--mono); font-size: 10px;
       text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent);
@@ -484,12 +449,12 @@
     .sheet-timeline-list { list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: 11px; }
     .sheet-timeline-list li { padding: 2px 0; }
     .sheet-sign {
-      margin-top: 16px; font-family: var(--mono); font-size: 11px; color: var(--text-main);
+      margin-top: 16px; font-family: var(--mono); font-size: 11px; color: var(--text-sec);
       border-top: 1px dashed var(--border); padding-top: 10px;
     }
     #sheet-notes-row {
       display: flex; align-items: center; gap: 8px; margin-top: 10px;
-      font-family: var(--mono); font-size: 11px; color: var(--text-main); cursor: pointer;
+      font-family: var(--mono); font-size: 11px; color: var(--text-sec); cursor: pointer;
     }
     #sheet-notes-row input { accent-color: var(--accent); }
 
@@ -526,16 +491,16 @@
     #quick-modal .flow-editor { max-width: 560px; }
     #quick-text {
       width: 100%; min-height: 180px; resize: vertical; background: var(--bg-content);
-      border: 1px solid var(--border); color: var(--text-header); border-radius: 6px;
+      border: 1px solid var(--border); color: var(--text); border-radius: 6px;
       padding: 10px 12px; font-family: var(--mono); font-size: 0.8rem; outline: none; transition: 0.15s;
     }
     #quick-text:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-faint); }
 
     #composer-dock {
-      position: absolute; left: 300px; right: 0; bottom: var(--drawer-h); z-index: 101;
+      position: absolute; left: var(--rail-w); right: 0; bottom: var(--drawer-h); z-index: 101;
       display: flex; align-items: center; gap: 8px; padding: 6px 12px;
       background: var(--bg-elev); border-top: 1px solid var(--border);
-      font-family: var(--mono); font-size: 11px; color: var(--text-main);
+      font-family: var(--mono); font-size: 11px; color: var(--text-sec);
       /* Follows the drawer at the same pace instead of snapping ahead of it. */
       transition: bottom 0.2s ease, right 0.2s ease;
     }
@@ -554,7 +519,7 @@
       cursor: pointer; white-space: nowrap; background: var(--bg-content);
     }
     .composer-chip:hover { border-color: #ef4444; color: #fca5a5; }
-    #composer-dock .btn { padding: 5px 8px; }
+    #composer-dock .btn { height: 28px; padding: 0 8px; }
 
     /* --- T4: Edit-files media modal + Multisearch popup --- */
     #media-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 660; display: none; }
@@ -572,7 +537,7 @@
     #media-head strong { color: var(--accent); font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; }
     #media-head .media-sub { color: var(--text-muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     #media-open-full {
-      margin-left: auto; color: var(--text-main); text-decoration: none;
+      margin-left: auto; color: var(--text-sec); text-decoration: none;
       border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px;
       font-family: var(--mono); font-size: 11px; white-space: nowrap; transition: 0.15s;
     }
@@ -587,7 +552,7 @@
     #media-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: none; background: #050505; }
     #media-offline {
       position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center;
-      gap: 12px; background: var(--bg-content); color: var(--text-main);
+      gap: 12px; background: var(--bg-content); color: var(--text-sec);
       font-family: var(--mono); font-size: 12.5px; text-align: center; padding: 24px; z-index: 2; line-height: 1.6;
     }
     #media-offline .big { font-size: 1.8rem; opacity: 0.5; }
@@ -600,16 +565,16 @@
     }
     .ms-row {
       display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 6px;
-      font-family: var(--mono); font-size: 12px; color: var(--text-main); cursor: pointer;
+      font-family: var(--mono); font-size: 12px; color: var(--text-sec); cursor: pointer;
     }
     .ms-row:hover { background: var(--accent-faint); }
     .ms-row input[type="checkbox"] { accent-color: var(--accent); flex-shrink: 0; margin: 0; }
-    .ms-row .ms-title { color: var(--text-header); white-space: nowrap; }
+    .ms-row .ms-title { color: var(--text); white-space: nowrap; }
     .ms-row .ms-url { color: var(--text-muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
     .ms-del { flex-shrink: 0; cursor: pointer; color: var(--text-muted); font-size: 11px; padding: 1px 5px; border-radius: 4px; }
     .ms-del:hover { color: #fca5a5; background: rgba(239,68,68,0.1); }
     .ms-add-row { display: flex; gap: 6px; margin-bottom: 4px; }
-    .ms-add-row .input-std { flex: 1; min-width: 0; }
+    .ms-add-row .input { flex: 1; min-width: 0; }
     .ms-add-row .btn { flex-shrink: 0; }
 
     /* --- Remote configuration source --- */
@@ -618,11 +583,11 @@
     #cfgsrc-status {
       border: 1px solid var(--border); border-radius: 8px; background: var(--bg-content);
       padding: 10px 12px; margin: 12px 0; font-family: var(--mono); font-size: 11.5px;
-      color: var(--text-main); line-height: 1.7;
+      color: var(--text-sec); line-height: 1.7;
     }
     #cfgsrc-status .cs-row { display: flex; gap: 8px; }
     #cfgsrc-status .cs-key { color: var(--text-muted); flex-shrink: 0; min-width: 92px; }
-    #cfgsrc-status .cs-val { color: var(--text-header); overflow-wrap: anywhere; }
+    #cfgsrc-status .cs-val { color: var(--text); overflow-wrap: anywhere; }
     .cs-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
     .cs-dot.ok { background: #4ade80; }
     .cs-dot.stale { background: #eab308; }
@@ -643,13 +608,43 @@
     #carinoNav .tab.status-done.active    { border-color: var(--status-done); }
     #carinoNav #new-tab-btn { height: 34px; width: 34px; border-radius: 6px; color: #a3a3a3; }
     #carinoNav .top-right-controls { height: auto; margin-left: 6px; }
+    #carinoNav #top-bar .ws-toggle { height: 34px; }
+
+    /* --- 900px and below: the rail is a drawer, the notes span the width --- */
+    @media (max-width: 900px) {
+      #notes-drawer, #composer-dock { left: 0; }
+      #content-area { padding: 16px 16px calc(var(--drawer-h) + 70px); }
+      #command-palette { top: -16px; margin-top: -16px; }
+      #sidebar { overflow-y: auto; }
+      #sidebar .sidebar-section { flex: none; overflow: visible; }
+      #carinoNav #tabs-container { max-width: 34vw; }
+    }
+
+    /* --- Phones: no side panel (it would cover the cards), compact tabs --- */
+    @media (max-width: 640px) {
+      #notes-drawer.vertical { top: auto; bottom: 0; left: 0; width: auto; height: var(--drawer-h); border-left: none; border-top: 1px solid var(--accent); }
+      #notes-drawer.vertical .drawer-grip { display: none; }
+      #notes-drawer.vertical .drawer-header { cursor: row-resize; }
+      body.notes-vertical #content-area { padding-right: 16px; padding-bottom: calc(var(--drawer-h) + 70px); }
+      body.notes-vertical #composer-dock { right: 0; bottom: var(--drawer-h); }
+      #orient-toggle { display: none; }
+      .grid { grid-template-columns: 1fr; }
+      #carinoNav #tabs-container { max-width: 28vw; }
+      #carinoNav .tab { max-width: 110px; padding: 0 8px; }
+      #carinoNav .tab .tab-close { display: none; }
+      #search-box, .input, #note-input { font-size: 16px; }
+      .set-grid { grid-template-columns: 1fr; }
+      .flow-editor { margin: 16px auto; }
+      .flow-editor-row { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
 
-  <div id="notification-toast">📋 Copied!</div>
+  <div id="notification-toast" class="toast ok" role="status">Copied</div>
 
   <div id="top-bar" data-carino-actions>
+    <button type="button" class="cs-btn ws-toggle" data-ws-toggle data-priority="1" aria-label="Ticket fields" data-i18n>☰ Ticket</button>
     <div id="tabs-container" style="display:flex;"></div>
     <div id="new-tab-btn" title="New Ticket">+</div>
     
@@ -659,20 +654,16 @@
     </div>
   </div>
 
-  <div id="command-palette">
-    <div id="search-wrap">
-      <input type="text" id="search-box" placeholder="Search..." />
-      <span id="search-clear" title="Clear search" style="display:none;">✕</span>
-    </div>
-    <span id="search-count" style="display:none;"></span>
-  </div>
-
-  <div id="workspace">
-    <aside id="sidebar">
+  <div id="workspace" class="ws">
+    <aside id="sidebar" class="ws-rail" aria-label="Ticket">
+      <div class="short-hero rail-head">
+        <img class="mark" src="logo.svg" alt="" width="32" height="32">
+        <div><h1>Desk</h1><p class="sh-lede" data-i18n>Fill in the ticket, then click a card to copy its reply.</p></div>
+      </div>
       <div class="sidebar-section">
         <div class="control-group">
           <label for="status-select" data-i18n>Status</label>
-          <select id="status-select" class="input-std">
+          <select id="status-select" class="input">
             <option value="ongoing">🔴 Ongoing</option>
             <option value="pending">🟡 Pending</option>
             <option value="done">🟢 Done</option>
@@ -683,14 +674,25 @@
       <!-- Clear / Load / Source / Backup / Digest now live in ⚙ Settings › Options.
            Save Log stays here: it acts on the ticket the sidebar is editing. -->
       <div class="sidebar-footer">
-        <button class="btn primary full-span" id="btn-save">📄 Save Log</button>
+        <button class="btn btn-primary full-span" id="btn-save">📄 Save Log</button>
+      </div>
+      <div class="rail-privacy ws-rail-foot">
+        <p class="privacy-line"><span><span data-i18n>Runs in your browser. Nothing you add here is uploaded.</span> <span class="pl-also" data-i18n>A configuration source you connect is fetched from the URL you enter; Edit files opens media.carino.systems.</span></span></p>
       </div>
     </aside>
 
-    <main id="content-area">
-      <div id="welcome-msg" style="text-align:center; margin-top:50px; color:var(--text-main); opacity:0.6;">
-        <h3 data-i18n>NO CONFIGURATION LOADED</h3>
-        <p data-i18n>Drag & Drop a JSON file here.</p>
+    <main id="content-area" class="ws-pane">
+      <div id="command-palette">
+        <div id="search-wrap">
+          <input type="text" id="search-box" placeholder="Search..." />
+          <span id="search-clear" title="Clear search" style="display:none;">✕</span>
+        </div>
+        <span id="search-count" style="display:none;"></span>
+      </div>
+      <!-- Empty state: only if no template could be loaded (the default one normally is). -->
+      <div id="welcome-msg" class="dropzone" style="margin-top:40px;" onclick="document.getElementById('jsonUpload').click()">
+        <div><span data-i18n>No snippets loaded. Drop a Desk JSON file here or</span> <strong data-i18n>browse</strong></div>
+        <div class="dz-hint" data-i18n>Read in this browser</div>
       </div>
       <div id="snippets-grid"></div>
     </main>
@@ -725,17 +727,17 @@
       <div class="flow-editor-row">
         <div class="control-group">
           <label>Title</label>
-          <input type="text" id="flow-title-input" class="input-std" placeholder="e.g. Clear Chrome Cache">
+          <input type="text" id="flow-title-input" class="input" placeholder="e.g. Clear Chrome Cache">
         </div>
         <div class="control-group">
           <label>Audience / Tag (optional)</label>
-          <input type="text" id="flow-tag-input" class="input-std" placeholder="e.g. End Users">
+          <input type="text" id="flow-tag-input" class="input" placeholder="e.g. End Users">
         </div>
       </div>
       <div class="flow-editor-row">
         <div class="control-group">
           <label>PNG footer</label>
-          <select id="flow-footer-mode" class="input-std">
+          <select id="flow-footer-mode" class="input">
             <option value="universal">Universal</option>
             <option value="custom">Custom</option>
             <option value="none">None</option>
@@ -743,7 +745,7 @@
         </div>
         <div class="control-group" id="flow-footer-custom-group" style="display:none;">
           <label>Footer text</label>
-          <input type="text" id="flow-footer-input" class="input-std" placeholder="desk.carino.systems">
+          <input type="text" id="flow-footer-input" class="input" placeholder="desk.carino.systems">
         </div>
       </div>
       <div id="flow-steps"></div>
@@ -751,7 +753,7 @@
       <p class="flow-hint">Paste a screenshot (Ctrl+V) to attach it to the selected step · first line of a step = heading</p>
       <div class="flow-editor-foot">
         <button class="btn" id="flow-cancel">Cancel</button>
-        <button class="btn primary" id="flow-save">💾 Save Flow</button>
+        <button class="btn btn-primary" id="flow-save">💾 Save Flow</button>
       </div>
     </div>
   </div>
@@ -763,7 +765,7 @@
       <div id="fill-fields"></div>
       <div class="flow-editor-foot">
         <button class="btn" id="fill-cancel">Cancel</button>
-        <button class="btn primary" id="fill-confirm">📋 Copy</button>
+        <button class="btn btn-primary" id="fill-confirm">📋 Copy</button>
       </div>
     </div>
   </div>
@@ -774,7 +776,7 @@
       <pre id="digest-text"></pre>
       <div class="flow-editor-foot">
         <button class="btn" id="digest-download">⬇ Download .txt</button>
-        <button class="btn primary" id="digest-copy">📋 Copy</button>
+        <button class="btn btn-primary" id="digest-copy">📋 Copy</button>
       </div>
     </div>
   </div>
@@ -790,7 +792,7 @@
       <div class="flow-editor-foot">
         <button class="btn" id="sheet-print">🖨 Print</button>
         <button class="btn" id="sheet-download">⬇ Download .txt</button>
-        <button class="btn primary" id="sheet-copy">📋 Copy Markdown</button>
+        <button class="btn btn-primary" id="sheet-copy">📋 Copy Markdown</button>
       </div>
     </div>
   </div>
@@ -833,7 +835,7 @@
       <textarea id="quick-text"></textarea>
       <div class="flow-editor-foot">
         <button class="btn" id="quick-cancel">Cancel</button>
-        <button class="btn primary" id="quick-copy">📋 Copy</button>
+        <button class="btn btn-primary" id="quick-copy">📋 Copy</button>
       </div>
     </div>
   </div>
@@ -862,19 +864,19 @@
       <h3 id="msearch-title">🔎 Multisearch</h3>
       <div class="control-group">
         <label id="msearch-query-label">Query</label>
-        <input type="text" id="msearch-query" class="input-std" placeholder="One query — every checked target opens in a new tab">
+        <input type="text" id="msearch-query" class="input" placeholder="One query — every checked target opens in a new tab">
       </div>
       <div id="msearch-targets"></div>
       <div class="ms-add-row">
-        <input type="text" id="msearch-add-title" class="input-std" placeholder="Label">
-        <input type="text" id="msearch-add-url" class="input-std" placeholder="URL with [str] placeholder">
+        <input type="text" id="msearch-add-title" class="input" placeholder="Label">
+        <input type="text" id="msearch-add-url" class="input" placeholder="URL with [str] placeholder">
         <button class="btn" id="msearch-add">➕ Add</button>
       </div>
       <p class="flow-hint" id="msearch-hint">[str] marks where the query goes · targets persist in this browser</p>
       <div class="flow-editor-foot">
         <button class="btn" id="msearch-defaults">↺ Defaults</button>
         <button class="btn" id="msearch-cancel">Close</button>
-        <button class="btn primary" id="msearch-go">↗ Search</button>
+        <button class="btn btn-primary" id="msearch-go">↗ Search</button>
       </div>
     </div>
   </div>
@@ -884,11 +886,11 @@
       <h3 id="cfgsrc-title" data-i18n>🔗 Configuration Source</h3>
       <div class="control-group">
         <label id="cfgsrc-url-label" data-i18n>Configuration URL</label>
-        <input type="url" id="cfgsrc-url" class="input-std" placeholder="https://your-org.example.com/desk.json" spellcheck="false">
+        <input type="url" id="cfgsrc-url" class="input" placeholder="https://your-org.example.com/desk.json" spellcheck="false">
       </div>
       <div class="control-group">
         <label id="cfgsrc-interval-label" data-i18n>Check for updates</label>
-        <select id="cfgsrc-interval" class="input-std">
+        <select id="cfgsrc-interval" class="input">
           <option value="0" data-i18n>Manually only</option>
           <option value="60" data-i18n>Every minute</option>
           <option value="300" data-i18n>Every 5 minutes</option>
@@ -902,7 +904,7 @@
         <button class="btn" id="cfgsrc-disconnect" data-i18n>✕ Disconnect</button>
         <button class="btn" id="cfgsrc-cancel" data-i18n>Close</button>
         <button class="btn" id="cfgsrc-sync" data-i18n>↻ Sync now</button>
-        <button class="btn primary" id="cfgsrc-connect" data-i18n>🔗 Connect</button>
+        <button class="btn btn-primary" id="cfgsrc-connect" data-i18n>🔗 Connect</button>
       </div>
     </div>
   </div>
@@ -1160,8 +1162,8 @@
     if(theme.notes) root.style.setProperty('--bg-notes', theme.notes);
     if(theme.accent) root.style.setProperty('--accent', theme.accent);
     if(theme.urlCard) root.style.setProperty('--url-card-color', theme.urlCard);
-    if(theme.textMain) root.style.setProperty('--text-main', theme.textMain);
-    if(theme.textHeader) root.style.setProperty('--text-header', theme.textHeader);
+    if(theme.textMain) root.style.setProperty('--text-sec', theme.textMain);
+    if(theme.textHeader) root.style.setProperty('--text', theme.textHeader);
   }
 
   // English source for each label the template may override, so dictText() has
@@ -1236,7 +1238,8 @@
   function showToast(msg, isError = false) {
     const el = document.getElementById("notification-toast");
     el.textContent = msg;
-    el.classList.toggle("toast-error", !!isError);
+    el.classList.toggle("err", !!isError);
+    el.classList.toggle("ok", !isError);
     el.classList.add("show");
     setTimeout(() => el.classList.remove("show"), 2000);
   }
@@ -1942,7 +1945,7 @@
       let control;
       if (hasOptions) {
         control = document.createElement("select");
-        control.className = "input-std";
+        control.className = "input";
         control.setAttribute("data-key", key);
         const emptyOpt = document.createElement("option");
         emptyOpt.value = ""; emptyOpt.textContent = "—";
@@ -1957,7 +1960,7 @@
         control.value = valueToSet;
       } else {
         control = document.createElement("input");
-        control.type = "text"; control.className = "input-std";
+        control.type = "text"; control.className = "input";
         control.setAttribute("data-key", key);
         control.value = valueToSet;
       }
@@ -2271,7 +2274,7 @@
       const lb = document.createElement("label");
       lb.textContent = translateKey(k);
       const inp = document.createElement("input");
-      inp.type = "text"; inp.className = "input-std";
+      inp.type = "text"; inp.className = "input";
       inp.setAttribute("data-fill-key", k);
       inp.addEventListener("keydown", (e) => {
         if (e.key !== "Enter") return;
@@ -2602,7 +2605,7 @@
     const bar = document.createElement("div");
     bar.className = "flow-toolbar";
     const nb = document.createElement("button");
-    nb.className = "btn primary";
+    nb.className = "btn btn-primary";
     nb.textContent = flowT("flowNew", "➕ New Flow");
     nb.addEventListener("click", () => openFlowEditor(null));
     bar.appendChild(nb);
@@ -4194,6 +4197,7 @@
   );
 </script>
   <script src="carino-navbar.js" data-app="Desk" data-repo="Desk" defer></script>
+  <script src="carino-ui.js" defer></script>
   <script src="carino-lang.js" defer></script>
   <script src="i18n.js" defer></script>
 </body>

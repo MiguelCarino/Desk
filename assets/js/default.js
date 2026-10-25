@@ -103,7 +103,7 @@ const DEFAULT_CONFIG = {
     "Carino DICOM": { "es": "Carino DICOM", "en": "Carino DICOM", "pt": "Carino DICOM", "ja": "Carino DICOM", "ru": "Carino DICOM" },
     "Carino DICOM Editor": { "es": "Carino DICOM Editor", "en": "Carino DICOM Editor", "pt": "Carino DICOM Editor", "ja": "Carino DICOM Editor", "ru": "Carino DICOM Editor" },
     "Retina Suite": { "es": "Retina Suite", "en": "Retina Suite", "pt": "Retina Suite", "ja": "Retina Suite", "ru": "Retina Suite" },
-    "SimpleSetup": { "es": "SimpleSetup", "en": "SimpleSetup", "pt": "SimpleSetup", "ja": "SimpleSetup", "ru": "SimpleSetup" },
+    "Carino Setup": { "es": "Carino Setup", "en": "Carino Setup", "pt": "Carino Setup", "ja": "Carino Setup", "ru": "Carino Setup" },
     "CVE Radar": { "es": "CVE Radar", "en": "CVE Radar", "pt": "CVE Radar", "ja": "CVE Radar", "ru": "CVE Radar" },
 
     /* Sidebar field labels. The JSON key in "fields" is the placeholder
@@ -876,7 +876,7 @@ const DEFAULT_CONFIG = {
       { "label": "Netplan Config", "url": "https://netplan.carino.systems" },
       { "label": "Net Topology", "url": "https://topo.carino.systems" },
       { "label": "Hardware Ref", "url": "https://hardware.carino.systems" },
-      { "label": "SimpleSetup", "url": "https://setup.carino.systems" },
+      { "label": "Carino Setup", "url": "https://setup.carino.systems" },
       { "label": "CVE Radar", "url": "https://cve.carino.systems" },
       { "label": "Software Catalog", "url": "https://software.carino.systems" },
       { "label": "Password Gen", "url": "https://password.carino.systems" }
