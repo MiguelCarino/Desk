@@ -1058,6 +1058,7 @@ function applyChromeI18n() {
     document.querySelectorAll('.modal-x[data-close]').forEach((b) => b.setAttribute('aria-label', t('Close')));
     const wsT = document.querySelector('[data-ws-toggle]');
     if (wsT) wsT.setAttribute('aria-label', t('Ticket fields'));
+    set('sidebar', 'aria-label', 'Ticket');
     set('flow-title-input', 'placeholder', 'e.g. Clear Chrome Cache');
     set('flow-tag-input', 'placeholder', 'e.g. End Users');
     set('msearch-add-title', 'placeholder', 'Label');

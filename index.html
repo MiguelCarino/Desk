@@ -614,7 +614,7 @@
 </head>
 <body>
 
-  <div id="notification-toast" class="toast ok" role="status">Copied</div>
+  <div id="notification-toast" class="toast ok" role="status"></div>
 
   <div id="top-bar" data-carino-actions>
     <button type="button" class="cs-btn ws-toggle" data-ws-toggle data-priority="1" aria-label="Ticket fields"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span data-i18n>Ticket</span></button>
@@ -703,9 +703,9 @@
     </div>
   </div>
 
-  <!-- Dialogs: Branding .modal-scrim/.modal. showLayer()/hideLayer() open and
-       close them (focus moves in, Tab stays inside, focus returns on close);
-       Esc goes through the Esc stack and a click on the scrim closes. -->
+  <!-- Dialogs: Branding .modal-scrim/.modal, opened and closed only through
+       CarinoUI.modal (carino-ui.js): focus moves in, Tab stays inside, focus
+       returns on close; Esc, the scrim and every data-close button dismiss. -->
   <div id="flow-modal" class="modal-scrim" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="flow-title">
       <div class="modal-head">
@@ -828,7 +828,7 @@
         </div>
       </div>
       <div class="modal-foot">
-        <button class="btn" id="settings-close" data-i18n>Close</button>
+        <button class="btn" id="settings-close" data-close data-i18n>Close</button>
       </div>
     </div>
   </div>
@@ -855,7 +855,7 @@
           <span class="modal-sub media-sub" id="media-sub" data-i18n>media.carino.systems — PDF → images · OCR · signature cleanup · image/audio conversion</span>
         </div>
         <a id="media-open-full" href="https://media.carino.systems" target="_blank" rel="noopener" data-i18n>open full ↗</a>
-        <button type="button" class="modal-x" id="media-close" title="Close" aria-label="Close">✕</button>
+        <button type="button" class="modal-x" id="media-close" data-close title="Close" aria-label="Close">✕</button>
       </div>
       <div id="media-body">
         <div id="media-offline">
@@ -1225,8 +1225,12 @@
     const kbdKey = dict.kbdOverlayTitle ? "kbdOverlayTitle" : (dict.kbdBtnTitle ? "kbdBtnTitle" : null);
     if (kbdTab && kbdKey) kbdTab.innerText = flowT(kbdKey, "Shortcuts");
     document.getElementById("search-clear").title = flowT("searchClearTitle", "Clear search");
-    document.getElementById("timeline-toggle").title = flowT("timelineToggleTitle", "Notes / timeline");
-    document.getElementById("orient-toggle").title = flowT("orientToggleTitle", "Notes: side / bottom");
+    // Icon-only: the tooltip is also the accessible name.
+    [["timeline-toggle", "timelineToggleTitle", "Notes / timeline"],
+     ["orient-toggle", "orientToggleTitle", "Notes: side / bottom"]].forEach(([id, key, fb]) => {
+      const b = document.getElementById(id), v = flowT(key, fb);
+      b.title = v; b.setAttribute("aria-label", v);
+    });
   }
 
   // --- GENERAL UI ---
@@ -1834,11 +1838,11 @@
     document.getElementById("cfgsrc-interval").value =
       String(src && src.interval != null ? src.interval : CFG_DEFAULT_INTERVAL);
     renderSourceStatus();
-    showLayer("cfgsrc-modal");
+    CarinoUI.modal.open("cfgsrc-modal", { onDismiss: closeSourceModal });
     document.getElementById("cfgsrc-url").focus();
   }
   function closeSourceModal() {
-    hideLayer("cfgsrc-modal");
+    CarinoUI.modal.close("cfgsrc-modal");
   }
 
   async function connectSource() {
@@ -1890,9 +1894,6 @@
     syncRemoteConfig({ manual: true })
       .then(r => { if (r === "unchanged") showToast(chromeT("✓ Already up to date")); })
       .catch(() => {});
-  });
-  document.getElementById("cfgsrc-modal").addEventListener("click", (e) => {
-    if (e.target.id === "cfgsrc-modal") closeSourceModal();
   });
   // The status panel and the button tooltip are built in JS, so data-i18n
   // can't reach them — redraw when the fleet language switches.
@@ -2328,14 +2329,14 @@
       group.appendChild(lb); group.appendChild(inp);
       wrap.appendChild(group);
     });
-    showLayer("fill-modal");
+    CarinoUI.modal.open("fill-modal", { onDismiss: closeFillPopover });
     const first = wrap.querySelector("input");
     if (first) first.focus();
   }
 
   function closeFillPopover() {
     fillState = null;
-    hideLayer("fill-modal");
+    CarinoUI.modal.close("fill-modal");
   }
 
   function commitFillPopover() {
@@ -2363,12 +2364,6 @@
 
   document.getElementById("fill-confirm").addEventListener("click", commitFillPopover);
   document.getElementById("fill-cancel").addEventListener("click", closeFillPopover);
-  document.getElementById("fill-modal").addEventListener("click", (e) => {
-    if (e.target.id === "fill-modal") closeFillPopover();
-  });
-  document.getElementById("fill-modal").addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { e.stopPropagation(); closeFillPopover(); } // cancels without copying
-  });
 
   // --- ACTIONS ---
   document.getElementById("btn-backup").addEventListener("click", () => {
@@ -2764,11 +2759,11 @@
     syncFlowFooterControls();
     renderFlowSteps();
     flowEditorSnapshot = flowDraftState(); // dirty-check baseline for close paths
-    showLayer("flow-modal");
+    CarinoUI.modal.open("flow-modal", { onDismiss: requestCloseFlowEditor });
   }
   function closeFlowEditor() {
     flowDraft = null;
-    hideLayer("flow-modal");
+    CarinoUI.modal.close("flow-modal");
   }
 
   // Close via Esc / backdrop / Cancel confirms ONLY when the draft changed
@@ -2876,9 +2871,6 @@
     flowDraft.steps.push({ text: "" });
     flowActiveStep = flowDraft.steps.length - 1;
     renderFlowSteps();
-  });
-  document.getElementById("flow-modal").addEventListener("click", (e) => {
-    if (e.target.id === "flow-modal") requestCloseFlowEditor();
   });
 
   // --- Step images: paste from clipboard or pick a file, downscaled to ≤900px ---
@@ -3141,72 +3133,11 @@
     }
   }, true);
 
-  // --- Dialogs (Branding .modal-scrim) ---
-  // showLayer/hideLayer are the only way a dialog opens or closes: focus moves
-  // into it and returns to where it was, and Tab stays inside while it is open.
-  // Esc reaches it through the Esc stack below, the scrim through each
-  // dialog's own click handler, and every ✕ (data-close) through LAYER_CLOSE.
-  const layerReturn = {};
-  const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
-  function layerFocusables(el) {
-    return [...el.querySelectorAll(FOCUSABLE)].filter(n => n.offsetParent !== null || n.tagName === "IFRAME");
-  }
-  function showLayer(id) {
-    const el = document.getElementById(id);
-    if (!el.hidden) return;
-    const prev = document.activeElement;
-    layerReturn[id] = prev && prev !== document.body ? prev : null;
-    if (prev && prev.blur) prev.blur();
-    el.hidden = false;
-    // The dialog's own code may focus a field right after this; until then
-    // the first control (usually its ✕) holds focus.
-    const f = layerFocusables(el.querySelector(".modal"));
-    if (f.length) f[0].focus({ preventScroll: true });
-  }
-  function hideLayer(id) {
-    const el = document.getElementById(id);
-    if (el.hidden) return;
-    const hadFocus = el.contains(document.activeElement);
-    el.hidden = true;
-    const back = layerReturn[id];
-    layerReturn[id] = null;
-    if (hadFocus && back && document.contains(back) && back.focus) back.focus({ preventScroll: true });
-  }
-  document.addEventListener("keydown", (e) => {
-    if (e.key !== "Tab") return;
-    const open = [...document.querySelectorAll(".modal-scrim")].filter(m => !m.hidden).pop();
-    if (!open) return;
-    const f = layerFocusables(open.querySelector(".modal"));
-    if (!f.length) return;
-    const first = f[0], last = f[f.length - 1];
-    if (!open.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
-    else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  });
-  const LAYER_CLOSE = {
-    "settings-modal": () => closeSettings(), "media-modal": () => closeMediaModal(),
-    "cfgsrc-modal": () => closeSourceModal(), "msearch-modal": () => closeMultisearch(),
-    "flow-modal": () => requestCloseFlowEditor(), "fill-modal": () => closeFillPopover(),
-    "quick-modal": () => closeQuickEdit(), "digest-modal": () => closeDigest(),
-    "sheet-modal": () => closeCaseSheet()
-  };
-  document.addEventListener("click", (e) => {
-    const x = e.target.closest("[data-close]");
-    const scrim = x && x.closest(".modal-scrim");
-    if (scrim && LAYER_CLOSE[scrim.id]) LAYER_CLOSE[scrim.id]();
-  });
-
   // --- Esc stack: exactly ONE action per press, top layer first ---
   function escStackAction() {
-    if (isLayerOpen("settings-modal")) { closeSettings(); return true; }
-    if (isLayerOpen("media-modal")) { closeMediaModal(); return true; }
-    if (isLayerOpen("cfgsrc-modal")) { closeSourceModal(); return true; }
-    if (isLayerOpen("msearch-modal")) { closeMultisearch(); return true; }
-    if (isLayerOpen("flow-modal")) { requestCloseFlowEditor(); return true; }
-    if (isLayerOpen("fill-modal")) { closeFillPopover(); return true; }
-    if (isLayerOpen("quick-modal")) { closeQuickEdit(); return true; }
-    if (isLayerOpen("digest-modal")) { closeDigest(); return true; }
-    if (isLayerOpen("sheet-modal")) { closeCaseSheet(); return true; }
+    // An open dialog answers Esc itself (CarinoUI.modal, through the onDismiss
+    // each open passes); "not handled" here lets the key reach it.
+    if (CarinoUI.modal.top()) return false;
     // (T3: @ dropdown layer joins here)
     const sb = document.getElementById("search-box");
     if (sb.value) { sb.value = ""; applySearchFilter(); return true; }
@@ -3426,11 +3357,11 @@
   function openSettings(tab) {
     setSettingsTab(tab || "options");
     if (typeof renderSourceButton === "function") renderSourceButton();
-    showLayer("settings-modal");
+    CarinoUI.modal.open("settings-modal", { onDismiss: closeSettings });
     document.getElementById("settings-btn").classList.add("open");
   }
   function closeSettings() {
-    hideLayer("settings-modal");
+    CarinoUI.modal.close("settings-modal");
     document.getElementById("settings-btn").classList.remove("open");
   }
   // Kept under its old name: '?' and the Esc stack still speak in these terms.
@@ -3444,12 +3375,8 @@
   document.getElementById("settings-btn").addEventListener("click", () => {
     if (isLayerOpen("settings-modal")) closeSettings(); else openSettings("options");
   });
-  document.getElementById("settings-close").addEventListener("click", closeSettings);
   document.querySelectorAll(".set-tab").forEach((t) => {
     t.addEventListener("click", () => setSettingsTab(t.dataset.panel.replace("set-panel-", "")));
-  });
-  document.getElementById("settings-modal").addEventListener("click", (e) => {
-    if (e.target.id === "settings-modal") closeSettings();
   });
   // Every option either opens its own dialog or acts on the workspace, so the
   // settings sheet gets out of the way once one is chosen. Bubble phase: the
@@ -3699,16 +3626,13 @@
   }
 
   function openDigest() {
-    // A modal owns the keyboard: drop focus from the search box (or any
-    // input) so search-scoped Ctrl+Enter/Enter can't fire underneath.
-    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     document.getElementById("digest-title").textContent = flowT("digestTitle", "Ticket Digest");
     document.getElementById("digest-copy").textContent = flowT("fillCopy", "Copy");
     document.getElementById("digest-download").textContent = flowT("downloadTxt", "Download .txt");
     document.getElementById("digest-text").textContent = buildDigestText();
-    showLayer("digest-modal");
+    CarinoUI.modal.open("digest-modal", { onDismiss: closeDigest });
   }
-  function closeDigest() { hideLayer("digest-modal"); }
+  function closeDigest() { CarinoUI.modal.close("digest-modal"); }
   function toggleDigest() { isLayerOpen("digest-modal") ? closeDigest() : openDigest(); }
 
   document.getElementById("btn-digest").addEventListener("click", openDigest);
@@ -3718,9 +3642,6 @@
   document.getElementById("digest-download").addEventListener("click", () => {
     downloadFile(`digest-${new Date().toISOString().slice(0, 10)}.txt`,
                  document.getElementById("digest-text").textContent);
-  });
-  document.getElementById("digest-modal").addEventListener("click", (e) => {
-    if (e.target.id === "digest-modal") closeDigest();
   });
 
   // --- Case sheet overlay (Ctrl+S / #btn-save) ---
@@ -3811,7 +3732,6 @@
     if (!s) return;
     if (!s.logId) s.logId = newLogId();
     saveCurrentStateToMemory();
-    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     document.getElementById("sheet-title").textContent = flowT("sheetTitle", "Case Sheet");
     document.getElementById("sheet-include-label").textContent = flowT("sheetIncludeNotes", "Include internal notes");
     document.getElementById("sheet-copy").textContent = flowT("sheetCopyMd", "Copy Markdown");
@@ -3819,9 +3739,9 @@
     document.getElementById("sheet-download").textContent = flowT("downloadTxt", "Download .txt");
     document.getElementById("sheet-include-notes").checked = false; // default OFF
     renderCaseSheet();
-    showLayer("sheet-modal");
+    CarinoUI.modal.open("sheet-modal", { onDismiss: closeCaseSheet });
   }
-  function closeCaseSheet() { hideLayer("sheet-modal"); }
+  function closeCaseSheet() { CarinoUI.modal.close("sheet-modal"); }
 
   document.getElementById("sheet-include-notes").addEventListener("change", renderCaseSheet);
   document.getElementById("sheet-copy").addEventListener("click", () => {
@@ -3839,9 +3759,6 @@
     window.addEventListener("afterprint", done, { once: true });
     window.print();
     setTimeout(done, 1000); // safety net if afterprint never fires
-  });
-  document.getElementById("sheet-modal").addEventListener("click", (e) => {
-    if (e.target.id === "sheet-modal") closeCaseSheet();
   });
 
   // --- T2 KEYMAP entries ---
@@ -3941,12 +3858,12 @@
     document.getElementById("quick-copy").textContent = flowT("fillCopy", "Copy");
     const ta = document.getElementById("quick-text");
     ta.value = resolvedText;
-    showLayer("quick-modal");
+    CarinoUI.modal.open("quick-modal", { onDismiss: closeQuickEdit });
     ta.focus();
   }
   function closeQuickEdit() {
     quickState = null;
-    hideLayer("quick-modal");
+    CarinoUI.modal.close("quick-modal");
   }
   function commitQuickEdit() {
     if (!quickState) return;
@@ -3958,9 +3875,6 @@
   }
   document.getElementById("quick-copy").addEventListener("click", commitQuickEdit);
   document.getElementById("quick-cancel").addEventListener("click", closeQuickEdit);
-  document.getElementById("quick-modal").addEventListener("click", (e) => {
-    if (e.target.id === "quick-modal") closeQuickEdit();
-  });
 
   // --- Per-card language chips: copy THAT language (through the
   // unresolved guard) without switching the UI language ---
@@ -4078,25 +3992,20 @@
   });
 
   function openMediaModal() {
-    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     document.getElementById("media-title").textContent = flowT("mediaCardTitle", "Edit Files");
     document.getElementById("media-offline-text").innerHTML =
       escapeFlowHtml(flowT("mediaOffline1", "media.carino.systems did not load — you appear to be offline.")) + "<br>" +
       escapeFlowHtml(flowT("mediaOffline2", "The media suite needs a network connection. Files are dropped directly inside the tool; nothing passes through this page."));
     document.getElementById("media-retry").textContent = flowT("mediaRetry", "Retry");
-    showLayer("media-modal");
+    CarinoUI.modal.open("media-modal", { onDismiss: closeMediaModal });
     const iframe = document.getElementById("media-frame");
     if (!iframe.getAttribute("src") || mediaFailed) startMediaLoad();
   }
   function closeMediaModal() {
     clearTimeout(mediaTimer);
-    hideLayer("media-modal");
+    CarinoUI.modal.close("media-modal");
   }
-  document.getElementById("media-close").addEventListener("click", closeMediaModal);
   document.getElementById("media-retry").addEventListener("click", startMediaLoad);
-  document.getElementById("media-modal").addEventListener("click", (e) => {
-    if (e.target.id === "media-modal") closeMediaModal();
-  });
 
   // --- Multisearch: one query fanned out across checked link templates.
   // Core ported from Multisearch-index — [str] substitution scheme and its
@@ -4190,7 +4099,6 @@
   }
 
   function openMultisearch() {
-    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     document.getElementById("msearch-title").textContent = flowT("msTitle", "Multisearch");
     document.getElementById("msearch-query-label").textContent = flowT("msQueryLabel", "Query");
     document.getElementById("msearch-query").placeholder = flowT("msQueryPh", "One query — every checked target opens in a new tab");
@@ -4199,12 +4107,12 @@
     document.getElementById("msearch-cancel").textContent = flowT("msClose", "Close");
     document.getElementById("msearch-add").textContent = flowT("msAdd", "Add");
     renderMsearchTargets();
-    showLayer("msearch-modal");
+    CarinoUI.modal.open("msearch-modal", { onDismiss: closeMultisearch });
     const q = document.getElementById("msearch-query");
     q.focus(); q.select();
   }
   function closeMultisearch() {
-    hideLayer("msearch-modal");
+    CarinoUI.modal.close("msearch-modal");
   }
 
   function runMultisearch() {
@@ -4219,9 +4127,6 @@
 
   document.getElementById("msearch-go").addEventListener("click", runMultisearch);
   document.getElementById("msearch-cancel").addEventListener("click", closeMultisearch);
-  document.getElementById("msearch-modal").addEventListener("click", (e) => {
-    if (e.target.id === "msearch-modal") closeMultisearch();
-  });
   document.getElementById("msearch-query").addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.ctrlKey) { e.preventDefault(); runMultisearch(); }
   });
