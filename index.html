@@ -27,6 +27,24 @@
   <script type="application/json" id="carino-head-i18n">{"es": {"title": "Desk — Respuestas predefinidas para mesa de ayuda", "desc": "Espacio de fragmentos para mesa de ayuda: busca, completa y copia respuestas predefinidas para tickets de soporte, en tu navegador."}, "pt-BR": {"title": "Desk — Respostas prontas para help desk", "desc": "Espaço de trechos para help desk: pesquise, preencha e copie respostas prontas para chamados de suporte, no navegador."}, "ja": {"title": "Desk — ヘルプデスク定型文テンプレート", "desc": "ヘルプデスク用スニペット集。サポートチケット向けの定型返信を検索・入力・コピー。ブラウザで動作。"}, "ru": {"title": "Desk — шаблоны ответов для службы поддержки", "desc": "Рабочее место со сниппетами для службы поддержки: ищите, заполняйте и копируйте готовые ответы на заявки прямо в браузере."}}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Desk", "url": "https://desk.carino.systems/", "description": "Help-desk snippet workspace — search, fill in and copy canned replies for support tickets, in your browser.", "operatingSystem": "Any (runs in a web browser)", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Miguel Cariño", "url": "https://carino.systems/"}}</script>
   <!-- /carino:head -->
+  <!-- Theme before first paint, so neither theme flashes the other:
+       ?theme=gold|color (review links; not stored) > carino-theme cookie
+       (shared across *.carino.systems) > localStorage > Gold & Black. -->
+  <meta name="theme-color" content="#050505" id="carinoThemeColor">
+  <script>
+  (function () {
+    var d = document.documentElement, t = null;
+    function pick(v) { return v === 'gold' ? 'gold' : (v === 'color' || v === 'colour') ? 'color' : null; }
+    try { t = pick(new URLSearchParams(location.search).get('theme')); } catch (e) {}
+    if (!t) { try { var m = document.cookie.match(/(?:^|;\s*)carino-theme=([^;]*)/); if (m) t = pick(decodeURIComponent(m[1])); } catch (e) {} }
+    if (!t) { try { t = pick(localStorage.getItem('carino-theme')); } catch (e) {} }
+    t = t || 'gold';
+    d.setAttribute('data-carino-theme', t);
+    var dark = d.getAttribute('data-theme') !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+    var meta = document.getElementById('carinoThemeColor');
+    if (meta) meta.content = t === 'gold' ? '#050505' : (dark ? '#0e1420' : '#eef3fc');
+  })();
+  </script>
   <link rel="stylesheet" href="fonts/carino-fonts.css">
   <link rel="stylesheet" href="carino-ui.css">
   <style>
@@ -610,6 +628,51 @@
       #media-head .media-sub { display: none; }
       .flow-editor-row { flex-direction: column; }
     }
+
+    /* the hero mark in both colourings; the theme picks one */
+    .mark.mk-color, :root[data-carino-theme="color"] .mark.mk-gold { display: none; }
+    :root[data-carino-theme="color"] .mark.mk-color { display: block; }
+  </style>
+  <!-- Colourful theme + the switch; nothing applies until data-carino-theme="color". -->
+  <link rel="stylesheet" href="carino-theme.css">
+  <style>
+    /* Colourful: carino-theme.css remaps the tokens, so everything that reads
+       one follows (a template's theme colours only pin themselves when they
+       are not the fleet default, applyTheme); these are the values above that
+       were written for black. */
+    :root[data-carino-theme="color"] {
+      --bg-nav: var(--bg); --bg-sidebar: var(--bg-card); --bg-content: var(--bg); --bg-notes: var(--bg-card);
+      --url-card-color: var(--accent);
+      --status-ongoing: var(--info); --status-pending: var(--warn); --status-done: var(--ok);
+      --tab-inactive: var(--ct-hover);
+    }
+    :root[data-carino-theme="color"] #new-tab-btn:hover,
+    :root[data-carino-theme="color"] #dim-btn:hover,
+    :root[data-carino-theme="color"] #settings-btn:hover { color: var(--ct-on-accent); }
+    :root[data-carino-theme="color"] .set-grid .btn.danger { color: var(--err); border-color: color-mix(in srgb, var(--err) 35%, transparent); }
+    :root[data-carino-theme="color"] .set-grid .btn.danger:hover { color: var(--ct-on-accent); background: var(--err); border-color: var(--err); }
+    :root[data-carino-theme="color"] .kbd-row,
+    :root[data-carino-theme="color"] .timeline-row { border-bottom-color: var(--border); }
+    :root[data-carino-theme="color"] .rail-privacy,
+    :root[data-carino-theme="color"] .sidebar-footer { background: var(--bg-elev); }
+    :root[data-carino-theme="color"] .card:hover { background: var(--bg-card); box-shadow: var(--ct-shadow-3); }
+    :root[data-carino-theme="color"] .highlight-var.unresolved { color: var(--warn); border-bottom-color: var(--warn); }
+    :root[data-carino-theme="color"] .unresolved-badge { color: var(--warn); background: color-mix(in srgb, var(--warn) 8%, transparent); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+    :root[data-carino-theme="color"] ::-webkit-scrollbar-thumb:hover { background: var(--ct-scroll); }
+    :root[data-carino-theme="color"] .composer-chip:hover { border-color: var(--err); color: var(--err); }
+    :root[data-carino-theme="color"] #media-modal .modal { box-shadow: var(--ct-shadow-3); }
+    :root[data-carino-theme="color"] #media-body,
+    :root[data-carino-theme="color"] #media-frame { background: var(--bg-card); }
+    :root[data-carino-theme="color"] .ms-del:hover { color: var(--err); background: color-mix(in srgb, var(--err) 10%, transparent); }
+    :root[data-carino-theme="color"] .cs-dot.ok { background: var(--ok); }
+    :root[data-carino-theme="color"] .cs-dot.stale { background: var(--warn); }
+    :root[data-carino-theme="color"] .cs-dot.err { background: var(--err); }
+    :root[data-carino-theme="color"] #carinoNav .tab { border-color: var(--border); background: var(--bg-card); }
+    :root[data-carino-theme="color"] #carinoNav .tab.active { border-color: var(--accent); background: var(--ct-tonal); color: var(--ct-on-tonal); }
+    :root[data-carino-theme="color"] #carinoNav .tab.status-ongoing.active { border-color: var(--status-ongoing); }
+    :root[data-carino-theme="color"] #carinoNav .tab.status-pending.active { border-color: var(--status-pending); }
+    :root[data-carino-theme="color"] #carinoNav .tab.status-done.active    { border-color: var(--status-done); }
+    :root[data-carino-theme="color"] #carinoNav #new-tab-btn { color: var(--text-sec); }
   </style>
 </head>
 <body>
@@ -638,7 +701,8 @@
   <div id="workspace" class="ws">
     <aside id="sidebar" class="ws-rail" aria-label="Ticket">
       <div class="short-hero rail-head">
-        <img class="mark" src="logo.svg" alt="" width="32" height="32">
+        <img class="mark mk-gold" src="logo.svg" alt="" width="32" height="32">
+        <img class="mark mk-color" src="logo-color.svg" alt="" width="32" height="32">
         <div><h1>Desk</h1><p class="sh-lede" data-i18n>Fill in the ticket, then click a card to copy its reply.</p></div>
       </div>
       <div class="sidebar-section">
@@ -1173,16 +1237,22 @@
     if (mediaRetry) mediaRetry.textContent = flowT("mediaRetry", "Retry");
   }
 
+  // A template value equal to the fleet's own default is left to the
+  // stylesheet, so the Gold & Black / Colourful switch still applies; only a
+  // template's own colours are pinned inline.
+  const THEME_VARS = {
+    nav: ['--bg-nav', '#0d0d0d'], sidebar: ['--bg-sidebar', '#0b0b0b'], content: ['--bg-content', '#050505'],
+    notes: ['--bg-notes', '#0b0b0b'], accent: ['--accent', '#eab308'], urlCard: ['--url-card-color', '#eab308'],
+    textMain: ['--text-sec', '#a3a3a3'], textHeader: ['--text', '#ffffff']
+  };
   function applyTheme(theme) {
     const root = document.documentElement;
-    if(theme.nav) root.style.setProperty('--bg-nav', theme.nav);
-    if(theme.sidebar) root.style.setProperty('--bg-sidebar', theme.sidebar);
-    if(theme.content) root.style.setProperty('--bg-content', theme.content);
-    if(theme.notes) root.style.setProperty('--bg-notes', theme.notes);
-    if(theme.accent) root.style.setProperty('--accent', theme.accent);
-    if(theme.urlCard) root.style.setProperty('--url-card-color', theme.urlCard);
-    if(theme.textMain) root.style.setProperty('--text-sec', theme.textMain);
-    if(theme.textHeader) root.style.setProperty('--text', theme.textHeader);
+    Object.keys(THEME_VARS).forEach(k => {
+      const v = theme[k], prop = THEME_VARS[k][0];
+      if(!v) return;
+      if(String(v).toLowerCase() === THEME_VARS[k][1]) root.style.removeProperty(prop);
+      else root.style.setProperty(prop, v);
+    });
   }
 
   // English source for each label the template may override, so dictText() has
@@ -4199,6 +4269,7 @@
   );
 </script>
   <script src="carino-navbar.js" data-app="Desk" data-repo="Desk" defer></script>
+  <script src="carino-theme.js" data-mark="logo.svg" data-mark-color="logo-color.svg" defer></script>
   <script src="carino-ui.js" defer></script>
   <script src="carino-lang.js" defer></script>
   <script src="i18n.js" defer></script>
