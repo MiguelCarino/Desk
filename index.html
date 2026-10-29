@@ -629,9 +629,6 @@
       .flow-editor-row { flex-direction: column; }
     }
 
-    /* the hero mark in both colourings; the theme picks one */
-    .mark.mk-color, :root[data-carino-theme="color"] .mark.mk-gold { display: none; }
-    :root[data-carino-theme="color"] .mark.mk-color { display: block; }
   </style>
   <!-- Colourful theme + the switch; nothing applies until data-carino-theme="color". -->
   <link rel="stylesheet" href="carino-theme.css">
@@ -701,8 +698,6 @@
   <div id="workspace" class="ws">
     <aside id="sidebar" class="ws-rail" aria-label="Ticket">
       <div class="short-hero rail-head">
-        <img class="mark mk-gold" src="logo.svg" alt="" width="32" height="32">
-        <img class="mark mk-color" src="logo-color.svg" alt="" width="32" height="32">
         <div><h1>Desk</h1><p class="sh-lede" data-i18n>Fill in the ticket, then click a card to copy its reply.</p></div>
       </div>
       <div class="sidebar-section">
