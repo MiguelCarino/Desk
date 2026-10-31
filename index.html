@@ -690,6 +690,8 @@
         <div class="cs-menu-panel" role="menu" hidden>
           <button type="button" class="cs-menu-item" role="menuitem" id="btn-backup">Backup</button>
           <button type="button" class="cs-menu-item" role="menuitem" id="btn-load" onclick="document.getElementById('jsonUpload').click()">Load</button>
+          <div class="cs-menu-div"></div>
+          <button type="button" class="cs-menu-item" role="menuitem" id="btn-open-files"><span data-i18n>Open in Files</span> <span class="cs-menu-note">.json</span></button>
         </div>
       </div>
       <button type="button" id="dim-btn" title="Toggle card dimming" aria-label="Toggle card dimming"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></button>
@@ -720,7 +722,7 @@
         <button class="btn btn-primary full-span" id="btn-save">Save log</button>
       </div>
       <div class="rail-privacy ws-rail-foot">
-        <p class="privacy-line"><span><span data-i18n>Runs in your browser. Nothing you add here is uploaded.</span> <span class="pl-also" data-i18n>A configuration source you connect is fetched from the URL you enter; Edit files opens media.carino.systems.</span></span></p>
+        <p class="privacy-line"><span><span data-i18n>Runs in your browser. Nothing you add here is uploaded.</span> <span class="pl-also" data-i18n>A configuration source you connect is fetched from the URL you enter; Edit files opens files.carino.systems.</span></span></p>
       </div>
     </aside>
 
@@ -913,18 +915,18 @@
       <div class="modal-head" id="media-head">
         <div class="media-headtext">
           <h3 class="modal-title" id="media-title">Edit Files</h3>
-          <span class="modal-sub media-sub" id="media-sub" data-i18n>media.carino.systems — PDF → images · OCR · signature cleanup · image/audio conversion</span>
+          <span class="modal-sub media-sub" id="media-sub" data-i18n>files.carino.systems — PDF → images · OCR · signatures · metadata · image/audio conversion</span>
         </div>
-        <a id="media-open-full" href="https://media.carino.systems" target="_blank" rel="noopener" data-i18n>open full ↗</a>
+        <a id="media-open-full" href="https://files.carino.systems" target="_blank" rel="noopener" data-i18n>open full ↗</a>
         <button type="button" class="modal-x" id="media-close" data-close title="Close" aria-label="Close">✕</button>
       </div>
       <div id="media-body">
         <div id="media-offline">
           <svg class="big" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2l20 20"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.9a10 10 0 0 1 5.2-2.8"/><path d="M19 12.9a10 10 0 0 0-2.3-1.6"/><path d="M1.4 9a15 15 0 0 1 4.3-2.6"/><path d="M22.6 9A15 15 0 0 0 10.7 5"/><path d="M12 20h.01"/></svg>
-          <div id="media-offline-text">media.carino.systems did not load — you appear to be offline.<br>The media suite needs a network connection. Files are dropped directly inside the tool; nothing passes through this page.</div>
+          <div id="media-offline-text">files.carino.systems did not load — you appear to be offline.<br>The Files suite needs a network connection. Files are dropped directly inside the tool; nothing passes through this page.</div>
           <button class="btn" id="media-retry">Retry</button>
         </div>
-        <iframe id="media-frame" title="Carino Media Suite"></iframe>
+        <iframe id="media-frame" title="Carino Files"></iframe>
       </div>
     </div>
   </div>
@@ -2433,7 +2435,9 @@
   document.getElementById("fill-cancel").addEventListener("click", closeFillPopover);
 
   // --- ACTIONS ---
-  document.getElementById("btn-backup").addEventListener("click", () => {
+  // The Backup item's file: the same JSON, built once for both the download
+  // and Open in Files.
+  function buildBackupFile() {
     saveCurrentStateToMemory();
 
     // Reconstruct the object to ensure a nice order for the user
@@ -2456,7 +2460,27 @@
     // The '2' argument here adds 2 spaces of indentation, making it readable
     const prettyJSON = JSON.stringify(backup, null, 2);
     
-    downloadFile(`backup-${new Date().toISOString().slice(0,10)}.json`, prettyJSON);
+    return { name: `backup-${new Date().toISOString().slice(0,10)}.json`, content: prettyJSON };
+  }
+
+  document.getElementById("btn-backup").addEventListener("click", () => {
+    const b = buildBackupFile();
+    downloadFile(b.name, b.content);
+  });
+
+  // Open in Files: hand the backup to files.carino.systems in memory. The
+  // bridge opens the tab straight from the click; the file is built when
+  // Files says it is ready.
+  document.getElementById("btn-open-files").addEventListener("click", () => {
+    const FILES_URL = "https://files.carino.systems/";
+    if (!window.CarinoBridge) { window.open(FILES_URL, "_blank", "noopener"); return; }
+    window.CarinoBridge.send(FILES_URL + "#carino-bridge", () => {
+      const b = buildBackupFile();
+      return [new File([b.content], b.name, { type: "application/json" })];
+    }, { timeout: 30000 }).catch((e) => {
+      console.error(e);
+      showToast(chromeT("⚠ Could not open Files"), true);
+    });
   });
 
   // T2 — Save Log opens the case-sheet preview overlay (legacy .txt lives inside it).
@@ -4022,16 +4046,16 @@
   );
 
   // =====================================================================
-  // T4 — EDIT FILES (media.carino.systems popup) + MULTISEARCH
+  // T4 — EDIT FILES (files.carino.systems popup) + MULTISEARCH
   // Two extra cards in a trailing "Tools" category (same builder grammar
   // as snippet cards: accessible, search-indexed) and two modals that
   // join the existing Esc stack / modal registry.
   // =====================================================================
 
-  // --- Edit files: cross-origin iframe onto the fleet media suite.
+  // --- Edit files: cross-origin iframe onto the fleet Files suite.
   // Files are dropped directly inside the frame; nothing passes between
   // the two pages. Offline note appears only when the frame never loads. ---
-  const MEDIA_URL = "https://media.carino.systems";
+  const MEDIA_URL = "https://files.carino.systems";
   let mediaLoaded = false, mediaFailed = false, mediaTimer = null;
 
   function startMediaLoad() {
@@ -4061,8 +4085,8 @@
   function openMediaModal() {
     document.getElementById("media-title").textContent = flowT("mediaCardTitle", "Edit Files");
     document.getElementById("media-offline-text").innerHTML =
-      escapeFlowHtml(flowT("mediaOffline1", "media.carino.systems did not load — you appear to be offline.")) + "<br>" +
-      escapeFlowHtml(flowT("mediaOffline2", "The media suite needs a network connection. Files are dropped directly inside the tool; nothing passes through this page."));
+      escapeFlowHtml(flowT("mediaOffline1", "files.carino.systems did not load — you appear to be offline.")) + "<br>" +
+      escapeFlowHtml(flowT("mediaOffline2", "The Files suite needs a network connection. Files are dropped directly inside the tool; nothing passes through this page."));
     document.getElementById("media-retry").textContent = flowT("mediaRetry", "Retry");
     CarinoUI.modal.open("media-modal", { onDismiss: closeMediaModal });
     const iframe = document.getElementById("media-frame");
@@ -4228,7 +4252,7 @@
     media.className = "card";
     media.setAttribute("data-card-label", "Edit files");
     media.innerHTML = `<strong>🖼 ${escapeFlowHtml(flowT("mediaCardTitle", "Edit files"))}</strong>` +
-      escapeFlowHtml(flowT("mediaCardDesc", "PDF → images · OCR · signature cleanup · image & audio conversion — opens the fleet media suite in a popup"));
+      escapeFlowHtml(flowT("mediaCardDesc", "PDF → images · OCR · signatures · metadata · image & audio conversion — opens the Files suite in a popup"));
     media.onclick = openMediaModal;
     makeCardAccessible(media);
     stampSearchIndex(media, ["edit files", "media", "pdf", "ocr", "signature", "image", "audio", "convert", "tools",
@@ -4253,7 +4277,7 @@
 
   // --- T4 KEYMAP entries ---
   KEYMAP.push(
-    { key: "e", when: "idle", desc: "kMediaTools", fb: "Open Edit files (media suite)",
+    { key: "e", when: "idle", desc: "kMediaTools", fb: "Open Edit files (Files suite)",
       run: () => openMediaModal() },
     { key: "m", when: "idle", desc: "kMultisearch", fb: "Open multisearch",
       run: () => openMultisearch() },
@@ -4270,5 +4294,6 @@
   <script src="carino-ui.js" defer></script>
   <script src="carino-lang.js" defer></script>
   <script src="i18n.js" defer></script>
+  <script src="carino-bridge.js" defer></script>
 </body>
 </html>

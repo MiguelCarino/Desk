@@ -99,7 +99,7 @@ const DEFAULT_CONFIG = {
     "GitHub": { "es": "GitHub", "en": "GitHub", "pt": "GitHub", "ja": "GitHub", "ru": "GitHub" },
     "Kanban": { "es": "Kanban", "en": "Kanban", "pt": "Kanban", "ja": "Kanban", "ru": "Kanban" },
     "Branding": { "es": "Branding", "en": "Branding", "pt": "Branding", "ja": "Branding", "ru": "Branding" },
-    "Metadata": { "es": "Metadata", "en": "Metadata", "pt": "Metadata", "ja": "Metadata", "ru": "Metadata" },
+    "Files": { "es": "Files", "en": "Files", "pt": "Files", "ja": "Files", "ru": "Files" },
     "Carino DICOM": { "es": "Carino DICOM", "en": "Carino DICOM", "pt": "Carino DICOM", "ja": "Carino DICOM", "ru": "Carino DICOM" },
     "Carino DICOM Editor": { "es": "Carino DICOM Editor", "en": "Carino DICOM Editor", "pt": "Carino DICOM Editor", "ja": "Carino DICOM Editor", "ru": "Carino DICOM Editor" },
     "Retina Suite": { "es": "Retina Suite", "en": "Retina Suite", "pt": "Retina Suite", "ja": "Retina Suite", "ru": "Retina Suite" },
@@ -753,7 +753,7 @@ const DEFAULT_CONFIG = {
       { "label": "GitHub", "url": "https://github.com/MiguelCarino" },
       { "label": "Branding", "url": "https://branding.carino.systems" },
       { "label": "Hash Check", "url": "https://hash.carino.systems" },
-      { "label": "Metadata", "url": "https://metadata.carino.systems" }
+      { "label": "Files", "url": "https://files.carino.systems/" }
     ],
     "flows": [
       { "id": "f_deploy_pages",
