@@ -675,6 +675,22 @@
   </style>
 </head>
 <body>
+<!-- Key words: the navbar shows them, translated, under its Language tab. -->
+<ul data-carino-words hidden>
+  <li>Ticket</li>
+  <li>Configuration Source</li>
+  <li>Sync now</li>
+  <li>Shortcuts</li>
+  <li>Options</li>
+  <li>Export</li>
+</ul>
+
+
+<!-- What this page must say: the navbar shows it in its About window. -->
+<div data-carino-about hidden>
+  <p><span><span data-i18n>Runs in your browser. Nothing you add here is uploaded.</span> <span class="pl-also" data-i18n>A configuration source you connect is fetched from the URL you enter; Edit files opens files.carino.systems.</span></span></p>
+</div>
+
 
   <div id="notification-toast" class="toast ok" role="status"></div>
 
@@ -720,9 +736,6 @@
            ticket the sidebar is editing. -->
       <div class="sidebar-footer">
         <button class="btn btn-primary full-span" id="btn-save">Save log</button>
-      </div>
-      <div class="rail-privacy ws-rail-foot">
-        <p class="privacy-line"><span><span data-i18n>Runs in your browser. Nothing you add here is uploaded.</span> <span class="pl-also" data-i18n>A configuration source you connect is fetched from the URL you enter; Edit files opens files.carino.systems.</span></span></p>
       </div>
     </aside>
 
