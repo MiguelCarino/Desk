@@ -181,7 +181,7 @@
     #fill-modal .modal { max-width: 420px; }
     #cfgsrc-modal .modal { max-width: 600px; }
     #flow-modal .modal { max-width: 720px; max-height: 90vh; }
-    #sheet-modal .modal, #digest-modal .modal { max-width: 720px; max-height: 90vh; }
+    #digest-modal .modal { max-width: 720px; max-height: 90vh; }
     .modal-head h3.modal-title { margin: 0; }
     /* the tabs are Branding .tabbar/.tabbtn (.set-tab is the script's hook) */
     .set-panel { padding-top: 14px; }
@@ -438,45 +438,12 @@
       white-space: pre-wrap; margin: 0;
     }
 
-    #sheet-body {
-      background: var(--bg-content); border: 1px solid var(--border); border-radius: 8px;
-      padding: 16px 18px; font-size: 12.5px;
-    }
-    #sheet-body h2 { margin: 2px 0 4px; font-family: var(--display); color: var(--text); font-size: 1.1rem; }
-    #sheet-body h4 {
-      margin: 12px 0 6px; font-family: var(--mono); font-size: 10px;
-      text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent);
-    }
-    .sheet-company { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
-    .sheet-meta { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
-    .sheet-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-family: var(--mono); font-size: 11.5px; }
-    .sheet-table th, .sheet-table td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; }
-    .sheet-table th { color: var(--accent); text-transform: uppercase; font-size: 10px; letter-spacing: 0.08em; }
-    .sheet-notes-text { white-space: pre-wrap; font-family: var(--mono); font-size: 11.5px; margin: 0; }
-    .sheet-timeline-list { list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: 11px; }
-    .sheet-timeline-list li { padding: 2px 0; }
-    .sheet-sign {
-      margin-top: 16px; font-family: var(--mono); font-size: 11px; color: var(--text-sec);
-      border-top: 1px dashed var(--border); padding-top: 10px;
-    }
-    #sheet-notes-row {
-      display: flex; align-items: center; gap: 8px; margin-right: auto;
-      font-family: var(--mono); font-size: 11px; color: var(--text-sec); cursor: pointer;
-    }
+    /* Case sheet = the print preview, on the fleet's .rpv layout (carino-ui.css
+       18b). The frame holds the very document that is printed
+       (caseSheetDocHtml), laid out at A4 text width on a white sheet over grey,
+       dashed lines where A4 pages end; on a stage narrower than a sheet the
+       frame is scaled down (fitSheetPreview), not reflowed. */
     #sheet-notes-row input { accent-color: var(--accent); }
-
-    @media print {
-      body.printing > *:not(#sheet-modal) { display: none !important; }
-      body.printing #sheet-modal { position: static; display: block; padding: 0; background: #fff; -webkit-backdrop-filter: none; backdrop-filter: none; }
-      body.printing #sheet-modal .modal { max-width: none; max-height: none; overflow: visible; border: none; border-radius: 0; box-shadow: none; background: #fff; }
-      body.printing #sheet-modal .modal-body { padding: 0; overflow: visible; }
-      body.printing #sheet-modal .modal-head, body.printing #sheet-notes-row,
-      body.printing #sheet-modal .modal-foot { display: none !important; }
-      body.printing #sheet-body { max-height: none; overflow: visible; border: none; background: #fff; }
-      body.printing #sheet-body, body.printing #sheet-body * { color: #000 !important; }
-      body.printing .sheet-table th, body.printing .sheet-table td { border-color: #999; }
-      body.printing .sheet-sign { border-top-color: #999; }
-    }
 
     /* --- T3: card hover tools, quick-edit modal, composer tray --- */
     .card-tools {
@@ -853,24 +820,31 @@
     </div>
   </div>
 
-  <div id="sheet-modal" class="modal-scrim" hidden>
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
-      <div class="modal-head">
-        <h3 class="modal-title" id="sheet-title">Case Sheet</h3>
-        <button type="button" class="modal-x" data-close aria-label="Close">✕</button>
-      </div>
-      <div class="modal-body">
-        <div id="sheet-body"></div>
-      </div>
-      <div class="modal-foot">
-        <label id="sheet-notes-row">
-          <input type="checkbox" id="sheet-include-notes">
-          <span id="sheet-include-label">Include internal notes</span>
-        </label>
-        <button class="btn" id="sheet-print">Print</button>
-        <button class="btn" id="sheet-download">Download .txt</button>
-        <button class="btn btn-primary" id="sheet-copy">Copy Markdown</button>
-      </div>
+  <!-- Case sheet preview: the fleet's .rpv layout (carino-ui.css 18b). Every
+       control sits in the left column, the outputs at its foot (primary last);
+       the scrim keeps .modal-scrim so CarinoUI.modal opens and closes it. -->
+  <div id="sheet-modal" class="modal-scrim rpv-scrim" hidden>
+    <div class="rpv" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <aside class="rpv-side">
+        <div class="rpv-head">
+          <h2 class="rpv-title" id="sheet-title">Case Sheet</h2>
+          <button type="button" class="modal-x rpv-x" data-close aria-label="Close">✕</button>
+        </div>
+        <p class="rpv-status" id="sheet-status" role="status" aria-live="polite"></p>
+        <div class="rpv-opts">
+          <label id="sheet-notes-row">
+            <input type="checkbox" id="sheet-include-notes">
+            <span id="sheet-include-label">Include internal notes</span>
+          </label>
+        </div>
+        <p class="rpv-name" id="sheet-name"></p>
+        <div class="rpv-actions">
+          <button type="button" class="btn" id="sheet-copy">Copy Markdown</button>
+          <button type="button" class="btn" id="sheet-print">Print</button>
+          <button type="button" class="btn btn-primary" id="sheet-download">Download .txt</button>
+        </div>
+      </aside>
+      <div class="rpv-stage" id="sheet-stage"><iframe id="sheet-frame" class="rpv-frame" title="Case sheet preview"></iframe></div>
     </div>
   </div>
 
@@ -1456,6 +1430,7 @@
     while (sessionTrash.length > 5) sessionTrash.shift();
     saveTrash();
     showToast(`🗑 ${closed.title} ${flowT("closedToast", "closed — Alt+Z restores")}`);
+    if (closed.id === sheetPv.sessionId) closeCaseSheet();   // its case sheet goes with it
     if (id === activeSessionId) switchTab(sessions[Math.max(0, index - 1)].id);
     else renderTabs();
   }
@@ -3773,8 +3748,14 @@
     };
   }
 
+  // The sheet stays on the ticket it was opened for, even if Alt+1..9 switches
+  // tickets underneath it, so the preview and every footer button agree.
+  function sheetSession() {
+    return sessions.find(x => x.id === sheetPv.sessionId) || null;
+  }
+
   function renderCaseSheet() {
-    const s = sessions.find(x => x.id === activeSessionId);
+    const s = sheetSession();
     if (!s) return;
     const include = document.getElementById("sheet-include-notes").checked;
     const p = caseSheetParts(s);
@@ -3797,11 +3778,172 @@
       html += `</ul>`;
     }
     html += `<div class="sheet-sign">${esc(flowT("sheetSignature", "Handled by"))}: ${esc(p.myName)} · ______________________</div>`;
-    document.getElementById("sheet-body").innerHTML = html;
+    const name = `${p.date}-${s.logId}`;
+    refreshSheetPreview(caseSheetDocHtml(html, name), name);
   }
 
+  // --- Case sheet preview: the dialog shows the very document Print prints ---
+  // The frame's srcdoc is a standalone page (caseSheetDocHtml). On screen it is
+  // a white A4 sheet (15 mm margins, 180 mm text width, which also fits Letter)
+  // over grey, with a dashed line where each A4 page will end; @media print
+  // drops the sheet chrome, so the same document prints with @page margins.
+  // Print prints the frame itself (contentWindow.print), as Topo does.
+  const SHEET_MM = 96 / 25.4;                      // CSS px per mm
+  const SHEET_TEXT_H = 267 * SHEET_MM;             // A4 height less 2 x 15 mm
+  const SHEET_PAGE_PX = Math.ceil(210 * SHEET_MM) + 32; // the sheet and the grey around it
+  const sheetPv = { seq: 0, doc: "", name: "", sessionId: null };
+
+  function caseSheetDocHtml(bodyHtml, name) {
+    const esc = escapeFlowHtml;
+    const fonts = new URL("fonts/carino-fonts.css", document.baseURI).href;
+    const lang = (window.CarinoLang && window.CarinoLang.current) || document.documentElement.lang || "en";
+    return `<!doctype html><html lang="${esc(lang)}"><head><meta charset="utf-8">
+<title>${esc(name)}</title>
+<link rel="stylesheet" href="${esc(fonts)}">
+<style>
+  @page { margin: 15mm; }
+  html { background: #d6d8dc; }
+  body { box-sizing: content-box; width: 180mm; padding: 15mm; margin: 16px auto 24px; position: relative;
+         background: #fff; color: #000; box-shadow: 0 1px 6px rgba(0,0,0,.28);
+         font: 12.5px/1.5 'IBM Plex Sans', system-ui, -apple-system, sans-serif; }
+  h2 { margin: 2px 0 4px; font: 900 1.1rem/1.3 'Red Hat Display', 'IBM Plex Sans', sans-serif; break-inside: avoid; }
+  h4 { margin: 12px 0 6px; font: 10px/1.4 'IBM Plex Mono', ui-monospace, monospace; text-transform: uppercase;
+       letter-spacing: 0.1em; break-after: avoid; }
+  .sheet-company { font: 10px/1.4 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: 0.12em; text-transform: uppercase; }
+  .sheet-meta { font: 11px/1.5 'IBM Plex Mono', ui-monospace, monospace; margin-bottom: 10px; break-inside: avoid; }
+  .sheet-req { break-inside: avoid; }
+  .sheet-table { width: 100%; border-collapse: collapse; margin: 8px 0; font: 11.5px/1.5 'IBM Plex Mono', ui-monospace, monospace; }
+  .sheet-table tr { break-inside: avoid; }
+  .sheet-table th, .sheet-table td { border: 1px solid #999; padding: 4px 8px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+  .sheet-table th { text-transform: uppercase; font-size: 10px; letter-spacing: 0.08em; }
+  .sheet-notes-text { white-space: pre-wrap; overflow-wrap: anywhere; font: 11.5px/1.5 'IBM Plex Mono', ui-monospace, monospace; margin: 0; orphans: 1; widows: 1; }
+  .sheet-timeline-list { list-style: none; margin: 0; padding: 0; font: 11px/1.5 'IBM Plex Mono', ui-monospace, monospace; }
+  .sheet-timeline-list li { padding: 2px 0; break-inside: avoid; overflow-wrap: anywhere; }
+  .sheet-sign { margin-top: 16px; font: 11px/1.5 'IBM Plex Mono', ui-monospace, monospace; border-top: 1px dashed #999; padding-top: 10px; break-inside: avoid; }
+  .pv-break { position: absolute; left: 0; right: 0; height: 0; border-top: 1.5px dashed #9aa0a8; pointer-events: none; }
+  .pv-break span { position: absolute; left: 8px; top: 3px; font: 10px 'IBM Plex Mono', monospace; color: #6b7280; }
+  @media print {
+    html { background: none; }
+    body { width: 180mm; padding: 0; margin: 0; box-shadow: none; }
+    .pv-break { display: none; }
+  }
+</style></head><body>${bodyHtml}</body></html>`;
+  }
+
+  // Where the A4 pages end, in px from the top of the text area: the pieces
+  // the document keeps whole (break-inside: avoid; a heading stays with what
+  // follows it) move to the next page instead of being cut.
+  function sheetPageBreaks(d) {
+    const body = d.body;
+    const top0 = body.getBoundingClientRect().top + 15 * SHEET_MM;
+    const rect = (el) => { const r = el.getBoundingClientRect(); return [r.top - top0, r.bottom - top0]; };
+    const piecesOf = (el) => {
+      if (!el) return [];
+      if (el.tagName === "TABLE") return [...el.rows].map(rect);
+      if (el.tagName === "UL") return [...el.children].map(rect);
+      if (el.classList.contains("sheet-notes-text")) {
+        const [t, b] = rect(el);
+        const lh = parseFloat(d.defaultView.getComputedStyle(el).lineHeight) || 17;
+        const out = [];
+        for (let y = t; y < b - 0.5; y += lh) out.push([y, Math.min(b, y + lh)]);
+        return out;
+      }
+      return [rect(el)];
+    };
+    const units = [];
+    [...body.children].forEach((el) => {
+      if (el.classList.contains("pv-break")) return;
+      if (el.tagName === "H4") {
+        const next = piecesOf(el.nextElementSibling)[0];
+        const [t, b] = rect(el);
+        units.push([t, next ? Math.max(b, next[1]) : b]);
+        return;
+      }
+      units.push(...piecesOf(el));
+    });
+    const breaks = [0];
+    let pageTop = 0;
+    units.forEach(([t, b]) => {
+      while (b - pageTop > SHEET_TEXT_H + 0.5) {
+        if (t > pageTop + 0.5 && b - t <= SHEET_TEXT_H) pageTop = t;   // move the whole piece over
+        else pageTop += SHEET_TEXT_H;                                   // taller than a page: cut it
+        breaks.push(pageTop);
+      }
+    });
+    return breaks;
+  }
+
+  // A stage narrower than a sheet shows the sheet scaled down, as it prints,
+  // rather than the sheet reflowed to a phone's width.
+  function fitSheetPreview() {
+    const frame = document.getElementById("sheet-frame");
+    const stage = document.getElementById("sheet-stage");
+    if (!frame || !stage) return;
+    Object.assign(frame.style, { width: "", height: "", transform: "", transformOrigin: "" });
+    const w = stage.clientWidth;
+    if (!w || w >= SHEET_PAGE_PX) return;
+    const k = w / SHEET_PAGE_PX;
+    Object.assign(frame.style, { width: `${SHEET_PAGE_PX}px`, height: `${Math.round(stage.clientHeight / k)}px`,
+                                 transform: `scale(${k})`, transformOrigin: "0 0" });
+  }
+
+  function sheetPagesLabel(n) {
+    return chromeT(n === 1 ? "1 page (A4)" : "{n} pages (A4)").replace("{n}", String(n));
+  }
+
+  async function refreshSheetPreview(doc, name) {
+    const seq = ++sheetPv.seq;
+    const frame = document.getElementById("sheet-frame");
+    const printBtn = document.getElementById("sheet-print");
+    sheetPv.doc = doc;
+    sheetPv.name = name || "";
+    document.getElementById("sheet-name").textContent = sheetPv.name;
+    document.getElementById("sheet-status").textContent = "";
+    printBtn.disabled = true;
+    const loaded = await new Promise((done) => {
+      let timer = 0;
+      const shown = (ok) => {
+        clearTimeout(timer);
+        if (frame.onload === onload) frame.onload = null;
+        done(ok);
+      };
+      const onload = () => shown(true);
+      frame.onload = onload;
+      timer = setTimeout(() => shown(false), 5000);   // a frame that never says it loaded
+      frame.srcdoc = doc;
+    });
+    if (seq !== sheetPv.seq) return;
+    if (!loaded) {
+      console.warn("Case sheet preview: the frame did not load.");
+      return;   // Print stays disabled: there is nothing faithful to print
+    }
+    let pages = 0;
+    try {
+      const d = frame.contentDocument;
+      // Esc inside the frame closes the dialog too (the frame's keys never reach this page).
+      d.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); closeCaseSheet(); } });
+      if (d.fonts) await d.fonts.ready;
+      if (seq !== sheetPv.seq) return;
+      const breaks = sheetPageBreaks(d);
+      pages = breaks.length;
+      breaks.slice(1).forEach((b, i) => {
+        const line = d.createElement("div");
+        line.className = "pv-break";
+        line.style.top = `${15 * SHEET_MM + b}px`;
+        const tag = d.createElement("span");
+        tag.textContent = chromeT("Page {n}").replace("{n}", String(i + 2));
+        line.append(tag);
+        d.body.append(line);
+      });
+    } catch (e) { console.warn("Case sheet preview: could not measure the pages.", e); }
+    fitSheetPreview();
+    document.getElementById("sheet-status").textContent = pages ? sheetPagesLabel(pages) : "";
+    printBtn.disabled = false;
+  }
+  window.addEventListener("resize", () => { if (isLayerOpen("sheet-modal")) fitSheetPreview(); });
+
   function buildCaseSheetMarkdown() {
-    const s = sessions.find(x => x.id === activeSessionId);
+    const s = sheetSession();
     if (!s) return "";
     const include = document.getElementById("sheet-include-notes").checked;
     const p = caseSheetParts(s);
@@ -3832,37 +3974,59 @@
   }
 
   function openCaseSheet() {
+    if (isLayerOpen("sheet-modal")) return;   // Ctrl+S again keeps the sheet that is open
     const s = sessions.find(x => x.id === activeSessionId);
     if (!s) return;
     if (!s.logId) s.logId = newLogId();
     saveCurrentStateToMemory();
+    sheetPv.sessionId = s.id;
+    labelCaseSheet();
+    document.getElementById("sheet-include-notes").checked = false; // default OFF
+    CarinoUI.modal.open("sheet-modal", { onDismiss: closeCaseSheet });
+    renderCaseSheet();   // after open, so the stage has its size to fit the sheet to
+  }
+  // The dialog's own labels, in the current language (on open and on a language switch).
+  function labelCaseSheet() {
     document.getElementById("sheet-title").textContent = flowT("sheetTitle", "Case Sheet");
     document.getElementById("sheet-include-label").textContent = flowT("sheetIncludeNotes", "Include internal notes");
     document.getElementById("sheet-copy").textContent = flowT("sheetCopyMd", "Copy Markdown");
     document.getElementById("sheet-print").textContent = flowT("sheetPrint", "Print");
     document.getElementById("sheet-download").textContent = flowT("downloadTxt", "Download .txt");
-    document.getElementById("sheet-include-notes").checked = false; // default OFF
-    renderCaseSheet();
-    CarinoUI.modal.open("sheet-modal", { onDismiss: closeCaseSheet });
+    document.getElementById("sheet-frame").title = chromeT("Case sheet preview");
   }
-  function closeCaseSheet() { CarinoUI.modal.close("sheet-modal"); }
+  function closeCaseSheet() {
+    sheetPv.seq++; sheetPv.doc = ""; sheetPv.sessionId = null;
+    const frame = document.getElementById("sheet-frame");
+    if (frame) { frame.onload = null; frame.removeAttribute("srcdoc"); }
+    CarinoUI.modal.close("sheet-modal");
+  }
+  // A language switch while the sheet is open rebuilds it in the new language
+  // (deferred, like refreshUI, so i18n.js has switched its locale first).
+  window.addEventListener("carino:langchange", () => {
+    setTimeout(() => {
+      if (!isLayerOpen("sheet-modal")) return;
+      labelCaseSheet();
+      renderCaseSheet();
+    }, 0);
+  });
 
   document.getElementById("sheet-include-notes").addEventListener("change", renderCaseSheet);
   document.getElementById("sheet-copy").addEventListener("click", () => {
     copyToClipboard(buildCaseSheetMarkdown(), flowT("sheetTitle", "Case Sheet"));
   });
   document.getElementById("sheet-download").addEventListener("click", () => {
-    const s = sessions.find(x => x.id === activeSessionId);
+    const s = sheetSession();
     if (!s) return;
     downloadFile(`${new Date().toISOString().slice(0, 10)}-${s.logId}.txt`, buildLegacyLogText(s));
     showToast(chromeT("Log Saved"));
   });
+  // Print prints the previewed document itself, from its frame.
   document.getElementById("sheet-print").addEventListener("click", () => {
-    document.body.classList.add("printing");
-    const done = () => document.body.classList.remove("printing");
-    window.addEventListener("afterprint", done, { once: true });
-    window.print();
-    setTimeout(done, 1000); // safety net if afterprint never fires
+    const frame = document.getElementById("sheet-frame");
+    const w = frame && frame.contentWindow;
+    if (!w || !sheetPv.doc) return;
+    try { w.focus(); w.print(); }
+    catch (e) { console.warn("Case sheet: could not print the preview.", e); }
   });
 
   // --- T2 KEYMAP entries ---

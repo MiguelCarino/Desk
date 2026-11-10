@@ -271,6 +271,11 @@ const I18N = {
         'Minimize': 'Minimizar',
         'Restore': 'Restaurar',
         'Maximize': 'Maximizar',
+        // Case sheet print preview
+        'Case sheet preview': 'Vista previa de la hoja de caso',
+        'Page {n}': 'Página {n}',
+        '1 page (A4)': '1 página (A4)',
+        '{n} pages (A4)': '{n} páginas (A4)',
     },
     'pt-BR': {
         'Late shift.': 'Turno da noite.',
@@ -518,6 +523,11 @@ const I18N = {
         'Minimize': 'Minimizar',
         'Restore': 'Restaurar',
         'Maximize': 'Maximizar',
+        // Case sheet print preview
+        'Case sheet preview': 'Pré-visualização da folha do caso',
+        'Page {n}': 'Página {n}',
+        '1 page (A4)': '1 página (A4)',
+        '{n} pages (A4)': '{n} páginas (A4)',
     },
     ja: {
         'Late shift.': '夜勤お疲れさま。',
@@ -765,6 +775,11 @@ const I18N = {
         'Minimize': '最小化',
         'Restore': '元のサイズ',
         'Maximize': '最大化',
+        // Case sheet print preview
+        'Case sheet preview': 'ケースシートのプレビュー',
+        'Page {n}': '{n} ページ',
+        '1 page (A4)': '1 ページ (A4)',
+        '{n} pages (A4)': '{n} ページ (A4)',
     },
     ru: {
         'Late shift.': 'Ночная смена.',
@@ -1012,6 +1027,11 @@ const I18N = {
         'Minimize': 'Свернуть',
         'Restore': 'Восстановить',
         'Maximize': 'Развернуть',
+        // Case sheet print preview
+        'Case sheet preview': 'Предпросмотр карточки обращения',
+        'Page {n}': 'Страница {n}',
+        '1 page (A4)': '1 страница (A4)',
+        '{n} pages (A4)': 'Страниц: {n} (A4)',
     },
 };
 
