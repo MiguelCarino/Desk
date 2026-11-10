@@ -444,6 +444,9 @@
        dashed lines where A4 pages end; on a stage narrower than a sheet the
        frame is scaled down (fitSheetPreview), not reflowed. */
     #sheet-notes-row input { accent-color: var(--accent); }
+    /* Copy Markdown and the plain .txt log: secondary outputs, with the options. */
+    .sheet-more { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sheet-more .btn { flex: 1 1 auto; justify-content: center; }
 
     /* --- T3: card hover tools, quick-edit modal, composer tray --- */
     .card-tools {
@@ -821,8 +824,11 @@
   </div>
 
   <!-- Case sheet preview: the fleet's .rpv layout (carino-ui.css 18b). Every
-       control sits in the left column, the outputs at its foot (primary last);
-       the scrim keeps .modal-scrim so CarinoUI.modal opens and closes it. -->
+       control sits in the left column: the options with the secondary outputs
+       (Copy Markdown, the plain .txt log), then the File PDF | HTML switch
+       (carino-pdf.js, put in just above the name on first open), the file
+       name, and Print + Download at its foot (primary last). The scrim keeps
+       .modal-scrim so CarinoUI.modal opens and closes it. -->
   <div id="sheet-modal" class="modal-scrim rpv-scrim" hidden>
     <div class="rpv" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
       <aside class="rpv-side">
@@ -836,12 +842,15 @@
             <input type="checkbox" id="sheet-include-notes">
             <span id="sheet-include-label">Include internal notes</span>
           </label>
+          <div class="sheet-more">
+            <button type="button" class="btn" id="sheet-copy">Copy Markdown</button>
+            <button type="button" class="btn" id="sheet-txt">Download .txt</button>
+          </div>
         </div>
         <p class="rpv-name" id="sheet-name"></p>
         <div class="rpv-actions">
-          <button type="button" class="btn" id="sheet-copy">Copy Markdown</button>
           <button type="button" class="btn" id="sheet-print">Print</button>
-          <button type="button" class="btn btn-primary" id="sheet-download">Download .txt</button>
+          <button type="button" class="btn btn-primary" id="sheet-download" disabled>Download PDF</button>
         </div>
       </aside>
       <div class="rpv-stage" id="sheet-stage"><iframe id="sheet-frame" class="rpv-frame" title="Case sheet preview"></iframe></div>
@@ -3791,7 +3800,7 @@
   const SHEET_MM = 96 / 25.4;                      // CSS px per mm
   const SHEET_TEXT_H = 267 * SHEET_MM;             // A4 height less 2 x 15 mm
   const SHEET_PAGE_PX = Math.ceil(210 * SHEET_MM) + 32; // the sheet and the grey around it
-  const sheetPv = { seq: 0, doc: "", name: "", sessionId: null };
+  const sheetPv = { seq: 0, doc: "", name: "", sessionId: null, ready: false, busy: false, pages: 0 };
 
   function caseSheetDocHtml(bodyHtml, name) {
     const esc = escapeFlowHtml;
@@ -3897,9 +3906,12 @@
     const printBtn = document.getElementById("sheet-print");
     sheetPv.doc = doc;
     sheetPv.name = name || "";
-    document.getElementById("sheet-name").textContent = sheetPv.name;
-    document.getElementById("sheet-status").textContent = "";
+    sheetPv.ready = false;
+    sheetPv.pages = 0;
+    labelSheetFile();
+    if (!sheetPv.busy) document.getElementById("sheet-status").textContent = "";
     printBtn.disabled = true;
+    document.getElementById("sheet-download").disabled = true;
     const loaded = await new Promise((done) => {
       let timer = 0;
       const shown = (ok) => {
@@ -3937,8 +3949,33 @@
       });
     } catch (e) { console.warn("Case sheet preview: could not measure the pages.", e); }
     fitSheetPreview();
-    document.getElementById("sheet-status").textContent = pages ? sheetPagesLabel(pages) : "";
+    sheetPv.pages = pages;
+    sheetPv.ready = true;
+    if (!sheetPv.busy) document.getElementById("sheet-status").textContent = pages ? sheetPagesLabel(pages) : "";
     printBtn.disabled = false;
+    document.getElementById("sheet-download").disabled = sheetPv.busy || !window.CarinoPdf;
+  }
+
+  // File PDF | HTML (carino-pdf.js): which file Download makes. Made on the
+  // first open (carino-pdf.js is deferred) and put just above the file name;
+  // the choice is remembered for this site. The PDF is the previewed
+  // document as it prints (its @media print rules and @page margins).
+  let sheetFormat = null;
+  function sheetFormatSwitch() {
+    if (sheetFormat || !window.CarinoPdf) return sheetFormat;
+    sheetFormat = CarinoPdf.formatSwitch({ onChange: labelSheetFile });
+    const nameEl = document.getElementById("sheet-name");
+    nameEl.parentNode.insertBefore(sheetFormat.el, nameEl);
+    return sheetFormat;
+  }
+  function sheetFileFormat() { return sheetFormat ? sheetFormat.get() : "pdf"; }
+  // The Download label and the file name follow the switch.
+  function labelSheetFile() {
+    const f = sheetFileFormat();
+    document.getElementById("sheet-download").textContent =
+      window.CarinoPdf ? CarinoPdf.label(f) : chromeT(f === "html" ? "Download HTML" : "Download PDF");
+    document.getElementById("sheet-name").textContent = !sheetPv.name ? ""
+      : window.CarinoPdf ? CarinoPdf.fileName(sheetPv.name, f) : sheetPv.name + "." + f;
   }
   window.addEventListener("resize", () => { if (isLayerOpen("sheet-modal")) fitSheetPreview(); });
 
@@ -3980,6 +4017,7 @@
     if (!s.logId) s.logId = newLogId();
     saveCurrentStateToMemory();
     sheetPv.sessionId = s.id;
+    sheetFormatSwitch();
     labelCaseSheet();
     document.getElementById("sheet-include-notes").checked = false; // default OFF
     CarinoUI.modal.open("sheet-modal", { onDismiss: closeCaseSheet });
@@ -3991,11 +4029,13 @@
     document.getElementById("sheet-include-label").textContent = flowT("sheetIncludeNotes", "Include internal notes");
     document.getElementById("sheet-copy").textContent = flowT("sheetCopyMd", "Copy Markdown");
     document.getElementById("sheet-print").textContent = flowT("sheetPrint", "Print");
-    document.getElementById("sheet-download").textContent = flowT("downloadTxt", "Download .txt");
+    document.getElementById("sheet-txt").textContent = flowT("downloadTxt", "Download .txt");
+    if (sheetFormat) sheetFormat.relabel();
+    labelSheetFile();
     document.getElementById("sheet-frame").title = chromeT("Case sheet preview");
   }
   function closeCaseSheet() {
-    sheetPv.seq++; sheetPv.doc = ""; sheetPv.sessionId = null;
+    sheetPv.seq++; sheetPv.doc = ""; sheetPv.sessionId = null; sheetPv.ready = false;
     const frame = document.getElementById("sheet-frame");
     if (frame) { frame.onload = null; frame.removeAttribute("srcdoc"); }
     CarinoUI.modal.close("sheet-modal");
@@ -4014,11 +4054,33 @@
   document.getElementById("sheet-copy").addEventListener("click", () => {
     copyToClipboard(buildCaseSheetMarkdown(), flowT("sheetTitle", "Case Sheet"));
   });
-  document.getElementById("sheet-download").addEventListener("click", () => {
+  document.getElementById("sheet-txt").addEventListener("click", () => {
     const s = sheetSession();
     if (!s) return;
     downloadFile(`${new Date().toISOString().slice(0, 10)}-${s.logId}.txt`, buildLegacyLogText(s));
     showToast(chromeT("Log Saved"));
+  });
+  // Download: the previewed sheet as a PDF or a standalone HTML file. While a
+  // PDF is made the button waits and the status says so; the page count comes
+  // back after, or the failure stays in the status.
+  document.getElementById("sheet-download").addEventListener("click", async () => {
+    const btn = document.getElementById("sheet-download");
+    const status = document.getElementById("sheet-status");
+    if (btn.disabled || sheetPv.busy || !sheetPv.ready || !sheetPv.doc || !window.CarinoPdf) return;
+    const f = sheetFileFormat();
+    sheetPv.busy = true;
+    btn.disabled = true;
+    if (f === "pdf") status.textContent = chromeT("Creating the PDF…");
+    let r;
+    try {
+      r = await CarinoPdf.download({ html: sheetPv.doc, name: sheetPv.name, format: f,
+                                     title: sheetPv.name, fonts: "fonts/carino-fonts.css" });
+    } catch (e) { r = { ok: false, error: String(e) }; }
+    sheetPv.busy = false;
+    btn.disabled = !sheetPv.ready;
+    if (!isLayerOpen("sheet-modal")) return;
+    if (r && r.ok) status.textContent = sheetPv.pages ? sheetPagesLabel(sheetPv.pages) : "";
+    else status.textContent = chromeT(f === "pdf" ? "Could not create the PDF." : "Could not create the HTML file.");
   });
   // Print prints the previewed document itself, from its frame.
   document.getElementById("sheet-print").addEventListener("click", () => {
@@ -4472,5 +4534,6 @@
   <script src="carino-lang.js" defer></script>
   <script src="i18n.js" defer></script>
   <script src="carino-bridge.js" defer></script>
+  <script src="carino-pdf.js" defer></script>
 </body>
 </html>

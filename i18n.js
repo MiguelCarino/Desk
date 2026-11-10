@@ -274,6 +274,15 @@ const I18N = {
         // Case sheet print preview
         'Case sheet preview': 'Vista previa de la hoja de caso',
         'Page {n}': 'Página {n}',
+        // Report file: PDF | HTML (carino-pdf.js)
+        'File': 'Archivo',
+        'PDF': 'PDF',
+        'HTML': 'HTML',
+        'Download PDF': 'Descargar PDF',
+        'Download HTML': 'Descargar HTML',
+        'Creating the PDF…': 'Creando el PDF…',
+        'Could not create the PDF.': 'No se pudo crear el PDF.',
+        'Could not create the HTML file.': 'No se pudo crear el archivo HTML.',
         '1 page (A4)': '1 página (A4)',
         '{n} pages (A4)': '{n} páginas (A4)',
     },
@@ -526,6 +535,15 @@ const I18N = {
         // Case sheet print preview
         'Case sheet preview': 'Pré-visualização da folha do caso',
         'Page {n}': 'Página {n}',
+        // Report file: PDF | HTML (carino-pdf.js)
+        'File': 'Arquivo',
+        'PDF': 'PDF',
+        'HTML': 'HTML',
+        'Download PDF': 'Baixar PDF',
+        'Download HTML': 'Baixar HTML',
+        'Creating the PDF…': 'Criando o PDF…',
+        'Could not create the PDF.': 'Não foi possível criar o PDF.',
+        'Could not create the HTML file.': 'Não foi possível criar o arquivo HTML.',
         '1 page (A4)': '1 página (A4)',
         '{n} pages (A4)': '{n} páginas (A4)',
     },
@@ -778,6 +796,15 @@ const I18N = {
         // Case sheet print preview
         'Case sheet preview': 'ケースシートのプレビュー',
         'Page {n}': '{n} ページ',
+        // Report file: PDF | HTML (carino-pdf.js)
+        'File': 'ファイル',
+        'PDF': 'PDF',
+        'HTML': 'HTML',
+        'Download PDF': 'PDFをダウンロード',
+        'Download HTML': 'HTMLをダウンロード',
+        'Creating the PDF…': 'PDFを作成中…',
+        'Could not create the PDF.': 'PDFを作成できませんでした。',
+        'Could not create the HTML file.': 'HTMLファイルを作成できませんでした。',
         '1 page (A4)': '1 ページ (A4)',
         '{n} pages (A4)': '{n} ページ (A4)',
     },
@@ -1030,6 +1057,15 @@ const I18N = {
         // Case sheet print preview
         'Case sheet preview': 'Предпросмотр карточки обращения',
         'Page {n}': 'Страница {n}',
+        // Report file: PDF | HTML (carino-pdf.js)
+        'File': 'Файл',
+        'PDF': 'PDF',
+        'HTML': 'HTML',
+        'Download PDF': 'Скачать PDF',
+        'Download HTML': 'Скачать HTML',
+        'Creating the PDF…': 'Создаём PDF…',
+        'Could not create the PDF.': 'Не удалось создать PDF.',
+        'Could not create the HTML file.': 'Не удалось создать HTML-файл.',
         '1 page (A4)': '1 страница (A4)',
         '{n} pages (A4)': 'Страниц: {n} (A4)',
     },
